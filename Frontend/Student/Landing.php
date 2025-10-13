@@ -1,0 +1,61 @@
+<?php
+
+?>
+
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   SeQueueR
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+   body {
+      font-family: 'Poppins', sans-serif;
+    }
+  </style>
+ </head>
+ <body class="bg-white text-gray-700">
+    <!-- Header Component -->
+    <?php include 'Header.php'; ?>
+   <main class="bg-[#00447a] text-white h-[90vh] flex items-center">
+     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 md:px-12 py-20 md:py-32 gap-5 md:gap-8 w-full">
+    <div class="flex-1 space-y-6">
+     <h2 class="text-[48px] font-extrabold leading-tight">
+      Welcome to
+      <span class="text-yellow-400">
+       SeQueueR
+      </span>
+     </h2>
+     <p class="text-[24px] font-normal leading-relaxed max-w-md">
+      Smart Queue Management for University of Cebu Student Affairs Services
+     </p>
+     <p class="text-[18px] font-normal max-w-md leading-relaxed">
+      Skip the long lines. Get your queue number instantly and track your turn in real-time. Make your student affairs visits more efficient and stress-free.
+     </p>
+     <div class="flex flex-wrap gap-4">
+      <a href="QueueRequest.php" class="bg-yellow-400 text-black font-semibold px-6 py-3 rounded-md shadow-md flex items-center gap-2 hover:brightness-110 transition text-[18px]">
+       <i class="fas fa-ticket-alt text-xs">
+       </i>
+       Get Queue Number
+      </a>
+      <button class="border border-white text-white font-semibold px-6 py-3 rounded-md flex items-center gap-2 hover:bg-white hover:text-[#00447a] transition text-[18px]">
+       <i class="far fa-clock text-sm">
+       </i>
+       About SeQueueR
+      </button>
+     </div>
+    </div>
+    <div class="flex-1 flex justify-center md:justify-end">
+     <img alt="University of Cebu Student Affairs Office circular seal with blue and gold laurel wreath and feather pen" class="w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] md:w-[400px] md:h-[400px] lg:w-[457px] lg:h-[457px] object-contain" src="https://placehold.co/457x457/png?text=Student+Affairs+Office+Seal"/>
+    </div>
+   </div>
+  </main>
+  <!-- Footer Component -->
+  <?php include '../Footer.php'; ?>
+ </body>
+</html>
