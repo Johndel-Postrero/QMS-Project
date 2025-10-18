@@ -486,6 +486,12 @@
             event.preventDefault();
             event.stopPropagation();
             
+            // Don't open dropdown if there are no transactions
+            if (transactions.length === 0) {
+                console.log('No transactions to export');
+                return;
+            }
+            
             console.log('Export button clicked'); // Debug log
             
             const menu = document.getElementById('exportMenu');
@@ -512,21 +518,37 @@
         
         // Export functions (no backend yet)
         function exportToPDF() {
+            if (transactions.length === 0) {
+                console.log('No transactions to export to PDF');
+                return;
+            }
             closeExportDropdown();
             console.log('Export to PDF - Backend not implemented yet');
         }
         
         function exportToExcel() {
+            if (transactions.length === 0) {
+                console.log('No transactions to export to Excel');
+                return;
+            }
             closeExportDropdown();
             console.log('Export to Excel - Backend not implemented yet');
         }
         
         function exportToCSV() {
+            if (transactions.length === 0) {
+                console.log('No transactions to export to CSV');
+                return;
+            }
             closeExportDropdown();
             console.log('Export to CSV - Backend not implemented yet');
         }
         
         function exportToWord() {
+            if (transactions.length === 0) {
+                console.log('No transactions to export to Word');
+                return;
+            }
             closeExportDropdown();
             console.log('Export to Word - Backend not implemented yet');
         }

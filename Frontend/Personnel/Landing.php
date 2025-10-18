@@ -88,6 +88,6 @@
     </main>
     
     <!-- Include Footer -->
-    <?php include 'Footer.php'; ?>
+    <?php include '../Footer.php'; ?>
 </body>
 </html>

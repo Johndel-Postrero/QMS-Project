@@ -22,22 +22,24 @@
     <?php include 'Header.php'; ?>
     
     <!-- Main Content -->
-    <main class="bg-blue-900 min-h-screen">
+    <main class="bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto py-8 px-6">
-            <!-- Currently Serving Card -->
-            <div class="bg-yellow-400 border-2 border-gray-800 rounded-lg p-6 mb-8 text-center">
-                <div class="text-6xl font-bold text-gray-900 mb-2" id="currentQueueNumber">--</div>
-                <div class="flex items-center justify-center space-x-2">
-                    <div class="w-3 h-3 bg-gray-400 rounded-full" id="servingStatus"></div>
-                    <span class="text-gray-900 font-semibold" id="servingText">No Active Queue</span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Left Column - Student Details and Services -->
-                <div class="lg:col-span-2 space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <!-- Left Column - Currently Serving and Student Details -->
+                <div class="lg:col-span-3 space-y-6">
+                    <!-- Currently Serving Card -->
+                    <div class="bg-white border-4 border-yellow-400 rounded-lg p-6 text-center">
+                        <div class="text-6xl font-bold text-yellow-400 mb-2" id="currentQueueNumber">--</div>
+                        <div class="flex items-center justify-center space-x-2">
+                            <div class="w-3 h-3 bg-gray-400 rounded-full" id="servingStatus"></div>
+                            <span class="text-gray-900 font-semibold" id="servingText">No Active Queue</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Student Details and Services Panel -->
+                    <div class="space-y-6 border-2 border-gray-300 rounded-lg p-4">
                     <!-- Student Information & Queue Details Card -->
-                    <div class="bg-white rounded-lg p-6">
+                    <div class="bg-white rounded-lg p-6 border-2 border-gray-300">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Student Information -->
                             <div>
@@ -89,7 +91,7 @@
                     </div>
 
                     <!-- Requested Services Card -->
-                    <div class="bg-white rounded-lg p-6">
+                    <div class="bg-white rounded-lg p-6 border-2 border-gray-300">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Requested Services</h3>
                         
                         <!-- Service Request -->
@@ -106,7 +108,10 @@
                             <div id="requiredDocuments" class="space-y-2">
                                 <p class="text-gray-500 text-sm">No documents required</p>
                             </div>
-                            <p class="text-gray-500 text-sm mt-2" id="documentStatus">0 of 0 documents verified</p>
+                            <div class="flex items-center space-x-2 mt-2" id="documentStatus">
+                                <i class="fas fa-check-circle text-gray-500"></i>
+                                <span class="text-gray-500 text-sm">0 of 0 documents verified</span>
+                            </div>
                         </div>
 
                         <!-- Service Notes -->
@@ -133,6 +138,7 @@
                             </div>
                         </div>
                     </div>
+                    </div>
 
                     <!-- Action Buttons -->
                     <div class="flex space-x-4">
@@ -152,56 +158,70 @@
                 </div>
 
                 <!-- Right Column - Queue List and Statistics -->
-                <div class="space-y-6">
+                <div class="lg:col-span-2 flex flex-col border-2 border-gray-300 rounded-lg p-4 h-full">
                     <!-- Queue List Card -->
-                    <div class="bg-white rounded-lg p-6">
+                    <div class="bg-white rounded-lg p-6 border-2 border-gray-300 flex-1 mb-6 flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-900">Queue List</h3>
                             <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full" id="totalQueueCount">0</span>
                         </div>
 
-                        <!-- Active Queue -->
-                        <div class="mb-4">
-                            <div class="flex items-center justify-between mb-3">
-                                <h4 class="text-md font-medium text-gray-800">Active Queue</h4>
-                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full" id="activeQueueCount">0</span>
-                            </div>
-                            <div id="activeQueueList" class="space-y-3">
-                                <p class="text-gray-500 text-sm">No active queues</p>
-                            </div>
-                        </div>
-
-                        <!-- Stalled Queue -->
-                        <div class="mb-4">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center space-x-2">
-                                    <i class="fas fa-exclamation-triangle text-yellow-500"></i>
-                                    <h4 class="text-md font-medium text-gray-800">Stalled Queue</h4>
+                        <div class="space-y-4">
+                            <!-- Active Queue -->
+                            <div class="border border-gray-300 rounded-lg">
+                                <div class="flex items-center justify-between p-3 cursor-pointer bg-blue-50 rounded-t-lg" onclick="toggleSection('activeQueue')">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-question-circle text-blue-600"></i>
+                                        <h4 class="text-sm font-medium text-gray-800">Active Queue</h4>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded-full" id="activeQueueCount">0</span>
+                                        <i class="fas fa-chevron-up text-gray-400 transition-transform" id="activeQueueIcon"></i>
+                                    </div>
                                 </div>
-                                <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full" id="stalledQueueCount">0</span>
-                            </div>
-                            <div id="stalledQueueList" class="space-y-3">
-                                <p class="text-gray-500 text-sm">No stalled queues</p>
-                            </div>
-                        </div>
-
-                        <!-- Skipped Queue -->
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center space-x-2">
-                                    <i class="fas fa-times-circle text-red-500"></i>
-                                    <h4 class="text-md font-medium text-gray-800">Skipped Queue</h4>
+                                <div id="activeQueueList" class="p-3 space-y-3">
+                                    <p class="text-gray-500 text-sm">No active queues</p>
                                 </div>
-                                <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full" id="skippedQueueCount">0</span>
                             </div>
-                            <div id="skippedQueueList">
-                                <p class="text-gray-500 text-sm">No skipped queues</p>
+
+                            <!-- Stalled Queue -->
+                            <div class="border border-gray-300 rounded-lg">
+                                <div class="flex items-center justify-between p-3 cursor-pointer bg-yellow-50 rounded-t-lg" onclick="toggleSection('stalledQueue')">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                                        <h4 class="text-sm font-medium text-gray-800">Stalled Queue</h4>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="bg-yellow-500 text-white text-xs font-medium px-2 py-1 rounded-full" id="stalledQueueCount">0</span>
+                                        <i class="fas fa-chevron-up text-gray-400 transition-transform" id="stalledQueueIcon"></i>
+                                    </div>
+                                </div>
+                                <div id="stalledQueueList" class="p-3 space-y-3">
+                                    <p class="text-gray-500 text-sm">No stalled queues</p>
+                                </div>
+                            </div>
+
+                            <!-- Skipped Queue -->
+                            <div class="border border-gray-300 rounded-lg">
+                                <div class="flex items-center justify-between p-3 cursor-pointer bg-red-50 rounded-t-lg" onclick="toggleSection('skippedQueue')">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-times-circle text-red-500"></i>
+                                        <h4 class="text-sm font-medium text-gray-800">Skipped Queue</h4>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full" id="skippedQueueCount">0</span>
+                                        <i class="fas fa-chevron-up text-gray-400 transition-transform" id="skippedQueueIcon"></i>
+                                    </div>
+                                </div>
+                                <div id="skippedQueueList" class="p-3 space-y-3">
+                                    <p class="text-gray-500 text-sm">No skipped queues</p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Today's Transaction Status Card -->
-                    <div class="bg-white rounded-lg p-6">
+                    <div class="bg-white rounded-lg p-6 border-2 border-gray-300">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Today's Transaction Status</h3>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="text-center p-4 bg-gray-50 rounded-lg">
@@ -210,17 +230,23 @@
                                 <p class="text-sm text-gray-600">Avg Service Time</p>
                             </div>
                             <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                <i class="fas fa-check-circle text-green-600 text-2xl mb-2"></i>
+                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i class="fas fa-check text-green-600 text-lg"></i>
+                                </div>
                                 <p class="text-2xl font-bold text-gray-900" id="completedCount">0</p>
                                 <p class="text-sm text-gray-600">Completed</p>
                             </div>
                             <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                <i class="fas fa-pause-circle text-yellow-600 text-2xl mb-2"></i>
+                                <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i class="fas fa-pause text-yellow-600 text-lg"></i>
+                                </div>
                                 <p class="text-2xl font-bold text-gray-900" id="stalledCount">0</p>
                                 <p class="text-sm text-gray-600">Stalled</p>
                             </div>
                             <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                <i class="fas fa-times-circle text-red-600 text-2xl mb-2"></i>
+                                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i class="fas fa-times text-red-600 text-lg"></i>
+                                </div>
                                 <p class="text-2xl font-bold text-gray-900" id="cancelledCount">0</p>
                                 <p class="text-sm text-gray-600">Cancelled</p>
                             </div>
@@ -352,12 +378,16 @@
                     </label>
                 `).join('');
                 
-                statusElement.textContent = `${verifiedCount} of ${totalCount} documents verified`;
-                statusElement.className = verifiedCount === totalCount ? 'text-green-600 text-sm mt-2' : 'text-yellow-600 text-sm mt-2';
+                statusElement.innerHTML = `
+                    <i class="fas fa-check-circle ${verifiedCount === totalCount ? 'text-green-600' : 'text-yellow-600'}"></i>
+                    <span class="${verifiedCount === totalCount ? 'text-green-600' : 'text-yellow-600'} text-sm">${verifiedCount} of ${totalCount} documents verified</span>
+                `;
             } else {
                 container.innerHTML = '<p class="text-gray-500 text-sm">No documents required</p>';
-                statusElement.textContent = '0 of 0 documents verified';
-                statusElement.className = 'text-gray-500 text-sm mt-2';
+                statusElement.innerHTML = `
+                    <i class="fas fa-check-circle text-gray-500"></i>
+                    <span class="text-gray-500 text-sm">0 of 0 documents verified</span>
+                `;
             }
         }
         
@@ -511,6 +541,20 @@
         function addNote() {
             // TODO: Add note functionality
             console.log('Add note action');
+        }
+        
+        // Toggle collapsible sections
+        function toggleSection(sectionName) {
+            const listElement = document.getElementById(sectionName + 'List');
+            const iconElement = document.getElementById(sectionName + 'Icon');
+            
+            if (listElement.style.display === 'none') {
+                listElement.style.display = 'block';
+                iconElement.className = iconElement.className.replace('fa-chevron-down', 'fa-chevron-up');
+            } else {
+                listElement.style.display = 'none';
+                iconElement.className = iconElement.className.replace('fa-chevron-up', 'fa-chevron-down');
+            }
         }
         
         // Auto-refresh queue data every 30 seconds

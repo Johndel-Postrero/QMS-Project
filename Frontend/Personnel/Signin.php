@@ -67,7 +67,7 @@
         </form>
     </main>
     <!-- Include Footer -->
-    <?php include 'Footer.php'; ?>
+    <?php include '../Footer.php'; ?>
     
     <script>
         function togglePassword() {
