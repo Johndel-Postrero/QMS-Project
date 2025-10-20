@@ -71,10 +71,7 @@
     </section>
    </div>
   </main>
-  <footer class="border-t border-gray-200">
-   <div class="max-w-7xl mx-auto px-6 py-4 text-center text-gray-500 text-sm select-none">
-    © 2025 University of Cebu Student Affairs Office. All rights reserved.
-   </div>
-  </footer>
+  <!-- Include Footer -->
+  <?php include '../Footer.php'; ?>
  </body>
 </html>
