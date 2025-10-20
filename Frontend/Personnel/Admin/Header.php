@@ -1,82 +1,235 @@
 <?php
 // Admin Header Component for SeQueueR
 ?>
-<header class="bg-white border-b border-gray-200 py-4">
-    <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
-        <!-- Left Section - Branding -->
-        <div class="flex items-center space-x-3">
-            <img alt="University of Cebu Student Affairs circular seal" class="h-12 w-12 rounded-full object-cover" src="../../../sao-nobg.png"/>
-            <div class="leading-tight">
-                <h1 class="text-blue-900 font-bold text-lg">SeQueueR</h1>
-                <p class="text-gray-600 text-xs">UC Student Affairs</p>
+<header class="bg-white border-b border-gray-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+            <!-- Logo and Application Name Section -->
+            <div class="flex items-center space-x-4">
+                <!-- University Seal Logo -->
+                <img alt="University of Cebu Student Affairs circular seal" class="h-12 w-12 rounded-full object-cover" src="../../../sao-nobg.png"/>
+                
+                <!-- Application Name -->
+                <div class="leading-tight">
+                    <h1 class="text-blue-900 font-bold text-xl -mb-1">SeQueueR</h1>
+                    <p class="text-gray-600 text-sm">UC Student Affairs</p>
+                </div>
             </div>
-        </div>
-
-        <!-- Center Section - Navigation -->
-        <div class="flex items-center space-x-8">
-            <!-- Dashboard - Active/Inactive -->
-            <a href="Dashboard.php" class="flex items-center space-x-2 px-4 py-2 rounded-md transition-colors" id="dashboardTab">
-                <i class="fas fa-home"></i>
-                <span class="font-medium">Dashboard</span>
-            </a>
             
-            <!-- Queue Management - Active/Inactive -->
-            <a href="Queue.php" class="flex items-center space-x-2 px-4 py-2 rounded-md transition-colors" id="queueTab">
-                <i class="fas fa-clipboard-list"></i>
-                <span class="font-medium">Queue Management</span>
-            </a>
+            <!-- Navigation Tabs -->
+            <nav class="flex items-center space-x-1">
+                <!-- Dashboard Tab -->
+                <a href="Dashboard.php" class="nav-tab flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors" id="dashboardTab">
+                    <i class="fas fa-home nav-icon text-gray-600"></i>
+                    <span class="nav-text text-gray-600 font-medium">Dashboard</span>
+                </a>
+                
+                <!-- Queue Management Tab -->
+                <a href="Queue.php" class="nav-tab flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors" id="queueTab">
+                    <i class="fas fa-clipboard-list nav-icon text-gray-600"></i>
+                    <span class="nav-text text-gray-600 font-medium">Queue Management</span>
+                </a>
+                
+                <!-- Queue History Tab -->
+                <a href="History.php" class="nav-tab flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors" id="historyTab">
+                    <i class="fas fa-history nav-icon text-gray-600"></i>
+                    <span class="nav-text text-gray-600 font-medium">Queue History</span>
+                </a>
+                
+                <!-- Account Management Tab -->
+                <a href="User.php" class="nav-tab flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors" id="userTab">
+                    <i class="fas fa-user-plus nav-icon text-gray-600"></i>
+                    <span class="nav-text text-gray-600 font-medium">Account Management</span>
+                </a>
+            </nav>
             
-            <!-- Queue History - Active/Inactive -->
-            <a href="History.php" class="flex items-center space-x-2 px-4 py-2 rounded-md transition-colors" id="historyTab">
-                <i class="fas fa-history"></i>
-                <span class="font-medium">Queue History</span>
-            </a>
-            
-            <!-- Account Management - Active/Inactive -->
-            <a href="User.php" class="flex items-center space-x-2 px-4 py-2 rounded-md transition-colors" id="userTab">
-                <i class="fas fa-user-plus"></i>
-                <span class="font-medium">Account Management</span>
-            </a>
-        </div>
-
-        <!-- Right Section - User Profile -->
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                <img alt="User profile picture" class="w-10 h-10 rounded-full object-cover" src="https://placehold.co/40x40/png?text=Admin"/>
+            <!-- User Profile Section -->
+            <div class="flex items-center space-x-3">
+                <!-- User Profile Picture -->
+                <div class="relative">
+                    <img id="userProfileImage" 
+                         src="https://placehold.co/40x40/4f46e5/ffffff?text=U" 
+                         alt="User Profile" 
+                         class="w-10 h-10 rounded-full border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-colors">
+                </div>
+                
+                <!-- Dropdown Arrow -->
+                <button id="userDropdownBtn" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fas fa-chevron-down text-sm"></i>
+                </button>
             </div>
-            <i class="fas fa-chevron-down text-gray-600 text-sm"></i>
         </div>
     </div>
 </header>
 
+<!-- User Dropdown Menu (Hidden by default) -->
+<div id="userDropdown" class="absolute right-6 top-16 w-48 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50">
+    <div class="py-2">
+        <div class="px-4 py-2 border-b border-gray-100">
+            <p class="text-sm font-medium text-gray-900" id="userName">Admin User</p>
+            <p class="text-xs text-gray-500" id="userRole">Administrator</p>
+        </div>
+        <div class="py-1">
+            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                <i class="fas fa-user text-gray-400"></i>
+                <span>Profile</span>
+            </a>
+            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                <i class="fas fa-cog text-gray-400"></i>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                <i class="fas fa-question-circle text-gray-400"></i>
+                <span>Help</span>
+            </a>
+            <div class="border-t border-gray-100 my-1"></div>
+            <a href="../Signin.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2">
+                <i class="fas fa-sign-out-alt text-red-500"></i>
+                <span>Sign Out</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .nav-tab {
+        transition: all 0.2s ease-in-out;
+    }
+    .nav-tab:hover {
+        background-color: #f3f4f6;
+    }
+    .nav-tab.active {
+        background-color: #dbeafe;
+        border-bottom: 2px solid #1e40af;
+    }
+    .nav-tab.active .nav-icon,
+    .nav-tab.active .nav-text {
+        color: #1e40af;
+    }
+</style>
+
 <script>
-    // Highlight active tab based on current page
+    // Backend-ready JavaScript for Admin Header
+    let currentUser = null;
+    
+    // Initialize the header
     document.addEventListener('DOMContentLoaded', function() {
-        const currentPage = window.location.pathname.split('/').pop();
-        const dashboardTab = document.getElementById('dashboardTab');
-        const queueTab = document.getElementById('queueTab');
-        const historyTab = document.getElementById('historyTab');
-        const userTab = document.getElementById('userTab');
+        loadUserProfile();
+        setupEventListeners();
+        updateActiveTab();
+    });
+    
+    // Load user profile from backend
+    function loadUserProfile() {
+        // TODO: Replace with actual API call
+        fetch('/api/admin/user/profile')
+            .then(response => response.json())
+            .then(data => {
+                currentUser = data;
+                updateUserDisplay();
+            })
+            .catch(error => {
+                console.log('No backend connection yet - using default user');
+                // Default user data when no backend
+                currentUser = {
+                    name: 'Admin User',
+                    role: 'Administrator',
+                    profileImage: 'https://placehold.co/40x40/4f46e5/ffffff?text=U'
+                };
+                updateUserDisplay();
+            });
+    }
+    
+    // Update user display elements
+    function updateUserDisplay() {
+        if (currentUser) {
+            document.getElementById('userName').textContent = currentUser.name || 'Admin User';
+            document.getElementById('userRole').textContent = currentUser.role || 'Administrator';
+            document.getElementById('userProfileImage').src = currentUser.profileImage || 'https://placehold.co/40x40/4f46e5/ffffff?text=U';
+        }
+    }
+    
+    // Setup event listeners
+    function setupEventListeners() {
+        // User dropdown toggle
+        document.getElementById('userDropdownBtn').addEventListener('click', toggleUserDropdown);
         
-        // Reset all tabs to inactive state
-        const tabs = [dashboardTab, queueTab, historyTab, userTab];
-        tabs.forEach(tab => {
-            tab.className = 'flex items-center space-x-2 px-4 py-2 text-gray-500 hover:text-gray-700 transition-colors';
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const dropdownBtn = document.getElementById('userDropdownBtn');
+            
+            if (!dropdown.contains(event.target) && !dropdownBtn.contains(event.target)) {
+                closeUserDropdown();
+            }
         });
         
-        // Highlight active tab based on current page
-        if (currentPage === 'Dashboard.php') {
-            dashboardTab.className = 'flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-md border-b-2 border-blue-600';
-            dashboardTab.innerHTML = '<i class="fas fa-home text-blue-600"></i><span class="text-blue-600 font-medium">Dashboard</span>';
-        } else if (currentPage === 'Queue.php') {
-            queueTab.className = 'flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-md border-b-2 border-blue-600';
-            queueTab.innerHTML = '<i class="fas fa-clipboard-list text-blue-600"></i><span class="text-blue-600 font-medium">Queue Management</span>';
-        } else if (currentPage === 'History.php') {
-            historyTab.className = 'flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-md border-b-2 border-blue-600';
-            historyTab.innerHTML = '<i class="fas fa-history text-blue-600"></i><span class="text-blue-600 font-medium">Queue History</span>';
-        } else if (currentPage === 'User.php') {
-            userTab.className = 'flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-md border-b-2 border-blue-600';
-            userTab.innerHTML = '<i class="fas fa-user-plus text-blue-600"></i><span class="text-blue-600 font-medium">Account Management</span>';
+        // Navigation tab click handlers
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                // Remove active class from all tabs
+                document.querySelectorAll('.nav-tab').forEach(t => {
+                    t.classList.remove('active');
+                    t.querySelector('.nav-icon').classList.remove('text-blue-600');
+                    t.querySelector('.nav-icon').classList.add('text-gray-600');
+                    t.querySelector('.nav-text').classList.remove('text-blue-600');
+                    t.querySelector('.nav-text').classList.add('text-gray-600');
+                });
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                this.querySelector('.nav-icon').classList.remove('text-gray-600');
+                this.querySelector('.nav-icon').classList.add('text-blue-600');
+                this.querySelector('.nav-text').classList.remove('text-gray-600');
+                this.querySelector('.nav-text').classList.add('text-blue-600');
+            });
+        });
+    }
+    
+    // Update active tab based on current page
+    function updateActiveTab() {
+        const currentPage = window.location.pathname.split('/').pop();
+        
+        // Remove active class from all tabs
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.classList.remove('active');
+            tab.querySelector('.nav-icon').classList.remove('text-blue-600');
+            tab.querySelector('.nav-icon').classList.add('text-gray-600');
+            tab.querySelector('.nav-text').classList.remove('text-blue-600');
+            tab.querySelector('.nav-text').classList.add('text-gray-600');
+        });
+        
+        // Add active class to current page tab
+        const activeTab = document.querySelector(`a[href="${currentPage}"]`);
+        if (activeTab) {
+            activeTab.classList.add('active');
+            activeTab.querySelector('.nav-icon').classList.remove('text-gray-600');
+            activeTab.querySelector('.nav-icon').classList.add('text-blue-600');
+            activeTab.querySelector('.nav-text').classList.remove('text-gray-600');
+            activeTab.querySelector('.nav-text').classList.add('text-blue-600');
         }
-    });
+    }
+    
+    // Toggle user dropdown
+    function toggleUserDropdown() {
+        const dropdown = document.getElementById('userDropdown');
+        if (dropdown.classList.contains('hidden')) {
+            openUserDropdown();
+        } else {
+            closeUserDropdown();
+        }
+    }
+    
+    // Open user dropdown
+    function openUserDropdown() {
+        document.getElementById('userDropdown').classList.remove('hidden');
+    }
+    
+    // Close user dropdown
+    function closeUserDropdown() {
+        document.getElementById('userDropdown').classList.add('hidden');
+    }
+    
+    // Auto-refresh user profile every 5 minutes
+    setInterval(loadUserProfile, 300000);
 </script>

@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <span class="text-red-600">*</span>
                 </label>
                 <p class="text-gray-500 text-xs mb-3">
-                    Select the service you need assistance with (maximum 2 services)
+                    Select the service(s) you need assistance with
                 </p>
                 
                 <!-- Error message container -->
@@ -141,20 +141,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const checkboxes = document.querySelectorAll('.service-checkbox');
             const errorMessage = document.getElementById('errorMessage');
             const errorText = document.getElementById('errorText');
-            const maxServices = 2;
+            // No maximum selection limit
 
             // Handle checkbox changes
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
-                    const checkedBoxes = document.querySelectorAll('.service-checkbox:checked');
-                    
-                    // If more than max services are selected, uncheck the current one
-                    if (checkedBoxes.length > maxServices) {
-                        this.checked = false;
-                        showError(`You can select a maximum of ${maxServices} services.`);
-                    } else {
-                        hideError();
-                    }
+                    // Clear any previous errors when the selection changes
+                    hideError();
                 });
             });
 
@@ -168,11 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     return false;
                 }
                 
-                if (checkedBoxes.length > maxServices) {
-                    e.preventDefault();
-                    showError(`You can select a maximum of ${maxServices} services.`);
-                    return false;
-                }
+                // No maximum selection limit
                 
                 // TODO: Add backend processing here
                 // For now, just show success message

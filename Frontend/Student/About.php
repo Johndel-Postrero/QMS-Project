@@ -33,16 +33,16 @@ $team_members = [
     ],
     [
         'id' => 4,
-        'name' => 'ChEmZel',
-        'full_name' => 'GULAY, Masustansya',
+        'name' => 'Maria Santos',
+        'full_name' => 'SANTOS, Maria',
         'role' => 'Backend Developer',
         'description' => 'Handles server-side logic, database management, and API development for the queue management system.',
         'image' => '../Assests/team/maria.jpg'
     ],
     [
         'id' => 5,
-        'name' => 'FUBO GODZ',
-        'full_name' => 'LUPIAN, Mangingiyot',
+        'name' => 'John Cruz',
+        'full_name' => 'CRUZ, John',
         'role' => 'UI/UX Designer',
         'description' => 'Creates user-friendly designs and ensures optimal user experience across all system interfaces.',
         'image' => '../Assests/team/john.jpg'
@@ -51,7 +51,7 @@ $team_members = [
         'id' => 6,
         'name' => 'Ana Rodriguez',
         'full_name' => 'RODRIGUEZ, Ana',
-        'role' => 'UI/UX Designer',
+        'role' => 'Quality Assurance',
         'description' => 'Ensures software quality through comprehensive testing and validation processes.',
         'image' => '../Assests/team/ana.jpg'
     ],
@@ -255,21 +255,59 @@ include 'Header.php';
             
             <!-- Carousel Container -->
             <div class="carousel-container relative overflow-hidden">
-                <div class="carousel-track flex" id="carouselTrack">
-                    <?php foreach($team_members as $member): ?>
-                    <div class="carousel-slide flex-shrink-0 w-1/3 px-2">
-                        <div class="bg-white p-6 rounded-lg shadow-lg text-center transform transition-transform duration-300 hover:scale-105">
-                            <div class="w-24 h-24 mx-auto mb-4 rounded-full border-3 border-uc-yellow overflow-hidden bg-uc-blue">
-                                <img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>" class="w-full h-full object-cover">
-                            </div>
-                            <div class="bg-uc-blue text-white text-xs px-3 py-1 rounded-full inline-block mb-3 uppercase font-medium"><?php echo $member['role']; ?></div>
-                            <h3 class="text-lg font-bold text-uc-blue mb-1"><?php echo $member['name']; ?></h3>
-                            <div class="text-sm text-gray-600 mb-3"><?php echo $member['full_name']; ?></div>
-                            <p class="text-xs text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
+				<div class="carousel-track flex" id="carouselTrack">
+					<?php 
+						$visibleCount = 3; // number of cards visible at once (w-1/3)
+						$total = count($team_members);
+						// Prepend last N clones for seamless previous navigation
+						for ($i = $total - $visibleCount; $i < $total; $i++): 
+							$member = $team_members[$i];
+						?>
+					<div class="carousel-slide flex-shrink-0 w-1/3 px-2" data-clone="prepend">
+						<div class="bg-white p-6 rounded-lg shadow-lg text-center transform transition-transform duration-300 hover:scale-105">
+							<div class="w-24 h-24 mx-auto mb-4 rounded-full border-3 border-uc-yellow overflow-hidden bg-uc-blue">
+								<img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>" class="w-full h-full object-cover">
+							</div>
+							<div class="bg-uc-blue text-white text-xs px-3 py-1 rounded-full inline-block mb-3 uppercase font-medium"><?php echo $member['role']; ?></div>
+							<h3 class="text-lg font-bold text-uc-blue mb-1"><?php echo $member['name']; ?></h3>
+							<div class="text-sm text-gray-600 mb-3"><?php echo $member['full_name']; ?></div>
+							<p class="text-xs text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
+						</div>
+					</div>
+					<?php endfor; ?>
+
+					<?php foreach($team_members as $member): ?>
+					<div class="carousel-slide flex-shrink-0 w-1/3 px-2">
+						<div class="bg-white p-6 rounded-lg shadow-lg text-center transform transition-transform duration-300 hover:scale-105">
+							<div class="w-24 h-24 mx-auto mb-4 rounded-full border-3 border-uc-yellow overflow-hidden bg-uc-blue">
+								<img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>" class="w-full h-full object-cover">
+							</div>
+							<div class="bg-uc-blue text-white text-xs px-3 py-1 rounded-full inline-block mb-3 uppercase font-medium"><?php echo $member['role']; ?></div>
+							<h3 class="text-lg font-bold text-uc-blue mb-1"><?php echo $member['name']; ?></h3>
+							<div class="text-sm text-gray-600 mb-3"><?php echo $member['full_name']; ?></div>
+							<p class="text-xs text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
+						</div>
+					</div>
+					<?php endforeach; ?>
+
+					<?php 
+						// Append first N clones for seamless next navigation
+						for ($i = 0; $i < $visibleCount; $i++): 
+							$member = $team_members[$i];
+						?>
+					<div class="carousel-slide flex-shrink-0 w-1/3 px-2" data-clone="append">
+						<div class="bg-white p-6 rounded-lg shadow-lg text-center transform transition-transform duration-300 hover:scale-105">
+							<div class="w-24 h-24 mx-auto mb-4 rounded-full border-3 border-uc-yellow overflow-hidden bg-uc-blue">
+								<img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>" class="w-full h-full object-cover">
+							</div>
+							<div class="bg-uc-blue text-white text-xs px-3 py-1 rounded-full inline-block mb-3 uppercase font-medium"><?php echo $member['role']; ?></div>
+							<h3 class="text-lg font-bold text-uc-blue mb-1"><?php echo $member['name']; ?></h3>
+							<div class="text-sm text-gray-600 mb-3"><?php echo $member['full_name']; ?></div>
+							<p class="text-xs text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
+						</div>
+					</div>
+					<?php endfor; ?>
+				</div>
                 
                 <!-- Navigation Arrows -->
                 <button onclick="previousSlide()" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 rounded-full p-2 shadow-lg hover:bg-opacity-100 transition-all z-10">
@@ -300,9 +338,12 @@ include 'Header.php';
     <?php include '../Footer.php'; ?>
 
     <script>
-        let currentSlide = 0;
-        const totalSlides = <?php echo count($team_members); ?>;
-        let slideTimer;
+        const visibleCount = 3; // number of visible cards (w-1/3)
+        const originalCount = <?php echo count($team_members); ?>;
+        const totalSlides = originalCount + (visibleCount * 2); // includes clones
+        let currentSlide = visibleCount; // start after prepended clones
+		let slideTimer;
+		let isWrapping = false; // prevent multiple wrap handlers
         
         function updateCarousel() {
             const track = document.getElementById('carouselTrack');
@@ -310,9 +351,11 @@ include 'Header.php';
             track.style.transform = `translateX(-${currentSlide * 33.333}%)`;
             
             // Update indicators
-            for(let i = 0; i < totalSlides; i++) {
+            for(let i = 0; i < originalCount; i++) {
                 const indicator = document.getElementById(`indicator-${i}`);
-                if(i === currentSlide) {
+                // Map currentSlide (with clones) to logical index
+                const logicalIndex = (currentSlide - visibleCount + originalCount) % originalCount;
+                if(i === logicalIndex) {
                     indicator.classList.remove('bg-white');
                     indicator.classList.add('bg-blue-600');
                 } else {
@@ -327,19 +370,52 @@ include 'Header.php';
             slideTimer = setInterval(nextSlide, 4000);
         }
         
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % totalSlides;
-            updateCarousel();
-        }
+		function nextSlide() {
+			const track = document.getElementById('carouselTrack');
+			if (isWrapping) return; // avoid triggering during wrap reset
+			currentSlide++;
+			updateCarousel();
+			// If we've moved into appended clones, wait for transition end then jump to equivalent real slide
+			if (currentSlide === totalSlides - visibleCount) {
+				isWrapping = true;
+				const onEnd = () => {
+					track.removeEventListener('transitionend', onEnd);
+					track.style.transition = 'none';
+					currentSlide = visibleCount; // first real slide index
+					track.style.transform = `translateX(-${currentSlide * 33.333}%)`;
+					void track.offsetWidth;
+					track.style.transition = 'transform 0.5s ease-in-out';
+					isWrapping = false;
+				};
+				track.addEventListener('transitionend', onEnd, { once: true });
+			}
+		}
         
-        function previousSlide() {
-            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-            updateCarousel();
-            resetTimer(); // Reset timer when previous arrow is clicked
-        }
+		function previousSlide() {
+			const track = document.getElementById('carouselTrack');
+			if (isWrapping) return; // avoid triggering during wrap reset
+			currentSlide--;
+			updateCarousel();
+			// If we've moved into prepended clones, wait for transition end then jump to equivalent real slide
+			if (currentSlide === visibleCount - 1) {
+				isWrapping = true;
+				const onEnd = () => {
+					track.removeEventListener('transitionend', onEnd);
+					track.style.transition = 'none';
+					currentSlide = originalCount + visibleCount - 1; // last real slide index in track
+					track.style.transform = `translateX(-${currentSlide * 33.333}%)`;
+					void track.offsetWidth;
+					track.style.transition = 'transform 0.5s ease-in-out';
+					isWrapping = false;
+				};
+				track.addEventListener('transitionend', onEnd, { once: true });
+			}
+			resetTimer(); // Reset timer when previous arrow is clicked
+		}
         
         function goToSlide(slideIndex) {
-            currentSlide = slideIndex;
+            // Map dot index (0..originalCount-1) to real index in track
+            currentSlide = slideIndex + visibleCount;
             updateCarousel();
             resetTimer(); // Reset timer when dot is clicked
         }
@@ -348,6 +424,12 @@ include 'Header.php';
         slideTimer = setInterval(nextSlide, 4000);
         
         // Initialize carousel
+        // Start positioned after prepended clones
+        const trackInit = document.getElementById('carouselTrack');
+        trackInit.style.transition = 'none';
+        trackInit.style.transform = `translateX(-${currentSlide * 33.333}%)`;
+        void trackInit.offsetWidth;
+        trackInit.style.transition = 'transform 0.5s ease-in-out';
         updateCarousel();
     </script>
 </body>
