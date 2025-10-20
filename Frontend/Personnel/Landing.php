@@ -1,5 +1,5 @@
 <?php
-
+// Main Landing page for SeQueueR - Personnel
 ?>
 
 <html lang="en">
@@ -38,10 +38,10 @@
       Skip the long lines. Get your queue number instantly and track your turn in real-time. Make your student affairs visits more efficient and stress-free.
      </p>
      <div class="flex flex-wrap gap-4">
-      <a href="QueueRequest.php" class="bg-yellow-400 text-black font-semibold px-6 py-3 rounded-md shadow-md flex items-center gap-2 hover:brightness-110 transition text-[18px]">
+      <a href="Working/Queue.php" class="bg-yellow-400 text-black font-semibold px-6 py-3 rounded-md shadow-md flex items-center gap-2 hover:brightness-110 transition text-[18px]">
        <i class="fas fa-ticket-alt text-xs">
        </i>
-       Get Queue Number
+       Manage Queue
       </a>
       <a href="About.php" class="border border-white text-white font-semibold px-6 py-3 rounded-md flex items-center gap-2 hover:bg-white hover:text-[#00447a] transition text-[18px]">
        <i class="far fa-clock text-sm">

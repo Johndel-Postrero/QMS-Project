@@ -91,12 +91,39 @@ if (isset($_GET['remove']) && isset($_GET['index'])) {
     }
 }
 
-// TODO: Handle form submission when implementing backend
+// Handle priority group submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['priority_group'])) {
+        $_SESSION['priority_group'] = $_POST['priority_group'];
+        $_SESSION['priority_group_details'] = $_POST['priority_group_details'] ?? '';
+        
+        // TODO: Process final form submission
+        // TODO: Generate queue number
+        // TODO: Store in database
+        // TODO: Redirect to success page
+        
+        // For now, show success message
+        echo "<script>alert('Queue request submitted successfully! Your queue number will be generated.');</script>";
+    }
+}
+
+// Handle final form submission (after QR code modal)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
+    $_SESSION['priority_group'] = $_POST['priority_group'] ?? 'no';
+    $_SESSION['generate_qr'] = $_POST['generate_qr'] ?? 'no';
+    
     // TODO: Process final form submission
     // TODO: Generate queue number
     // TODO: Store in database
-    // TODO: Redirect to success page
+    
+    // Redirect based on QR code preference
+    if ($_POST['generate_qr'] === 'yes') {
+        header('Location: QR.php');
+        exit;
+    } else {
+        header('Location: QueueNumber.php');
+        exit;
+    }
 }
 ?>
 
@@ -112,6 +139,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+        }
+        .radio-circle {
+            border-radius: 50% !important;
+            aspect-ratio: 1;
         }
         .modal {
             animation: fadeIn 0.3s ease-out;
@@ -212,7 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </button>
                     <button class="bg-blue-900 text-white rounded-md py-3 text-sm hover:bg-blue-800 transition flex items-center justify-center gap-2" 
                             style="padding-left: 65px; padding-right: 65px;"
-                            type="submit">
+                            type="button" onclick="showPriorityModal()">
                         Submit
                         <i class="fas fa-check text-sm"></i>
                     </button>
@@ -252,6 +283,132 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
+    <!-- Priority Group Modal -->
+    <div id="priorityModal" class="fixed inset-0 bg-black bg-opacity-50 hidden modal-backdrop z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6 modal">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-blue-900">Do you belong to the priority group?</h3>
+                <button type="button" onclick="closePriorityModal()" class="text-slate-400 hover:text-slate-600 transition">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <p class="text-sm text-gray-600 mb-6">Priority groups receive expedited processing</p>
+            
+            <form id="priorityForm" method="POST">
+                <div class="space-y-4 mb-6">
+                    <!-- Yes Option -->
+                    <label class="block cursor-pointer">
+                        <input type="radio" name="priority_group" value="yes" class="sr-only" id="priority-yes" checked>
+                        <div class="border-2 border-green-500 bg-green-50 rounded-lg p-4 hover:border-green-300 transition" id="yes-option">
+                            <div class="flex items-center gap-3">
+                                <div class="w-5 h-5 border-2 border-green-500 flex items-center justify-center radio-circle" id="yes-circle">
+                                    <div class="w-3 h-3 bg-green-500 rounded-full" id="yes-dot"></div>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-slate-900">Yes</div>
+                                    <div class="text-sm text-gray-600">I belong to a priority group (PWD, Senior Citizen, Pregnant, etc.)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                    
+                    <!-- No Option -->
+                    <label class="block cursor-pointer">
+                        <input type="radio" name="priority_group" value="no" class="sr-only" id="priority-no">
+                        <div class="border-2 border-red-200 rounded-lg p-4 hover:border-red-300 transition" id="no-option">
+                            <div class="flex items-center gap-3">
+                                <div class="w-5 h-5 border-2 border-red-500 flex items-center justify-center radio-circle" id="no-circle">
+                                    <div class="w-3 h-3 bg-red-500 rounded-full hidden" id="no-dot"></div>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-slate-900">No</div>
+                                    <div class="text-sm text-gray-600">I am requesting regular service</div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+                
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closePriorityModal()" 
+                            class="px-6 py-2 border border-blue-500 text-blue-500 rounded-md text-sm hover:bg-blue-50 transition">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="showQrCodeModal()" 
+                            class="px-6 py-2 bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition">
+                        Continue
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qrCodeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden modal-backdrop z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6 modal">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-slate-900"></h3>
+                <button type="button" onclick="closeQrCodeModal()" class="text-slate-400 hover:text-slate-600 transition">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <div class="flex flex-col items-center mb-6">
+                <div class="bg-yellow-100 rounded-full p-4 mb-4">
+                    <i class="fas fa-qrcode text-yellow-400 text-xl"></i>
+                </div>
+                <h3 class="text-blue-900 font-extrabold text-xl text-center mb-2">Would you like to receive a QR code for mobile access?</h3>
+                <p class="text-center text-slate-600 text-sm">Scan the QR code on your mobile device to track your queue status anytime</p>
+            </div>
+
+            <form id="qrCodeForm" method="POST">
+                <div class="space-y-4 mb-6">
+                    <!-- Yes, Generate QR Code Option -->
+                    <label class="block cursor-pointer">
+                        <input type="radio" name="generate_qr" value="yes" class="sr-only" id="qr-yes" checked>
+                        <div class="border-2 border-green-500 bg-green-50 rounded-lg p-4 hover:border-green-300 transition" id="qr-yes-option">
+                            <div class="flex items-center gap-3">
+                                <div class="w-5 h-5 border-2 border-green-500 flex items-center justify-center radio-circle">
+                                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-slate-900">Yes, Generate QR Code</div>
+                                    <div class="text-sm text-gray-600">Receive a QR code via email or download to access your queue on mobile</div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- No, Continue Without QR Option -->
+                    <label class="block cursor-pointer">
+                        <input type="radio" name="generate_qr" value="no" class="sr-only" id="qr-no">
+                        <div class="border-2 border-red-200 rounded-lg p-4 hover:border-red-300 transition" id="qr-no-option">
+                            <div class="flex items-center gap-3">
+                                <div class="w-5 h-5 border-2 border-red-500 flex items-center justify-center radio-circle">
+                                    <div class="w-3 h-3 bg-red-500 rounded-full hidden"></div>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-slate-900">No, Continue Without QR</div>
+                                    <div class="text-sm text-gray-600">Proceed without mobile access (you can still track via web browser)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="flex justify-center" style="gap: 70px;">
+                    <button type="button" onclick="closeQrCodeModal()" class="border border-slate-300 rounded-md py-3 text-slate-700 text-sm hover:bg-slate-100 transition"
+                            style="padding-left: 60px; padding-right: 60px;">
+                        Cancel
+                    </button>
+                    <button type="submit" name="final_submit" class="bg-blue-900 text-white rounded-md py-3 text-sm hover:bg-blue-800 transition"
+                            style="padding-left: 65px; padding-right: 65px;">
+                        Confirm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         const serviceInfo = <?php echo json_encode($serviceInfo); ?>;
         
@@ -287,6 +444,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
+        // Priority Modal Functions
+        function showPriorityModal() {
+            document.getElementById('priorityModal').classList.remove('hidden');
+        }
+        
+        function closePriorityModal() {
+            document.getElementById('priorityModal').classList.add('hidden');
+        }
+        
+        // QR Code Modal Functions
+        function showQrCodeModal() {
+            closePriorityModal(); // Close priority modal first
+            document.getElementById('qrCodeModal').classList.remove('hidden');
+        }
+        
+        function closeQrCodeModal() {
+            document.getElementById('qrCodeModal').classList.add('hidden');
+        }
+        
+        // Handle radio button selection
+        document.addEventListener('DOMContentLoaded', function() {
+            const yesRadio = document.getElementById('priority-yes');
+            const noRadio = document.getElementById('priority-no');
+            const yesOption = document.getElementById('yes-option');
+            const noOption = document.getElementById('no-option');
+            const yesDot = document.getElementById('yes-dot');
+            const noDot = document.getElementById('no-dot');
+            
+            // Yes option click handler
+            yesOption.addEventListener('click', function() {
+                yesRadio.checked = true;
+                noRadio.checked = false;
+                updateVisualSelection();
+            });
+            
+            // No option click handler
+            noOption.addEventListener('click', function() {
+                noRadio.checked = true;
+                yesRadio.checked = false;
+                updateVisualSelection();
+            });
+            
+            function updateVisualSelection() {
+                if (yesRadio.checked) {
+                    yesOption.classList.add('border-green-500', 'bg-green-50');
+                    yesOption.classList.remove('border-green-200');
+                    yesDot.classList.remove('hidden');
+                    noOption.classList.remove('border-red-500', 'bg-red-50');
+                    noOption.classList.add('border-red-200');
+                    noDot.classList.add('hidden');
+                } else if (noRadio.checked) {
+                    noOption.classList.add('border-red-500', 'bg-red-50');
+                    noOption.classList.remove('border-red-200');
+                    noDot.classList.remove('hidden');
+                    yesOption.classList.remove('border-green-500', 'bg-green-50');
+                    yesOption.classList.add('border-green-200');
+                    yesDot.classList.add('hidden');
+                }
+            }
+        });
+        
         // Close modal when clicking outside
         document.getElementById('serviceModal').addEventListener('click', function(e) {
             if (e.target === this) {
@@ -294,15 +512,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         });
         
-        // Handle form submission
-        document.getElementById('reviewForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Close priority modal when clicking outside
+        document.getElementById('priorityModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePriorityModal();
+            }
+        });
+        
+        // Close QR code modal when clicking outside
+        document.getElementById('qrCodeModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeQrCodeModal();
+            }
+        });
+        
+        // Handle QR code modal radio button selection
+        document.addEventListener('DOMContentLoaded', function() {
+            const qrYesRadio = document.getElementById('qr-yes');
+            const qrNoRadio = document.getElementById('qr-no');
+            const qrYesOption = document.getElementById('qr-yes-option');
+            const qrNoOption = document.getElementById('qr-no-option');
+            const qrYesDot = qrYesOption.querySelector('.w-3.h-3');
+            const qrNoDot = qrNoOption.querySelector('.w-3.h-3');
             
-            // TODO: Add backend processing here
-            // For now, just show success message
-            alert('Queue request submitted successfully! Your queue number will be generated.');
+            // QR Yes option click handler
+            qrYesOption.addEventListener('click', function() {
+                qrYesRadio.checked = true;
+                qrNoRadio.checked = false;
+                updateQrVisualSelection();
+            });
             
-            // TODO: Redirect to success page or show queue number
+            // QR No option click handler
+            qrNoOption.addEventListener('click', function() {
+                qrNoRadio.checked = true;
+                qrYesRadio.checked = false;
+                updateQrVisualSelection();
+            });
+            
+            function updateQrVisualSelection() {
+                if (qrYesRadio.checked) {
+                    qrYesOption.classList.add('border-green-500', 'bg-green-50');
+                    qrYesOption.classList.remove('border-red-200');
+                    qrYesDot.classList.remove('hidden');
+                    qrNoOption.classList.remove('border-red-500', 'bg-red-50');
+                    qrNoOption.classList.add('border-red-200');
+                    qrNoDot.classList.add('hidden');
+                } else if (qrNoRadio.checked) {
+                    qrNoOption.classList.add('border-red-500', 'bg-red-50');
+                    qrNoOption.classList.remove('border-red-200');
+                    qrNoDot.classList.remove('hidden');
+                    qrYesOption.classList.remove('border-green-500', 'bg-green-50');
+                    qrYesOption.classList.add('border-green-200');
+                    qrYesDot.classList.add('hidden');
+                }
+            }
+            
+            // Initialize QR modal radio button state
+            updateQrVisualSelection();
         });
     </script>
 </body>
