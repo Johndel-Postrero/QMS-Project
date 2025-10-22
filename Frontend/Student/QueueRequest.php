@@ -19,17 +19,70 @@ $courses = [
     'BS Tourism Management'
 ];
 
-// Handle form submission
+// Initialize errors and old values
+$errors = [
+    'fullname' => '',
+    'studentid' => '',
+    'yearlevel' => '',
+    'courseprogram' => ''
+];
+
+$oldFullname = isset($_POST['fullname']) ? trim($_POST['fullname']) : ($_SESSION['fullname'] ?? '');
+$oldStudentId = isset($_POST['studentid']) ? trim($_POST['studentid']) : ($_SESSION['studentid'] ?? '');
+$oldYearLevel = isset($_POST['yearlevel']) ? trim($_POST['yearlevel']) : ($_SESSION['yearlevel'] ?? '');
+$oldCourseProgram = isset($_POST['courseprogram']) ? trim($_POST['courseprogram']) : ($_SESSION['courseprogram'] ?? '');
+
+// Build a normalized lookup for courses (trim + lowercase)
+$normalizedCourses = array_map(function($c) { return mb_strtolower(trim($c)); }, $courses);
+
+// Handle form submission with validation
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Store student data in session
-    $_SESSION['fullname'] = $_POST['fullname'] ?? '';
-    $_SESSION['studentid'] = $_POST['studentid'] ?? '';
-    $_SESSION['yearlevel'] = $_POST['yearlevel'] ?? '';
-    $_SESSION['courseprogram'] = $_POST['courseprogram'] ?? '';
-    
-    // Redirect to Step 2
-    header('Location: QueueRequest2.php');
-    exit;
+    // Validate Full Name
+    if ($oldFullname === '') {
+        $errors['fullname'] = 'Full name is required.';
+    }
+
+    // Validate Student ID (exactly 8 digits)
+    if ($oldStudentId === '') {
+        $errors['studentid'] = 'Student ID is required.';
+    }
+
+    // Validate Year Level
+    if ($oldYearLevel === '') {
+        $errors['yearlevel'] = 'Year level is required.';
+    }
+
+    // Validate Course/Program (must match one from the dropdown list)
+    if ($oldCourseProgram === '') {
+        $errors['courseprogram'] = 'Please select a course/program from the list.';
+    } else {
+        $needle = mb_strtolower(trim($oldCourseProgram));
+        if (!in_array($needle, $normalizedCourses, true)) {
+            $errors['courseprogram'] = 'Invalid course/program. Please select from the dropdown list.';
+        } else {
+            // Normalize to canonical course name as stored in $courses
+            foreach ($courses as $courseItem) {
+                if (mb_strtolower(trim($courseItem)) === $needle) {
+                    $oldCourseProgram = $courseItem;
+                    break;
+                }
+            }
+        }
+    }
+
+    $hasErrors = array_filter($errors, fn($v) => $v !== '');
+
+    if (!$hasErrors) {
+        // Store student data in session
+        $_SESSION['fullname'] = $oldFullname;
+        $_SESSION['studentid'] = $oldStudentId;
+        $_SESSION['yearlevel'] = $oldYearLevel;
+        $_SESSION['courseprogram'] = $oldCourseProgram;
+
+        // Redirect to Step 2
+        header('Location: QueueRequest2.php');
+        exit;
+    }
 }
 
 // TODO: Handle AJAX course search when implementing backend
@@ -80,7 +133,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
     <?php include 'Header.php'; ?>
 
     <main class="flex-grow flex items-center justify-center px-4 py-10">
-        <form action="QueueRequest.php" aria-label="Request Your Queue Number Form" class="bg-white rounded-lg shadow-lg max-w-xl w-full p-8" method="POST" novalidate="">
+        <form action="QueueRequest.php" aria-label="Request Your Queue Number Form" class="bg-white rounded-lg shadow-lg max-w-xl w-full p-8" method="POST">
             <div class="flex justify-center mb-6">
                 <div class="bg-yellow-100 rounded-full p-4">
                     <i class="fas fa-ticket-alt text-yellow-400 text-xl"></i>
@@ -107,9 +160,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
             <label class="block mb-1 text-sm font-normal text-slate-900" for="fullname">
                 Full Name <span class="text-red-600">*</span>
             </label>
-            <input autocomplete="name" class="w-full mb-6 px-3 py-2 border border-slate-300 rounded-md text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400" 
+            <input autocomplete="name" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400" 
                    id="fullname" name="fullname" placeholder="Enter your complete name (Last, First, Middle)" 
-                   required="" type="text"/>
+                   required type="text" value="<?php echo htmlspecialchars($oldFullname); ?>"/>
+            <?php if ($errors['fullname']) { ?>
+                <p class="text-xs text-red-600 mt-1 mb-6"><?php echo htmlspecialchars($errors['fullname']); ?></p>
+            <?php } else { ?>
+                <div class="mb-6"></div>
+            <?php } ?>
             
             <div class="flex flex-col sm:flex-row sm:space-x-6 mb-6">
                 <div class="flex-1">
@@ -118,21 +176,27 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
                     </label>
                     <input autocomplete="student-id" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400" 
                            id="studentid" name="studentid" placeholder="e.g., 21411277" 
-                           required="" type="text" pattern="[0-9]{8}" maxlength="8"/>
-                    <p class="text-xs text-slate-500 mt-1">Enter your official university ID number (8 digits)</p>
+                           required type="text" value="<?php echo htmlspecialchars($oldStudentId); ?>"/>
+                    <p class="text-xs text-slate-500 mt-1">Enter your official university ID number</p>
+                    <?php if ($errors['studentid']) { ?>
+                        <p class="text-xs text-red-600 mt-1"><?php echo htmlspecialchars($errors['studentid']); ?></p>
+                    <?php } ?>
                 </div>
                 <div class="flex-1 mt-4 sm:mt-0">
                     <label class="block mb-1 text-sm font-normal text-slate-900" for="yearlevel">
                         Year Level <span class="text-red-600">*</span>
                     </label>
                     <select class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400" 
-                            id="yearlevel" name="yearlevel" required="">
-                        <option disabled="" selected="" value="">Select year level</option>
-                        <option value="1st Year">1st Year</option>
-                        <option value="2nd Year">2nd Year</option>
-                        <option value="3rd Year">3rd Year</option>
-                        <option value="4th Year">4th Year</option>
+                            id="yearlevel" name="yearlevel" required>
+                        <option disabled value="" <?php echo $oldYearLevel === '' ? 'selected' : ''; ?>>Select year level</option>
+                        <option value="1st Year" <?php echo $oldYearLevel === '1st Year' ? 'selected' : ''; ?>>1st Year</option>
+                        <option value="2nd Year" <?php echo $oldYearLevel === '2nd Year' ? 'selected' : ''; ?>>2nd Year</option>
+                        <option value="3rd Year" <?php echo $oldYearLevel === '3rd Year' ? 'selected' : ''; ?>>3rd Year</option>
+                        <option value="4th Year" <?php echo $oldYearLevel === '4th Year' ? 'selected' : ''; ?>>4th Year</option>
                     </select>
+                    <?php if ($errors['yearlevel']) { ?>
+                        <p class="text-xs text-red-600 mt-1"><?php echo htmlspecialchars($errors['yearlevel']); ?></p>
+                    <?php } ?>
                 </div>
             </div>
             
@@ -142,7 +206,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
             <div class="relative mb-8">
                 <input aria-label="Search Course/Program" autocomplete="off" 
                        class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400" 
-                       id="courseSearch" placeholder="Type to search Course/Program" type="text"/>
+                       id="courseSearch" placeholder="Type to search Course/Program" type="text" value="<?php echo htmlspecialchars($oldCourseProgram); ?>"/>
                 <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-500">
                      <i class="fas fa-chevron-down"></i>
                 </div>
@@ -150,7 +214,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
                     id="courseDropdown" role="listbox" tabindex="-1">
                     <!-- Options will be populated by JavaScript -->
                 </ul>
-                <input id="courseprogram" name="courseprogram" required="" type="hidden"/>
+                <input id="courseprogram" name="courseprogram" required type="hidden" value="<?php echo htmlspecialchars($oldCourseProgram); ?>"/>
+                <?php if ($errors['courseprogram']) { ?>
+                    <p class="text-xs text-red-600 mt-1"><?php echo htmlspecialchars($errors['courseprogram']); ?></p>
+                <?php } ?>
             </div>
             
             <div class="flex justify-center" style="gap: 70px;">
@@ -181,6 +248,19 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
             let filteredCourses = [...courses];
             let focusedIndex = -1;
             let searchTimeout;
+
+            // Ensure hidden is initialized if input has a valid value on load
+            (function syncOnLoad() {
+                const typed = (input.value || '').trim();
+                const hiddenVal = (hiddenInput.value || '').trim();
+                if (!hiddenVal && typed) {
+                    const exact = courses.find(c => c.toLowerCase() === typed.toLowerCase());
+                    if (exact) {
+                        hiddenInput.value = exact;
+                        input.value = exact;
+                    }
+                }
+            })();
 
             // Populate dropdown with courses
             function populateDropdown(coursesToShow) {
@@ -243,6 +323,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
                 if (option.classList.contains('cursor-default')) return;
                 input.value = option.textContent;
                 hiddenInput.value = option.getAttribute('data-value');
+                // Clear any previous validity error since we now have a valid selection
+                input.setCustomValidity('');
                 toggleDropdown(false);
                 focusedIndex = -1;
             }
@@ -274,6 +356,42 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
                 } else {
                     hiddenInput.value = '';
                     toggleDropdown(false);
+                }
+
+                // Live sync hidden when exact match is typed
+                const typed = value.trim();
+                if (typed) {
+                    const exact = courses.find(c => c.toLowerCase() === typed.toLowerCase());
+                    if (exact) {
+                        hiddenInput.value = exact;
+                        // Valid match while typing; clear any previous error
+                        input.setCustomValidity('');
+                    } else {
+                        hiddenInput.value = '';
+                        // Do not set a message here; only set on submit
+                    }
+                }
+            });
+
+            // On blur, if typed value exactly matches a course, set hidden; otherwise clear it
+            input.addEventListener('blur', () => {
+                const typed = input.value.trim();
+                if (!typed) {
+                    hiddenInput.value = '';
+                    return;
+                }
+                const exact = courses.find(c => c.toLowerCase() === typed.toLowerCase());
+                // If typed matches hidden ignoring case, keep hidden
+                if (hiddenInput.value && hiddenInput.value.toLowerCase() === typed.toLowerCase()) {
+                    input.setCustomValidity('');
+                    return;
+                }
+                if (exact) {
+                    input.value = exact;
+                    hiddenInput.value = exact;
+                    input.setCustomValidity('');
+                } else {
+                    hiddenInput.value = '';
                 }
             });
 
@@ -326,11 +444,25 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
             const form = document.querySelector('form');
             if (form) {
                 form.addEventListener('submit', (e) => {
+                    // If user typed manually, ensure it matches a course
+                    const typed = input.value.trim();
+                    if (typed && !hiddenInput.value) {
+                        const exact = courses.find(c => c.toLowerCase() === typed.toLowerCase());
+                        if (exact) {
+                            input.value = exact;
+                            hiddenInput.value = exact;
+                        }
+                    }
+
+                    // Enforce hidden courseprogram value is set and valid
                     if (!hiddenInput.value) {
                         e.preventDefault();
-                        alert('Please select a course/program');
+                        input.setCustomValidity('Please select a course/program from the dropdown list.');
+                        input.reportValidity();
                         input.focus();
                         return false;
+                    } else {
+                        input.setCustomValidity('');
                     }
                 });
             }

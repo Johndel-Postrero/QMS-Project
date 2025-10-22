@@ -51,7 +51,9 @@
      </div>
     </div>
     <div class="flex-1 flex justify-center md:justify-end">
-     <img alt="University of Cebu Student Affairs Office circular seal with blue and gold laurel wreath and feather pen" class="w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] md:w-[400px] md:h-[400px] lg:w-[457px] lg:h-[457px] object-contain" src="https://placehold.co/457x457/png?text=Student+Affairs+Office+Seal"/>
+     <div class="w-[320px] h-[320px] sm:w-[370px] sm:h-[370px] md:w-[420px] md:h-[420px] lg:w-[477px] lg:h-[477px] rounded-full border-8 border-white shadow-2xl flex items-center justify-center bg-white">
+      <img alt="University of Cebu Student Affairs Office logo" class="w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] md:w-[400px] md:h-[400px] lg:w-[457px] lg:h-[457px] object-cover rounded-full" src="../../sao-logo.jpg"/>
+     </div>
     </div>
    </div>
   </main>

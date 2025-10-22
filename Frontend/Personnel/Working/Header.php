@@ -1,23 +1,11 @@
 <?php
 // Working Header Component for SeQueueR
 ?>
-<header class="bg-white border-b border-gray-200 px-6 py-4">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
+<header class="bg-white border-b border-gray-200 py-4">
+    <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
         <!-- Left Section - Branding -->
         <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center relative">
-                <!-- UC Logo -->
-                <div class="text-center">
-                    <div class="text-white font-bold text-sm">UC</div>
-                    <div class="text-xs text-blue-200">university of cebu</div>
-                </div>
-                <!-- Golden Wreath -->
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <div class="w-8 h-8 border-2 border-yellow-400 rounded-full flex items-center justify-center">
-                        <i class="fas fa-feather-alt text-yellow-400 text-sm"></i>
-                    </div>
-                </div>
-            </div>
+            <img alt="University of Cebu Student Affairs circular seal" class="h-12 w-12 rounded-full object-cover" src="../../../sao-nobg.png"/>
             <div class="leading-tight">
                 <h1 class="text-blue-900 font-bold text-lg">SeQueueR</h1>
                 <p class="text-gray-600 text-xs">UC Student Affairs</p>

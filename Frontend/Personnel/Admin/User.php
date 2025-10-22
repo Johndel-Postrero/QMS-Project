@@ -18,6 +18,9 @@
     </style>
 </head>
 <body class="bg-gray-50">
+    <!-- Header -->
+    <?php include 'Header.php'; ?>
+    
     <!-- Main Content -->
     <main class="min-h-screen">
         <div class="max-w-7xl mx-auto py-8 px-6">

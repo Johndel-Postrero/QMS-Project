@@ -1,5 +1,5 @@
 <?php
-
+// Queue Management Dashboard for SeQueueR
 ?>
 
 <!DOCTYPE html>
@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Queue Management - SeQueueR</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -22,232 +22,446 @@
     <?php include 'Header.php'; ?>
     
     <!-- Main Content -->
-    <main class="bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto py-8 px-6">
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <!-- Left Column - Currently Serving and Student Details -->
-                <div class="lg:col-span-3 space-y-6">
+    <main class="bg-gray-100 min-h-screen">
+        <div class="max-w-7xl mx-auto py-8 px-4">
+            <div class="grid grid-cols-1 lg:grid-cols-10 gap-8">
+                <!-- Left Panel - Current Queue Details -->
+                <div class="lg:col-span-7 space-y-6">
                     <!-- Currently Serving Card -->
-                    <div class="bg-white border-4 border-yellow-400 rounded-lg p-6 text-center">
-                        <div class="text-6xl font-bold text-yellow-400 mb-2" id="currentQueueNumber">--</div>
+                    <div class="bg-white border-2 border-yellow-600 rounded-lg p-8 text-center shadow-sm">
+                        <div class="text-6xl font-bold text-yellow-600 mb-3" id="currentQueueNumber">P-042</div>
                         <div class="flex items-center justify-center space-x-2">
-                            <div class="w-3 h-3 bg-gray-400 rounded-full" id="servingStatus"></div>
-                            <span class="text-gray-900 font-semibold" id="servingText">No Active Queue</span>
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span class="text-green-600 font-medium">Currently Serving</span>
                         </div>
                     </div>
-                    
-                    <!-- Student Details and Services Panel -->
-                    <div class="space-y-6 border-2 border-gray-300 rounded-lg p-4">
+
                     <!-- Student Information & Queue Details Card -->
-                    <div class="bg-white rounded-lg p-6 border-2 border-gray-300">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <!-- Student Information -->
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Student Information</h3>
-                                <div class="space-y-3">
+                                <h3 class="text-lg font-bold text-blue-800 mb-6 pb-2 border-b border-gray-200">Student Information</h3>
+                                <div class="space-y-4">
                                     <div>
-                                        <span class="text-sm text-gray-600">Full Name:</span>
-                                        <p class="font-medium" id="studentName">--</p>
+                                        <span class="text-sm text-gray-600 block mb-1">Full Name</span>
+                                        <p class="font-bold text-gray-800 text-base" id="studentName">Juan Miguel Dela Cruz</p>
                                     </div>
                                     <div>
-                                        <span class="text-sm text-gray-600">Student ID:</span>
-                                        <p class="font-medium" id="studentId">--</p>
+                                        <span class="text-sm text-gray-600 block mb-1">Student ID</span>
+                                        <p class="font-bold text-gray-800 text-base" id="studentId">2021-12345</p>
                                     </div>
                                     <div>
-                                        <span class="text-sm text-gray-600">Course:</span>
-                                        <p class="font-medium" id="studentCourse">--</p>
+                                        <span class="text-sm text-gray-600 block mb-1">Course</span>
+                                        <p class="font-bold text-gray-800 text-base" id="studentCourse">BSIT</p>
                                     </div>
                                     <div>
-                                        <span class="text-sm text-gray-600">Year Level:</span>
-                                        <p class="font-medium" id="studentYear">--</p>
+                                        <span class="text-sm text-gray-600 block mb-1">Year Level</span>
+                                        <p class="font-bold text-gray-800 text-base" id="studentYear">3rd Year</p>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Queue Details -->
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Queue Details</h3>
-                                <div class="space-y-3">
+                                <h3 class="text-lg font-bold text-blue-800 mb-6 pb-2 border-b border-gray-200">Queue Details</h3>
+                                <div class="space-y-4">
                                     <div>
-                                        <span class="text-sm text-gray-600">Priority Type:</span>
-                                        <div class="mt-1" id="priorityType">
-                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                                                <i class="fas fa-circle mr-1"></i>
-                                                Regular
+                                        <span class="text-sm text-gray-600 block mb-2">Priority Type</span>
+                                        <div id="priorityType">
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-yellow-200 text-gray-800">
+                                                <i class="fas fa-star mr-2 text-black"></i>
+                                                Priority
                                             </span>
                                         </div>
                                     </div>
                                     <div>
-                                        <span class="text-sm text-gray-600">Time Requested:</span>
-                                        <p class="font-medium" id="timeRequested">--</p>
+                                        <span class="text-sm text-gray-600 block mb-1">Time Requested</span>
+                                        <p class="font-bold text-gray-800 text-base" id="timeRequested">2:30 PM</p>
                                     </div>
                                     <div>
-                                        <span class="text-sm text-gray-600">Total Wait Time:</span>
-                                        <p class="font-medium" id="waitTime">--</p>
+                                        <span class="text-sm text-gray-600 block mb-1">Total Wait Time</span>
+                                        <p class="font-bold text-gray-800 text-base" id="waitTime">8 min 42 sec</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Requested Services Card -->
-                    <div class="bg-white rounded-lg p-6 border-2 border-gray-300">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Requested Services</h3>
+                    <!-- Requested Services -->
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                        <h3 class="text-lg font-bold text-blue-800 mb-6">Requested Services</h3>
                         
-                        <!-- Service Request -->
-                        <div class="mb-6">
-                            <h4 class="text-md font-medium text-gray-800 mb-3">Service Request:</h4>
-                            <div id="serviceRequests">
-                                <p class="text-gray-500 text-sm">No service requests</p>
+                        <!-- Good Moral Certificate Service Card -->
+                        <div class="mb-4">
+                            <div class="border border-gray-300 rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition" onclick="toggleServiceDetails('goodMoral')">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <input type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500" checked onclick="event.stopPropagation(); toggleAllDocuments('goodMoral')">
+                                        <span class="text-gray-800 font-medium">Good Moral Certificate</span>
+                                    </div>
+                                    <i class="fas fa-chevron-down text-gray-500 transition-transform" id="goodMoral-arrow"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Required Documents for Good Moral Certificate -->
+                            <div id="goodMoral-details" class="mt-4 ml-7 border-l-2 border-blue-200 pl-4 hidden">
+                                <h4 class="text-md font-bold text-blue-800 mb-3">Required Documents</h4>
+                                <div class="space-y-3">
+                                    <label class="flex items-center space-x-3">
+                                        <input type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" checked onchange="updateServiceCheckbox('goodMoral')">
+                                        <span class="text-gray-800">Valid Student ID</span>
+                                    </label>
+                                    <label class="flex items-center space-x-3">
+                                        <input type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" checked onchange="updateServiceCheckbox('goodMoral')">
+                                        <span class="text-gray-800">Certificate of Registration</span>
+                                    </label>
+                                    <label class="flex items-center space-x-3">
+                                        <input type="checkbox" class="w-4 h-4 text-gray-400 border-gray-300 rounded" onchange="updateServiceCheckbox('goodMoral')">
+                                        <span class="text-gray-800">Payment Receipt</span>
+                                    </label>
+                                    <label class="flex items-center space-x-3">
+                                        <input type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" checked onchange="updateServiceCheckbox('goodMoral')">
+                                        <span class="text-gray-800">2x2 ID Picture</span>
+                                    </label>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check-circle mr-2"></i>
+                                        3 of 4 documents verified
+                                    </div>
+                                </div>
+                                
+                                <!-- Service Notes -->
+                                <div class="mt-6">
+                                    <h4 class="text-md font-bold text-blue-800 mb-3">Service Notes</h4>
+                                    
+                                    <!-- Service Notes Cards Container -->
+                                    <div id="goodMoral-serviceNotes" class="space-y-2">
+                                        <!-- Initial service note card -->
+                                        <div class="bg-gray-100 border border-gray-200 rounded-lg p-3 flex items-start justify-between">
+                                            <p class="text-gray-800 text-sm">Please bring parent's consent form for processing</p>
+                                            <button onclick="removeServiceNote(this)" class="text-gray-500 hover:text-gray-700 ml-2">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Dotted Separator -->
+                                    <div class="mt-4 mb-4 border-t border-dashed border-gray-300"></div>
+                                    
+                                    <!-- Special Notes Input -->
+                                    <div class="flex items-center space-x-2 mb-3">
+                                        <i class="fas fa-exclamation-circle text-yellow-500"></i>
+                                        <h4 class="text-md font-bold text-blue-800">Special Notes</h4>
+                                    </div>
+                                    <textarea id="goodMoral-specialInput" class="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500" rows="3" placeholder="Enter special notes..."></textarea>
+                                    <button onclick="addSpecialNote('goodMoral')" class="mt-3 text-blue-600 hover:text-blue-800 text-sm font-medium border border-blue-300 px-3 py-1 rounded-md hover:bg-blue-50 transition">+ Add Note</button>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Required Documents -->
+                        <!-- Request for Uniform Exemption Service Card -->
                         <div class="mb-6">
-                            <h4 class="text-md font-medium text-gray-800 mb-3">Required Documents:</h4>
-                            <div id="requiredDocuments" class="space-y-2">
-                                <p class="text-gray-500 text-sm">No documents required</p>
+                            <div class="border border-gray-300 rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition" onclick="toggleServiceDetails('uniformExemption')">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <input type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500" onclick="event.stopPropagation(); toggleAllDocuments('uniformExemption')">
+                                        <span class="text-gray-800 font-medium">Request for Uniform Exemption</span>
+                                    </div>
+                                    <i class="fas fa-chevron-down text-gray-500 transition-transform" id="uniformExemption-arrow"></i>
+                                </div>
                             </div>
-                            <div class="flex items-center space-x-2 mt-2" id="documentStatus">
-                                <i class="fas fa-check-circle text-gray-500"></i>
-                                <span class="text-gray-500 text-sm">0 of 0 documents verified</span>
+                            
+                            <!-- Required Documents for Uniform Exemption -->
+                            <div id="uniformExemption-details" class="mt-4 ml-7 border-l-2 border-blue-200 pl-4 hidden">
+                                <h4 class="text-md font-bold text-blue-800 mb-3">Required Documents</h4>
+                                <div class="space-y-3">
+                                    <label class="flex items-center space-x-3">
+                                        <input type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-800">Medical Certificate</span>
+                                    </label>
+                                    <label class="flex items-center space-x-3">
+                                        <input type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-800">Parent's Consent Letter</span>
+                                    </label>
+                                    <label class="flex items-center space-x-3">
+                                        <input type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <span class="text-gray-800">Valid Student ID</span>
+                                    </label>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                        <i class="fas fa-clock mr-2"></i>
+                                        0 of 3 documents verified
+                                    </div>
+                                </div>
+                                
+                                <!-- Service Notes -->
+                                <div class="mt-6">
+                                    <h4 class="text-md font-bold text-blue-800 mb-3">Service Notes</h4>
+                                    
+                                    <!-- Service Notes Cards Container -->
+                                    <div id="uniformExemption-serviceNotes" class="space-y-2">
+                                        <!-- Service notes will be added here as cards -->
+                                    </div>
+                                    
+                                    <!-- Dotted Separator -->
+                                    <div class="mt-4 mb-4 border-t border-dashed border-gray-300"></div>
+                                    
+                                    <!-- Special Notes Input -->
+                                    <div class="flex items-center space-x-2 mb-3">
+                                        <i class="fas fa-exclamation-circle text-yellow-500"></i>
+                                        <h4 class="text-md font-bold text-blue-800">Special Notes</h4>
+                                    </div>
+                                    <textarea id="uniformExemption-specialInput" class="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500" rows="3" placeholder="Enter special notes..."></textarea>
+                                    <button onclick="addSpecialNote('uniformExemption')" class="mt-3 text-blue-600 hover:text-blue-800 text-sm font-medium border border-blue-300 px-3 py-1 rounded-md hover:bg-blue-50 transition">+ Add Note</button>
+                                </div>
                             </div>
                         </div>
-
-                        <!-- Service Notes -->
-                        <div class="mb-6">
-                            <h4 class="text-md font-medium text-gray-800 mb-3">Service Notes:</h4>
-                            <textarea id="serviceNotes" class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" rows="3" placeholder="Enter service notes..."></textarea>
-                        </div>
-
-                        <!-- Special Notes -->
-                        <div class="mb-6">
-                            <div class="flex items-center space-x-2 mb-3">
-                                <i class="fas fa-info-circle text-yellow-500"></i>
-                                <h4 class="text-md font-medium text-gray-800">Special Notes:</h4>
-                            </div>
-                            <textarea id="specialNotes" class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" rows="3" placeholder="Enter special notes..."></textarea>
-                            <button id="addNoteBtn" class="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">+ Add Note</button>
-                        </div>
-
-                        <!-- Additional Request -->
-                        <div>
-                            <h4 class="text-md font-medium text-gray-800 mb-3">Additional Request:</h4>
-                            <div id="additionalRequests">
-                                <p class="text-gray-500 text-sm">No additional requests</p>
-                            </div>
-                        </div>
-                    </div>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="flex space-x-4">
-                        <button id="completeBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center space-x-2" disabled>
+                        <button class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center space-x-2">
                             <i class="fas fa-arrow-right"></i>
                             <span>COMPLETE & NEXT</span>
                         </button>
-                        <button id="stallBtn" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center space-x-2" disabled>
+                        <button class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center space-x-2">
                             <i class="fas fa-pause"></i>
                             <span>MARK AS STALLED</span>
                         </button>
-                        <button id="skipBtn" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center space-x-2" disabled>
+                        <button class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center space-x-2">
                             <i class="fas fa-forward"></i>
                             <span>SKIP QUEUE</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Right Column - Queue List and Statistics -->
-                <div class="lg:col-span-2 flex flex-col border-2 border-gray-300 rounded-lg p-4 h-full">
-                    <!-- Queue List Card -->
-                    <div class="bg-white rounded-lg p-6 border-2 border-gray-300 flex-1 mb-6 flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold text-gray-900">Queue List</h3>
-                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full" id="totalQueueCount">0</span>
+                <!-- Right Panel - Queue Lists -->
+                <div class="lg:col-span-3 space-y-6">
+                     <!-- Queue List -->
+                     <div class="bg-white border border-gray-200 rounded-lg">
+                         <!-- Header -->
+                         <div class="flex justify-between items-center px-5 py-3 border-b border-gray-200">
+                             <h3 class="text-lg font-bold text-blue-900">Queue List</h3>
+                             <div class="bg-blue-900 text-white rounded-full w-8 h-8 flex items-center justify-center text-xs font-semibold">8</div>
+                         </div>
+                         
+                         <!-- Active Queue -->
+                         <div class="border-b border-gray-200">
+                             <button class="group flex justify-between items-center w-full px-5 py-3 bg-blue-50 focus:outline-none" onclick="toggleQueueSection('activeQueue')">
+                                 <div class="flex items-center space-x-2">
+                                     <i class="fas fa-question-circle text-blue-600 w-4 h-4"></i>
+                                     <h4 class="font-semibold text-blue-900 text-sm">Active Queue</h4>
+                                     <div class="bg-blue-900 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold">2</div>
+                                 </div>
+                                 <i class="fas fa-chevron-down text-blue-900 w-4 h-4 transition-transform" id="activeQueue-arrow"></i>
+                             </button>
+                             <!-- Active queue items -->
+                             <div id="activeQueue-content" class="divide-y divide-gray-200">
+                                 <!-- Item 1 -->
+                                 <div class="px-5 py-4">
+                                     <div class="flex justify-between items-center mb-1">
+                                         <span class="text-blue-900 font-bold text-sm">R-043</span>
+                                         <div class="flex items-center space-x-1 bg-blue-100 px-2 py-0.5 rounded-full text-xs text-blue-900 font-semibold">
+                                             <i class="fas fa-clock w-3 h-3"></i>
+                                             <span>35 min</span>
+                                         </div>
+                                     </div>
+                                     <p class="font-semibold text-base text-blue-900 mb-0.5">Maria Santos</p>
+                                     <p class="text-gray-500 text-xs mb-2">Good Moral Certificate</p>
+                                     <div class="flex items-center space-x-2 text-sm text-blue-900 font-semibold">
+                                         <span class="w-2 h-2 rounded-full bg-blue-900 inline-block"></span>
+                                         <span>Waiting in queue</span>
+                                     </div>
+                                 </div>
+                                 <!-- Item 2 -->
+                                 <div class="px-5 py-4">
+                                     <div class="flex justify-between items-center mb-1">
+                                         <span class="text-yellow-600 font-bold text-sm flex items-center space-x-1">
+                                             <i class="fas fa-star text-yellow-500 w-4 h-4"></i>
+                                             <span>P-044</span>
+                                         </span>
+                                         <div class="flex items-center space-x-1 bg-blue-100 px-2 py-0.5 rounded-full text-xs text-blue-900 font-semibold">
+                                             <i class="fas fa-clock w-3 h-3"></i>
+                                             <span>35 min</span>
+                                         </div>
+                                     </div>
+                                     <p class="font-semibold text-base text-blue-900 mb-0.5">Carlos Rivera</p>
+                                     <p class="text-gray-500 text-xs mb-2">Transcript Request</p>
+                                     <div class="flex items-center space-x-2 text-sm text-blue-900 font-semibold">
+                                         <span class="w-2 h-2 rounded-full bg-blue-900 inline-block"></span>
+                                         <span>Waiting in queue</span>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+
+                        <!-- Stalled Queue -->
+                        <div class="border-b border-gray-200">
+                            <button class="group flex justify-between items-center w-full px-5 py-3 bg-yellow-50 focus:outline-none" onclick="toggleQueueSection('stalledQueue')">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-exclamation-triangle text-yellow-500 w-4 h-4"></i>
+                                    <h4 class="font-semibold text-yellow-600 text-sm">Stalled Queue</h4>
+                                    <div class="bg-yellow-400 text-yellow-900 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold">3</div>
+                                </div>
+                                <i class="fas fa-chevron-down text-yellow-600 w-4 h-4 transition-transform" id="stalledQueue-arrow"></i>
+                            </button>
+                            <!-- Stalled items -->
+                            <div id="stalledQueue-content" class="divide-y divide-gray-200">
+                                <!-- Stalled Item 1 -->
+                                <div class="px-5 py-4">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-blue-900 font-bold text-sm">R-020</span>
+                                        <div class="flex items-center space-x-1 bg-red-100 px-2 py-0.5 rounded-full text-xs text-red-800 font-semibold">
+                                            <i class="fas fa-clock w-3 h-3"></i>
+                                            <span>35 min</span>
+                                        </div>
+                                    </div>
+                                    <p class="font-semibold text-base text-blue-900 mb-0.5">Jerick Burdagol</p>
+                                    <p class="text-gray-500 text-xs mb-2">Certificate Request</p>
+                                    <div class="p-2 mb-2 bg-yellow-50 rounded border border-yellow-100 flex items-center space-x-2 text-yellow-700 text-xs font-semibold">
+                                        <i class="fas fa-folder-open w-4 h-4"></i>
+                                        <span>Missing Documents</span>
+                                    </div>
+                                    <button class="w-full bg-blue-900 text-white font-semibold py-2 rounded focus:outline-none hover:bg-blue-800 flex items-center justify-center space-x-2">
+                                        <i class="fas fa-play w-4 h-4"></i>
+                                        <span>Resume</span>
+                                    </button>
+                                </div>
+
+                                <!-- Stalled Item 2 -->
+                                <div class="px-5 py-4">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-blue-900 font-bold text-sm">R-021</span>
+                                        <div class="flex items-center space-x-1 bg-red-100 px-2 py-0.5 rounded-full text-xs text-red-800 font-semibold">
+                                            <i class="fas fa-clock w-3 h-3"></i>
+                                            <span>25 min</span>
+                                        </div>
+                                    </div>
+                                    <p class="font-semibold text-base text-blue-900 mb-0.5">Paul Bantaruso</p>
+                                    <p class="text-gray-500 text-xs mb-2">Good Moral</p>
+                                    <div class="p-2 mb-2 bg-yellow-50 rounded border border-yellow-100 flex items-center space-x-2 text-yellow-700 text-xs font-semibold">
+                                        <i class="fas fa-folder-open w-4 h-4"></i>
+                                        <span>Missing Documents</span>
+                                    </div>
+                                    <button class="w-full bg-blue-900 text-white font-semibold py-2 rounded focus:outline-none hover:bg-blue-800 flex items-center justify-center space-x-2">
+                                        <i class="fas fa-play w-4 h-4"></i>
+                                        <span>Resume</span>
+                                    </button>
+                                </div>
+
+                                <!-- Stalled Item 3 -->
+                                <div class="px-5 py-4">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-blue-900 font-bold text-sm">R-022</span>
+                                        <div class="flex items-center space-x-1 bg-red-100 px-2 py-0.5 rounded-full text-xs text-red-800 font-semibold">
+                                            <i class="fas fa-clock w-3 h-3"></i>
+                                            <span>20 min</span>
+                                        </div>
+                                    </div>
+                                    <p class="font-semibold text-base text-blue-900 mb-0.5">Alfredo Binulbil</p>
+                                    <p class="text-gray-500 text-xs mb-2">Good Moral</p>
+                                    <div class="p-2 mb-2 bg-yellow-50 rounded border border-yellow-100 flex items-center space-x-2 text-yellow-700 text-xs font-semibold">
+                                        <i class="fas fa-folder-open w-4 h-4"></i>
+                                        <span>Missing Documents</span>
+                                    </div>
+                                    <button class="w-full bg-blue-900 text-white font-semibold py-2 rounded focus:outline-none hover:bg-blue-800 flex items-center justify-center space-x-2">
+                                        <i class="fas fa-play w-4 h-4"></i>
+                                        <span>Resume</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="space-y-4">
-                            <!-- Active Queue -->
-                            <div class="border border-gray-300 rounded-lg">
-                                <div class="flex items-center justify-between p-3 cursor-pointer bg-blue-50 rounded-t-lg" onclick="toggleSection('activeQueue')">
-                                    <div class="flex items-center space-x-2">
-                                        <i class="fas fa-question-circle text-blue-600"></i>
-                                        <h4 class="text-sm font-medium text-gray-800">Active Queue</h4>
+                        <!-- Skipped Queue -->
+                        <div class="border-b border-red-200">
+                            <button class="group flex justify-between items-center w-full px-5 py-3 bg-red-50 hover:bg-red-100 focus:outline-none" onclick="toggleQueueSection('skippedQueue')">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-times-circle text-red-600 w-4 h-4"></i>
+                                    <h4 class="font-semibold text-red-600 text-sm">Skipped Queue</h4>
+                                    <div class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold">3</div>
+                                </div>
+                                <i class="fas fa-chevron-down text-red-600 w-4 h-4 transition-transform" id="skippedQueue-arrow"></i>
+                            </button>
+                            <div id="skippedQueue-content" class="divide-y divide-gray-200 hidden">
+                                <!-- Skipped Queue Item 1 -->
+                                <div class="px-5 py-4">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-blue-900 font-bold text-sm">R-015</span>
+                                        <div class="flex items-center space-x-1 bg-red-100 px-2 py-0.5 rounded-full text-xs text-red-800 font-semibold">
+                                            <i class="fas fa-clock w-3 h-3"></i>
+                                            <span>45 min</span>
+                                        </div>
                                     </div>
-                                    <div class="flex items-center space-x-2">
-                                        <span class="bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded-full" id="activeQueueCount">0</span>
-                                        <i class="fas fa-chevron-up text-gray-400 transition-transform" id="activeQueueIcon"></i>
+                                    <p class="font-semibold text-base text-blue-900 mb-0.5">Ana Garcia</p>
+                                    <p class="text-gray-500 text-xs mb-2">Transcript Request</p>
+                                    <div class="flex items-center space-x-2 text-sm text-red-600 font-semibold">
+                                        <span class="w-2 h-2 rounded-full bg-red-600 inline-block"></span>
+                                        <span>Skipped</span>
                                     </div>
                                 </div>
-                                <div id="activeQueueList" class="p-3 space-y-3">
-                                    <p class="text-gray-500 text-sm">No active queues</p>
-                                </div>
-                            </div>
 
-                            <!-- Stalled Queue -->
-                            <div class="border border-gray-300 rounded-lg">
-                                <div class="flex items-center justify-between p-3 cursor-pointer bg-yellow-50 rounded-t-lg" onclick="toggleSection('stalledQueue')">
-                                    <div class="flex items-center space-x-2">
-                                        <i class="fas fa-exclamation-triangle text-yellow-500"></i>
-                                        <h4 class="text-sm font-medium text-gray-800">Stalled Queue</h4>
+                                <!-- Skipped Queue Item 2 -->
+                                <div class="px-5 py-4">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-blue-900 font-bold text-sm">R-016</span>
+                                        <div class="flex items-center space-x-1 bg-red-100 px-2 py-0.5 rounded-full text-xs text-red-800 font-semibold">
+                                            <i class="fas fa-clock w-3 h-3"></i>
+                                            <span>38 min</span>
+                                        </div>
                                     </div>
-                                    <div class="flex items-center space-x-2">
-                                        <span class="bg-yellow-500 text-white text-xs font-medium px-2 py-1 rounded-full" id="stalledQueueCount">0</span>
-                                        <i class="fas fa-chevron-up text-gray-400 transition-transform" id="stalledQueueIcon"></i>
+                                    <p class="font-semibold text-base text-blue-900 mb-0.5">Luis Martinez</p>
+                                    <p class="text-gray-500 text-xs mb-2">Good Moral Certificate</p>
+                                    <div class="flex items-center space-x-2 text-sm text-red-600 font-semibold">
+                                        <span class="w-2 h-2 rounded-full bg-red-600 inline-block"></span>
+                                        <span>Skipped</span>
                                     </div>
                                 </div>
-                                <div id="stalledQueueList" class="p-3 space-y-3">
-                                    <p class="text-gray-500 text-sm">No stalled queues</p>
-                                </div>
-                            </div>
 
-                            <!-- Skipped Queue -->
-                            <div class="border border-gray-300 rounded-lg">
-                                <div class="flex items-center justify-between p-3 cursor-pointer bg-red-50 rounded-t-lg" onclick="toggleSection('skippedQueue')">
-                                    <div class="flex items-center space-x-2">
-                                        <i class="fas fa-times-circle text-red-500"></i>
-                                        <h4 class="text-sm font-medium text-gray-800">Skipped Queue</h4>
+                                <!-- Skipped Queue Item 3 -->
+                                <div class="px-5 py-4">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-blue-900 font-bold text-sm">R-017</span>
+                                        <div class="flex items-center space-x-1 bg-red-100 px-2 py-0.5 rounded-full text-xs text-red-800 font-semibold">
+                                            <i class="fas fa-clock w-3 h-3"></i>
+                                            <span>32 min</span>
+                                        </div>
                                     </div>
-                                    <div class="flex items-center space-x-2">
-                                        <span class="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full" id="skippedQueueCount">0</span>
-                                        <i class="fas fa-chevron-up text-gray-400 transition-transform" id="skippedQueueIcon"></i>
+                                    <p class="font-semibold text-base text-blue-900 mb-0.5">Sofia Rodriguez</p>
+                                    <p class="text-gray-500 text-xs mb-2">Certificate Request</p>
+                                    <div class="flex items-center space-x-2 text-sm text-red-600 font-semibold">
+                                        <span class="w-2 h-2 rounded-full bg-red-600 inline-block"></span>
+                                        <span>Skipped</span>
                                     </div>
-                                </div>
-                                <div id="skippedQueueList" class="p-3 space-y-3">
-                                    <p class="text-gray-500 text-sm">No skipped queues</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Today's Transaction Status Card -->
-                    <div class="bg-white rounded-lg p-6 border-2 border-gray-300">
+                    <!-- Today's Transaction Status -->
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Today's Transaction Status</h3>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="text-center p-4 bg-gray-50 rounded-lg">
                                 <i class="fas fa-clock text-blue-600 text-2xl mb-2"></i>
-                                <p class="text-2xl font-bold text-gray-900" id="avgServiceTime">--</p>
+                                <p class="text-2xl font-bold text-gray-900">8 min</p>
                                 <p class="text-sm text-gray-600">Avg Service Time</p>
                             </div>
                             <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                                    <i class="fas fa-check text-green-600 text-lg"></i>
-                                </div>
-                                <p class="text-2xl font-bold text-gray-900" id="completedCount">0</p>
+                                <i class="fas fa-check-circle text-green-600 text-2xl mb-2"></i>
+                                <p class="text-2xl font-bold text-gray-900">32</p>
                                 <p class="text-sm text-gray-600">Completed</p>
                             </div>
                             <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                                    <i class="fas fa-pause text-yellow-600 text-lg"></i>
-                                </div>
-                                <p class="text-2xl font-bold text-gray-900" id="stalledCount">0</p>
+                                <i class="fas fa-pause-circle text-yellow-600 text-2xl mb-2"></i>
+                                <p class="text-2xl font-bold text-gray-900">3</p>
                                 <p class="text-sm text-gray-600">Stalled</p>
                             </div>
                             <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                                    <i class="fas fa-times text-red-600 text-lg"></i>
-                                </div>
-                                <p class="text-2xl font-bold text-gray-900" id="cancelledCount">0</p>
+                                <i class="fas fa-times-circle text-red-600 text-2xl mb-2"></i>
+                                <p class="text-2xl font-bold text-gray-900">2</p>
                                 <p class="text-sm text-gray-600">Cancelled</p>
                             </div>
                         </div>
@@ -282,278 +496,262 @@
                     updateStatistics(data.statistics);
                 })
                 .catch(error => {
-                    console.log('No backend connection yet - using empty state');
+                    console.log('No backend connection yet - using sample data');
+                    // Use sample data for demonstration
+                    loadSampleData();
                 });
+        }
+        
+        // Load sample data matching the image
+        function loadSampleData() {
+            // Sample data matches the image exactly
+            const sampleData = {
+                currentQueue: {
+                    number: "P-042",
+                    student: {
+                        name: "Juan Miguel Dela Cruz",
+                        id: "2021-12345",
+                        course: "BSIT",
+                        year: "3rd Year"
+                    },
+                    priority: "priority",
+                    timeRequested: "2:30 PM",
+                    waitTime: "8 min 42 sec",
+                    services: ["Good Moral Certificate"],
+                    documents: [
+                        { name: "Valid Student ID", verified: true },
+                        { name: "Certificate of Registration", verified: true },
+                        { name: "Payment Receipt", verified: false },
+                        { name: "2x2 ID Picture", verified: true }
+                    ]
+                },
+                queueList: [
+                    {
+                        number: "R-043",
+                        student: { name: "Maria Santos" },
+                        service: "Good Moral Certificate",
+                        status: "active",
+                        waitTime: "35 min",
+                        priority: "regular"
+                    },
+                    {
+                        number: "P-044",
+                        student: { name: "Carlos Rivera" },
+                        service: "Transcript Request",
+                        status: "active",
+                        waitTime: "35 min",
+                        priority: "priority"
+                    },
+                    {
+                        number: "R-020",
+                        student: { name: "Jerick Burdagol" },
+                        service: "Certificate Request",
+                        status: "stalled",
+                        waitTime: "35 min",
+                        stallReason: "Missing Documents"
+                    },
+                    {
+                        number: "R-021",
+                        student: { name: "Paul Bantaruso" },
+                        service: "Good Moral",
+                        status: "stalled",
+                        waitTime: "25 min",
+                        stallReason: "Missing Documents"
+                    },
+                    {
+                        number: "R-022",
+                        student: { name: "Alfredo Binulbil" },
+                        service: "Good Moral",
+                        status: "stalled",
+                        waitTime: "20 min",
+                        stallReason: "Missing Documents"
+                    }
+                ],
+                statistics: {
+                    avgServiceTime: "8 min",
+                    completed: 32,
+                    stalled: 3,
+                    cancelled: 2
+                }
+            };
+            
+            updateCurrentQueue(sampleData.currentQueue);
+            updateQueueList(sampleData.queueList);
+            updateStatistics(sampleData.statistics);
         }
         
         // Update current queue display
         function updateCurrentQueue(queue) {
             if (queue) {
                 document.getElementById('currentQueueNumber').textContent = queue.number;
-                document.getElementById('servingStatus').className = 'w-3 h-3 bg-green-500 rounded-full';
-                document.getElementById('servingText').textContent = 'Currently Serving';
-                
                 // Update student information
-                document.getElementById('studentName').textContent = queue.student.name;
-                document.getElementById('studentId').textContent = queue.student.id;
-                document.getElementById('studentCourse').textContent = queue.student.course;
-                document.getElementById('studentYear').textContent = queue.student.year;
-                
-                // Update queue details
-                updatePriorityType(queue.priority);
-                document.getElementById('timeRequested').textContent = queue.timeRequested;
-                document.getElementById('waitTime').textContent = queue.waitTime;
-                
-                // Update services and documents
-                updateServiceRequests(queue.services);
-                updateRequiredDocuments(queue.documents);
-                
-                // Enable action buttons
-                enableActionButtons();
-            } else {
-                // No active queue
-                document.getElementById('currentQueueNumber').textContent = '--';
-                document.getElementById('servingStatus').className = 'w-3 h-3 bg-gray-400 rounded-full';
-                document.getElementById('servingText').textContent = 'No Active Queue';
-                
-                // Clear student information
-                document.getElementById('studentName').textContent = '--';
-                document.getElementById('studentId').textContent = '--';
-                document.getElementById('studentCourse').textContent = '--';
-                document.getElementById('studentYear').textContent = '--';
-                
-                // Disable action buttons
-                disableActionButtons();
-            }
-        }
-        
-        // Update priority type display
-        function updatePriorityType(priority) {
-            const priorityElement = document.getElementById('priorityType');
-            if (priority === 'priority') {
-                priorityElement.innerHTML = `
-                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                        <i class="fas fa-star mr-1"></i>
-                        Priority
-                    </span>
-                `;
-            } else {
-                priorityElement.innerHTML = `
-                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                        <i class="fas fa-circle mr-1"></i>
-                        Regular
-                    </span>
-                `;
-            }
-        }
-        
-        // Update service requests
-        function updateServiceRequests(services) {
-            const container = document.getElementById('serviceRequests');
-            if (services && services.length > 0) {
-                container.innerHTML = services.map(service => `
-                    <label class="flex items-center space-x-3">
-                        <input type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" ${service.completed ? 'checked' : ''}>
-                        <span class="text-gray-700">${service.name}</span>
-                    </label>
-                `).join('');
-            } else {
-                container.innerHTML = '<p class="text-gray-500 text-sm">No service requests</p>';
-            }
-        }
-        
-        // Update required documents
-        function updateRequiredDocuments(documents) {
-            const container = document.getElementById('requiredDocuments');
-            const statusElement = document.getElementById('documentStatus');
-            
-            if (documents && documents.length > 0) {
-                const verifiedCount = documents.filter(doc => doc.verified).length;
-                const totalCount = documents.length;
-                
-                container.innerHTML = documents.map(doc => `
-                    <label class="flex items-center space-x-3">
-                        <input type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500" ${doc.verified ? 'checked' : ''}>
-                        <span class="text-gray-700">${doc.name}</span>
-                    </label>
-                `).join('');
-                
-                statusElement.innerHTML = `
-                    <i class="fas fa-check-circle ${verifiedCount === totalCount ? 'text-green-600' : 'text-yellow-600'}"></i>
-                    <span class="${verifiedCount === totalCount ? 'text-green-600' : 'text-yellow-600'} text-sm">${verifiedCount} of ${totalCount} documents verified</span>
-                `;
-            } else {
-                container.innerHTML = '<p class="text-gray-500 text-sm">No documents required</p>';
-                statusElement.innerHTML = `
-                    <i class="fas fa-check-circle text-gray-500"></i>
-                    <span class="text-gray-500 text-sm">0 of 0 documents verified</span>
-                `;
+                document.querySelector('.space-y-3 .font-bold').textContent = queue.student.name;
+                // Update other fields as needed
             }
         }
         
         // Update queue list
         function updateQueueList(queues) {
-            const activeContainer = document.getElementById('activeQueueList');
-            const stalledContainer = document.getElementById('stalledQueueList');
-            const skippedContainer = document.getElementById('skippedQueueList');
-            
-            const activeQueues = queues.filter(q => q.status === 'active');
-            const stalledQueues = queues.filter(q => q.status === 'stalled');
-            const skippedQueues = queues.filter(q => q.status === 'skipped');
-            
             // Update counts
-            document.getElementById('totalQueueCount').textContent = queues.length;
-            document.getElementById('activeQueueCount').textContent = activeQueues.length;
-            document.getElementById('stalledQueueCount').textContent = stalledQueues.length;
-            document.getElementById('skippedQueueCount').textContent = skippedQueues.length;
-            
-            // Update active queue list
-            if (activeQueues.length > 0) {
-                activeContainer.innerHTML = activeQueues.map(queue => `
-                    <div class="border border-gray-200 rounded-lg p-3">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                ${queue.priority === 'priority' ? '<div class="flex items-center space-x-2"><i class="fas fa-star text-yellow-500 text-sm"></i>' : ''}
-                                <p class="font-medium text-gray-900">${queue.number}</p>
-                                ${queue.priority === 'priority' ? '</div>' : ''}
-                                <p class="text-sm text-gray-600">${queue.student.name}</p>
-                                <p class="text-sm text-gray-500">${queue.service}</p>
-                            </div>
-                            <div class="text-right">
-                                <div class="flex items-center space-x-1 text-blue-600">
-                                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                    <span class="text-xs">Waiting in queue</span>
-                                </div>
-                                <div class="flex items-center space-x-1 text-gray-500 mt-1">
-                                    <i class="fas fa-clock text-xs"></i>
-                                    <span class="text-xs">${queue.waitTime}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                activeContainer.innerHTML = '<p class="text-gray-500 text-sm">No active queues</p>';
-            }
-            
-            // Update stalled queue list
-            if (stalledQueues.length > 0) {
-                stalledContainer.innerHTML = stalledQueues.map(queue => `
-                    <div class="border border-gray-200 rounded-lg p-3">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="font-medium text-gray-900">${queue.number}</p>
-                                <p class="text-sm text-gray-600">${queue.student.name}</p>
-                                <p class="text-sm text-gray-500">${queue.service}</p>
-                            </div>
-                            <div class="text-right">
-                                <div class="flex items-center space-x-1 text-yellow-600">
-                                    <i class="fas fa-file-alt text-xs"></i>
-                                    <span class="text-xs">${queue.stallReason}</span>
-                                </div>
-                                <button class="mt-1 bg-blue-900 text-white text-xs px-2 py-1 rounded" onclick="resumeQueue('${queue.id}')">► Resume</button>
-                                <div class="flex items-center space-x-1 text-gray-500 mt-1">
-                                    <i class="fas fa-clock text-xs"></i>
-                                    <span class="text-xs">${queue.waitTime}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                stalledContainer.innerHTML = '<p class="text-gray-500 text-sm">No stalled queues</p>';
-            }
-            
-            // Update skipped queue list
-            if (skippedQueues.length > 0) {
-                skippedContainer.innerHTML = skippedQueues.map(queue => `
-                    <div class="border border-gray-200 rounded-lg p-3">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="font-medium text-gray-900">${queue.number}</p>
-                                <p class="text-sm text-gray-600">${queue.student.name}</p>
-                                <p class="text-sm text-gray-500">${queue.service}</p>
-                            </div>
-                            <div class="text-right">
-                                <div class="flex items-center space-x-1 text-red-600">
-                                    <i class="fas fa-times text-xs"></i>
-                                    <span class="text-xs">Skipped</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                skippedContainer.innerHTML = '<p class="text-gray-500 text-sm">No skipped queues</p>';
-            }
+            document.querySelector('.bg-blue-100').textContent = queues.length;
+            // Update individual queue items as needed
         }
         
         // Update statistics
         function updateStatistics(stats) {
-            document.getElementById('avgServiceTime').textContent = stats.avgServiceTime || '--';
-            document.getElementById('completedCount').textContent = stats.completed || 0;
-            document.getElementById('stalledCount').textContent = stats.stalled || 0;
-            document.getElementById('cancelledCount').textContent = stats.cancelled || 0;
-        }
-        
-        // Enable/disable action buttons
-        function enableActionButtons() {
-            document.getElementById('completeBtn').disabled = false;
-            document.getElementById('stallBtn').disabled = false;
-            document.getElementById('skipBtn').disabled = false;
-        }
-        
-        function disableActionButtons() {
-            document.getElementById('completeBtn').disabled = true;
-            document.getElementById('stallBtn').disabled = true;
-            document.getElementById('skipBtn').disabled = true;
+            // Update statistics display
         }
         
         // Setup event listeners
         function setupEventListeners() {
-            document.getElementById('completeBtn').addEventListener('click', completeQueue);
-            document.getElementById('stallBtn').addEventListener('click', stallQueue);
-            document.getElementById('skipBtn').addEventListener('click', skipQueue);
-            document.getElementById('addNoteBtn').addEventListener('click', addNote);
+            // Add event listeners for buttons
+            document.querySelector('.bg-green-600').addEventListener('click', completeQueue);
+            document.querySelector('.bg-yellow-500').addEventListener('click', stallQueue);
+            document.querySelector('.bg-blue-900').addEventListener('click', skipQueue);
         }
         
-        // Action functions (to be connected to backend)
+        // Action functions
         function completeQueue() {
-            // TODO: Send API request to complete current queue
             console.log('Complete queue action');
         }
         
         function stallQueue() {
-            // TODO: Send API request to stall current queue
             console.log('Stall queue action');
         }
         
         function skipQueue() {
-            // TODO: Send API request to skip current queue
             console.log('Skip queue action');
         }
         
-        function resumeQueue(queueId) {
-            // TODO: Send API request to resume stalled queue
-            console.log('Resume queue:', queueId);
-        }
-        
-        function addNote() {
-            // TODO: Add note functionality
-            console.log('Add note action');
-        }
-        
-        // Toggle collapsible sections
-        function toggleSection(sectionName) {
-            const listElement = document.getElementById(sectionName + 'List');
-            const iconElement = document.getElementById(sectionName + 'Icon');
+        // Toggle service details
+        function toggleServiceDetails(serviceId) {
+            const details = document.getElementById(serviceId + '-details');
+            const arrow = document.getElementById(serviceId + '-arrow');
             
-            if (listElement.style.display === 'none') {
-                listElement.style.display = 'block';
-                iconElement.className = iconElement.className.replace('fa-chevron-down', 'fa-chevron-up');
+            if (details.classList.contains('hidden')) {
+                // Show details
+                details.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
             } else {
-                listElement.style.display = 'none';
-                iconElement.className = iconElement.className.replace('fa-chevron-up', 'fa-chevron-down');
+                // Hide details
+                details.classList.add('hidden');
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+        
+        // Toggle all documents when service checkbox is clicked
+        function toggleAllDocuments(serviceId) {
+            const serviceCheckbox = document.querySelector(`input[onclick*="${serviceId}"]`);
+            const documentCheckboxes = document.querySelectorAll(`#${serviceId}-details input[type="checkbox"]`);
+            
+            const isChecked = serviceCheckbox.checked;
+            
+            // Update all document checkboxes
+            documentCheckboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+                if (isChecked) {
+                    checkbox.classList.remove('text-gray-400');
+                    checkbox.classList.add('text-green-600');
+                } else {
+                    checkbox.classList.remove('text-green-600');
+                    checkbox.classList.add('text-gray-400');
+                }
+            });
+            
+            // Update verification status
+            updateVerificationStatus(serviceId);
+        }
+        
+        // Update service checkbox when individual documents are checked
+        function updateServiceCheckbox(serviceId) {
+            const documentCheckboxes = document.querySelectorAll(`#${serviceId}-details input[type="checkbox"]`);
+            const serviceCheckbox = document.querySelector(`input[onclick*="${serviceId}"]`);
+            
+            const checkedCount = Array.from(documentCheckboxes).filter(cb => cb.checked).length;
+            const totalCount = documentCheckboxes.length;
+            
+            // Update service checkbox based on document status
+            if (checkedCount === totalCount) {
+                serviceCheckbox.checked = true;
+                serviceCheckbox.classList.remove('text-gray-400');
+                serviceCheckbox.classList.add('text-green-600');
+            } else {
+                serviceCheckbox.checked = false;
+                serviceCheckbox.classList.remove('text-green-600');
+                serviceCheckbox.classList.add('text-gray-400');
+            }
+            
+            // Update verification status
+            updateVerificationStatus(serviceId);
+        }
+        
+        // Update verification status display
+        function updateVerificationStatus(serviceId) {
+            const documentCheckboxes = document.querySelectorAll(`#${serviceId}-details input[type="checkbox"]`);
+            const checkedCount = Array.from(documentCheckboxes).filter(cb => cb.checked).length;
+            const totalCount = documentCheckboxes.length;
+            
+            // Find the verification status element
+            const statusElement = document.querySelector(`#${serviceId}-details .inline-flex.items-center`);
+            if (statusElement) {
+                if (checkedCount === totalCount) {
+                    statusElement.className = 'inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800';
+                    statusElement.innerHTML = '<i class="fas fa-check-circle mr-2"></i>' + checkedCount + ' of ' + totalCount + ' documents verified';
+                } else if (checkedCount > 0) {
+                    statusElement.className = 'inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800';
+                    statusElement.innerHTML = '<i class="fas fa-clock mr-2"></i>' + checkedCount + ' of ' + totalCount + ' documents verified';
+                } else {
+                    statusElement.className = 'inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-red-100 text-red-800';
+                    statusElement.innerHTML = '<i class="fas fa-times-circle mr-2"></i>' + checkedCount + ' of ' + totalCount + ' documents verified';
+                }
+            }
+        }
+        
+        // Add special note as a card in Service Notes section
+        function addSpecialNote(serviceId) {
+            const input = document.getElementById(serviceId + '-specialInput');
+            const container = document.getElementById(serviceId + '-serviceNotes');
+            
+            if (input.value.trim() === '') {
+                alert('Please enter a special note before adding.');
+                return;
+            }
+            
+            // Create special note card
+            const noteCard = document.createElement('div');
+            noteCard.className = 'bg-gray-100 border border-gray-200 rounded-lg p-3 flex items-start justify-between';
+            noteCard.innerHTML = `
+                <p class="text-gray-800 text-sm">${input.value}</p>
+                <button onclick="removeServiceNote(this)" class="text-gray-500 hover:text-gray-700 ml-2">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            // Add to container
+            container.appendChild(noteCard);
+            
+            // Clear input
+            input.value = '';
+        }
+        
+        // Remove service note card (works for both regular and special notes)
+        function removeServiceNote(button) {
+            button.parentElement.remove();
+        }
+        
+        // Toggle queue section (Active, Stalled, Skipped)
+        function toggleQueueSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const arrow = document.getElementById(sectionId + '-arrow');
+            
+            if (content.classList.contains('hidden')) {
+                // Show content
+                content.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                // Hide content
+                content.classList.add('hidden');
+                arrow.style.transform = 'rotate(0deg)';
             }
         }
         
