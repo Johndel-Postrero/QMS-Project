@@ -67,7 +67,7 @@ unset($_SESSION['fullname'], $_SESSION['studentid'], $_SESSION['yearlevel'],
 <body class="min-h-screen flex flex-col bg-gradient-to-r from-white via-slate-200 to-sky-500">
     <?php include 'Header.php'; ?>
     
-    <main class="flex-grow flex items-center justify-center px-4 py-10">
+    <main class="flex-grow flex items-center justify-center px-4 py-6">
         <div class="bg-white rounded-lg shadow-lg max-w-xl w-full p-8 text-center" style="box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);">
             <!-- Success Icon -->
             <div class="flex justify-center mb-6">

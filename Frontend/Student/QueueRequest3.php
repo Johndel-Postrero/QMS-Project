@@ -163,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
 <body class="min-h-screen flex flex-col bg-gradient-to-r from-white via-slate-200 to-sky-500">
     <?php include 'Header.php'; ?>
     
-    <main class="flex-grow flex items-center justify-center px-4 py-10">
+    <main class="flex-grow flex items-start justify-center pt-20 pb-20">
         <div class="bg-white rounded-lg shadow-lg max-w-xl w-full p-8" style="box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);">
             <div class="flex justify-center mb-6">
                 <div class="bg-yellow-100 rounded-full p-4">
@@ -218,34 +218,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
                     <?php else: ?>
                     <?php foreach ($selectedServices as $index => $serviceKey): ?>
                     <div class="bg-white border border-slate-200 rounded-lg p-4 flex items-center justify-between shadow-sm">
-                        <span class="text-sm text-slate-900 font-medium"><?php echo htmlspecialchars($serviceInfo[$serviceKey]['title'] ?? $serviceKey); ?></span>
                         <div class="flex items-center gap-3">
-                            <button type="button" class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition" 
+                            <span class="text-sm text-slate-900 font-medium"><?php echo htmlspecialchars($serviceInfo[$serviceKey]['title'] ?? $serviceKey); ?></span>
+                            <button type="button" class="w-5 h-5 bg-blue-700 rounded-full flex items-center justify-center hover:bg-blue-800 transition" 
                                     onclick="showServiceInfo('<?php echo htmlspecialchars($serviceKey); ?>')">
                                 <i class="fas fa-info text-white text-xs"></i>
                             </button>
-                            <button type="button" class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition" 
-                                    onclick="removeService(<?php echo $index; ?>)">
-                                <i class="fas fa-trash text-white text-xs"></i>
-                            </button>
                         </div>
+                        <button type="button" class="flex items-center justify-center hover:opacity-70 transition" 
+                                onclick="removeService(<?php echo $index; ?>)">
+                            <i class="fas fa-trash text-red-500 text-sm"></i>
+                        </button>
                     </div>
                     <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
                 
-                <div class="flex justify-center" style="gap: 70px;">
-                    <button class="flex items-center gap-2 border border-slate-300 rounded-md py-3 text-slate-700 text-sm hover:bg-slate-100 transition" 
-                            style="padding-left: 60px; padding-right: 60px;"
-                            type="button" onclick="window.location.href='QueueRequest2.php'">
+                <div class="flex justify-center" style="gap: 80px;">
+                    <button class="flex items-center gap-2 border border-slate-300 rounded-md text-slate-700 text-sm hover:bg-slate-100 transition font-medium" 
+                            type="button" onclick="window.location.href='QueueRequest2.php'" style="padding: 16px 32px; width: 130px; height: 36px; justify-content: center;">
                         <i class="fas fa-arrow-left text-sm"></i>
                         Back
                     </button>
-                    <button class="bg-blue-900 text-white rounded-md py-3 text-sm hover:bg-blue-800 transition flex items-center justify-center gap-2" 
-                            style="padding-left: 65px; padding-right: 65px;"
-                            type="button" onclick="showPriorityModal()">
-                        Submit
-                        <i class="fas fa-check text-sm"></i>
+                    <button class="bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition flex items-center justify-center gap-2 font-medium" 
+                            type="button" onclick="showPriorityModal()" style="padding: 16px 32px; width: 130px; height: 36px;">
+                        Next
+                        <i class="fas fa-arrow-right text-sm"></i>
                     </button>
                 </div>
             </form>
@@ -331,11 +329,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
                 
                 <div class="flex justify-end gap-3">
                     <button type="button" onclick="closePriorityModal()" 
-                            class="px-6 py-2 border border-blue-500 text-blue-500 rounded-md text-sm hover:bg-blue-50 transition">
+                            class="border border-blue-500 text-blue-500 rounded-md text-sm hover:bg-blue-50 transition" style="padding: 8px 24px; width: 86px; height: 30px;">
                         Cancel
                     </button>
                     <button type="button" onclick="showQrCodeModal()" 
-                            class="px-6 py-2 bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition">
+                            class="bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition" style="padding: 8px 24px; width: 90px; height: 30px;">
                         Continue
                     </button>
                 </div>
@@ -395,13 +393,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
                     </label>
                 </div>
 
-                <div class="flex justify-center" style="gap: 70px;">
-                    <button type="button" onclick="closeQrCodeModal()" class="border border-slate-300 rounded-md py-3 text-slate-700 text-sm hover:bg-slate-100 transition"
-                            style="padding-left: 60px; padding-right: 60px;">
+                <div class="flex justify-center" style="gap: 10px;">
+                    <button type="button" onclick="closeQrCodeModal()" class="border border-blue-500 text-blue-500 rounded-md text-sm hover:bg-blue-50 transition"
+                            style="padding: 8px 24px; width: 250px; height: 36px;">
                         Cancel
                     </button>
-                    <button type="submit" name="final_submit" class="bg-blue-900 text-white rounded-md py-3 text-sm hover:bg-blue-800 transition"
-                            style="padding-left: 65px; padding-right: 65px;">
+                    <button type="submit" name="final_submit" class="bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition"
+                            style="padding: 8px 24px; width: 250px; height: 36px;">
                         Confirm
                     </button>
                 </div>

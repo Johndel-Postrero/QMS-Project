@@ -132,7 +132,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
 <body class="min-h-screen flex flex-col bg-gradient-to-r from-white via-slate-200 to-sky-500">
     <?php include 'Header.php'; ?>
 
-    <main class="flex-grow flex items-center justify-center px-4 py-10">
+    <main class="flex-grow flex items-start justify-center pt-20 pb-20">
         <form action="QueueRequest.php" aria-label="Request Your Queue Number Form" class="bg-white rounded-lg shadow-lg max-w-xl w-full p-8" method="POST">
             <div class="flex justify-center mb-6">
                 <div class="bg-yellow-100 rounded-full p-4">
@@ -220,19 +220,17 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
                 <?php } ?>
             </div>
             
-            <div class="flex justify-center" style="gap: 70px;">
-                <button class="flex items-center gap-2 border border-slate-300 rounded-md py-3 text-slate-700 text-sm hover:bg-slate-100 transition" 
-                        style="padding-left: 60px; padding-right: 60px;"
-                        onclick="window.location.href='Landing.php'" type="button">
+            <div class="flex justify-center" style="gap: 80px;">
+                <button class="flex items-center gap-2 border border-slate-300 rounded-md text-slate-700 text-sm hover:bg-slate-100 transition font-medium" 
+                        onclick="window.location.href='Landing.php'" type="button" style="padding: 16px 32px; width: 130px; height: 36px; justify-content: center;">
                     <i class="fas fa-home text-sm"></i>
                     Home
                 </button>
-                    <button class="bg-blue-900 text-white rounded-md py-3 text-sm hover:bg-blue-800 transition flex items-center justify-center gap-2" 
-                            style="padding-left: 65px; padding-right: 65px;"
-                            type="submit">
-                        Next
-                        <i class="fas fa-arrow-right text-sm"></i>
-                    </button>
+                <button class="bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition flex items-center justify-center gap-2 font-medium" 
+                        type="submit" style="padding: 16px 32px; width: 130px; height: 36px;">
+                    Next
+                    <i class="fas fa-arrow-right text-sm"></i>
+                </button>
             </div>
         </form>
     </main>

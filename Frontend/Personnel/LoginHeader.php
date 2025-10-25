@@ -1,9 +1,9 @@
 <?php
-// Header component for SeQueueR - Personnel
+// Login Header component for SeQueueR - Personnel
 ?>
 
 <header class="bg-white border-b border-gray-300">
-    <div class="flex items-center justify-between py-3 px-6 md:px-10 mx-20 md:mx-34 lg:mx-44">
+    <div class="flex items-center justify-center py-3 px-6 md:px-10 mx-20 md:mx-34 lg:mx-44">
         <a href="./Landing.php" class="flex items-center hover:opacity-80 transition-opacity">
             <img alt="University of Cebu Student Affairs circular seal with blue and gold colors" class="h-10 w-10 rounded-full object-cover" src="../../sao-nobg.png"/>
             <div class="ml-3 text-center">
@@ -15,8 +15,6 @@
                 </p>
             </div>
         </a>
-        <a href="Signin.php" class="bg-yellow-400 text-black font-semibold text-sm px-5 py-2 rounded-md hover:bg-yellow-300 transition">
-            Login
-        </a>
     </div>
 </header>
+

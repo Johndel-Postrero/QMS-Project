@@ -19,7 +19,7 @@
     
     <!-- Main Content -->
     <main class="bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="py-8 px-6 md:px-10 mx-4 md:mx-8 lg:mx-12">
             <!-- Header Section -->
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
                 <div>

@@ -22,28 +22,25 @@
  <body class="bg-white text-gray-700">
     <!-- Header Component -->
     <?php include 'Header.php'; ?>
-   <main class="bg-[#00447a] text-white h-[90vh] flex items-center">
-     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 md:px-12 py-20 md:py-32 gap-5 md:gap-8 w-full">
+   <main class="bg-[#00447a] text-white flex items-center" style="height: calc(100vh - 80px);">
+     <div class="flex flex-col md:flex-row items-center justify-between px-6 md:px-10 gap-12 md:gap-20 w-full mx-20 md:mx-34 lg:mx-44 ">
     <div class="flex-1 space-y-6">
      <h2 class="text-[48px] font-extrabold leading-tight">
-      Welcome to
-      <span class="text-yellow-400">
-       SeQueueR
-      </span>
+      Welcome to <span class="text-yellow-400">SeQueueR</span>
      </h2>
-     <p class="text-[24px] font-normal leading-relaxed max-w-md">
+     <p class="text-[24px] font-semibold leading-relaxed" style="max-width: 800px;">
       Smart Queue Management for University of Cebu Student Affairs Services
      </p>
-     <p class="text-[18px] font-normal max-w-md leading-relaxed">
+     <p class="text-[18px] font-light leading-relaxed" style="max-width: 600px;">
       Skip the long lines. Get your queue number instantly and track your turn in real-time. Make your student affairs visits more efficient and stress-free.
      </p>
-     <div class="flex flex-wrap gap-4">
-      <a href="Working/Queue.php" class="bg-yellow-400 text-black font-semibold px-6 py-3 rounded-md shadow-md flex items-center gap-2 hover:brightness-110 transition text-[18px]">
-       <i class="fas fa-ticket-alt text-xs">
+     <div class="flex flex-wrap" style="gap: 30px;">
+      <a href="Signin.php" class="bg-yellow-400 text-black font-semibold rounded-md shadow-md flex items-center gap-2 hover:brightness-110 transition text-[18px]" style="padding: 12px 24px; width: 260px; height: 50px; justify-content: center;">
+       <i class="fas fa-laptop text-sm">
        </i>
        Manage Queue
       </a>
-      <a href="About.php" class="border border-white text-white font-semibold px-6 py-3 rounded-md flex items-center gap-2 hover:bg-white hover:text-[#00447a] transition text-[18px]">
+      <a href="../Student/About.php" class="border border-white text-white font-semibold rounded-md flex items-center gap-2 hover:bg-white hover:text-[#00447a] transition text-[18px]" style="padding: 12px 24px; width: 260px; height: 50px; justify-content: center;">
        <i class="far fa-clock text-sm">
        </i>
        About SeQueueR
