@@ -3,7 +3,7 @@
 ?>
 
 <header class="bg-white border-b border-gray-300">
-    <div class="max-w-7xl mx-auto flex items-center justify-center py-3 px-4">
+    <div class="flex items-center justify-center py-3 px-6 md:px-10 mx-20 md:mx-34 lg:mx-44">
         <a href="./Landing.php" class="flex items-center hover:opacity-80 transition-opacity">
             <img alt="University of Cebu Student Affairs circular seal with blue and gold colors" class="h-10 w-10 rounded-full object-cover" src="../../sao-nobg.png"/>
             <div class="ml-3 text-center">

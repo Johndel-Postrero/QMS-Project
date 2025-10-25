@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -14,15 +15,7 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-white text-gray-700">
-    <header class="flex justify-center items-center border-b border-gray-300 py-2 px-4">
-        <div class="flex items-center space-x-3">
-            <img alt="University of Cebu Student Affairs Office logo, circular emblem with blue and gold colors" class="w-12 h-12" src="https://placehold.co/48x48/png?text=UC+Logo"/>
-            <div class="leading-tight">
-                <h1 class="text-blue-700 font-extralight text-lg leading-none">SeQueueR</h1>
-                <p class="text-xs text-gray-600">UC Student Affairs</p>
-            </div>
-        </div>
-    </header>
+    <?php include 'LoginHeader.php'; ?>
     <main class="flex-grow flex justify-center items-center bg-gradient-to-r from-white via-slate-300 to-slate-600 relative overflow-hidden py-12">
         <img alt="University of Cebu campus buildings with modern architecture, blue sky, and trees, faded and tinted blue as background" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover opacity-70 pointer-events-none select-none" src="https://placehold.co/1920x1080/png?text=University+of+Cebu+Campus+Buildings+Background"/>
         <form aria-label="SeQueueR Login Form" class="relative bg-white rounded-lg shadow-md max-w-xl w-full p-10 space-y-6">

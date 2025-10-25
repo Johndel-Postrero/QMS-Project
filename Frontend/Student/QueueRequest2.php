@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="min-h-screen flex flex-col bg-gradient-to-r from-white via-slate-200 to-sky-500">
     <?php include 'Header.php'; ?>
     
-    <main class="flex-grow flex items-center justify-center px-4 py-10">
+    <main class="flex-grow flex items-start justify-center pt-20 pb-20">
         <div class="bg-white rounded-lg shadow-lg max-w-xl w-full p-8" style="box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);">
                 <div class="flex justify-center mb-6">
                     <div class="bg-yellow-100 rounded-full p-4">
@@ -115,16 +115,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endforeach; ?>
                 </fieldset>
                 
-                <div class="mt-8 flex justify-center" style="gap: 70px;">
-                    <button class="flex items-center gap-2 border border-gray-300 rounded-md py-3 text-gray-700 text-sm hover:bg-gray-100 transition" 
-                            style="padding-left: 60px; padding-right: 60px;"
-                            type="button" onclick="window.location.href='QueueRequest.php'">
+                <div class="mt-8 flex justify-center" style="gap: 80px;">
+                    <button class="flex items-center gap-2 border border-gray-300 rounded-md text-gray-700 text-sm hover:bg-gray-100 transition font-medium" 
+                            type="button" onclick="window.location.href='QueueRequest.php'" style="padding: 16px 32px; width: 130px; height: 36px; justify-content: center;">
                         <i class="fas fa-arrow-left text-sm"></i>
                         Back
                     </button>
-                    <button class="bg-blue-900 text-white rounded-md py-3 text-sm hover:bg-blue-800 transition flex items-center justify-center gap-2" 
-                            style="padding-left: 65px; padding-right: 65px;"
-                            type="submit">
+                    <button class="bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition flex items-center justify-center gap-2 font-medium" 
+                            type="submit" style="padding: 16px 32px; width: 130px; height: 36px;">
                         Next
                         <i class="fas fa-arrow-right text-sm"></i>
                     </button>

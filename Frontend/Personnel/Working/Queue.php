@@ -23,7 +23,7 @@
     
     <!-- Main Content -->
     <main class="bg-gray-100 min-h-screen">
-        <div class="max-w-7xl mx-auto py-8 px-4">
+        <div class="py-8 px-6 md:px-10 mx-4 md:mx-8 lg:mx-12">
             <div class="grid grid-cols-1 lg:grid-cols-10 gap-8">
                 <!-- Left Panel - Current Queue Details -->
                 <div class="lg:col-span-7 space-y-6">
@@ -227,7 +227,7 @@
                             <i class="fas fa-arrow-right"></i>
                             <span>COMPLETE & NEXT</span>
                         </button>
-                        <button class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center space-x-2">
+                        <button class="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-lg flex items-center justify-center space-x-2">
                             <i class="fas fa-pause"></i>
                             <span>MARK AS STALLED</span>
                         </button>

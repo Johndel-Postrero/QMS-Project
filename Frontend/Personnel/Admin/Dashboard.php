@@ -31,7 +31,7 @@ include 'Header.php';
 <body class="bg-gray-50">
     <!-- Main Content -->
     <main class="min-h-screen">
-        <div class="max-w-7xl mx-auto py-8 px-6">
+        <div class="py-8 px-6 md:px-10 mx-4 md:mx-8 lg:mx-12">
             <!-- Summary Cards Row -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Total Queues Today -->
