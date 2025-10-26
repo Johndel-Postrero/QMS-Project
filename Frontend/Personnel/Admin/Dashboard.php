@@ -1,8 +1,3 @@
-<?php
-// Include Admin Header
-include 'Header.php';
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,6 +24,8 @@ include 'Header.php';
     </style>
 </head>
 <body class="bg-gray-50">
+    <!-- Include Admin Header -->
+    <?php include 'Header.php'; ?>
     <!-- Main Content -->
     <main class="min-h-screen">
         <div class="py-8 px-6 md:px-10 mx-4 md:mx-8 lg:mx-12">

@@ -234,14 +234,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
                     <?php endif; ?>
                 </div>
                 
-                <div class="flex justify-center" style="gap: 80px;">
-                    <button class="flex items-center gap-2 border border-slate-300 rounded-md text-slate-700 text-sm hover:bg-slate-100 transition font-medium" 
-                            type="button" onclick="window.location.href='QueueRequest2.php'" style="padding: 16px 32px; width: 130px; height: 36px; justify-content: center;">
+                <div class="flex justify-center gap-8">
+                    <button class="flex items-center gap-2 border border-slate-300 rounded-md text-slate-700 text-sm hover:bg-slate-100 transition font-medium px-6 py-3 min-w-[120px] justify-center" 
+                            type="button" onclick="window.location.href='QueueRequest2.php'">
                         <i class="fas fa-arrow-left text-sm"></i>
                         Back
                     </button>
-                    <button class="bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition flex items-center justify-center gap-2 font-medium" 
-                            type="button" onclick="showPriorityModal()" style="padding: 16px 32px; width: 130px; height: 36px;">
+                    <button class="bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition flex items-center justify-center gap-2 font-medium px-6 py-3 min-w-[120px]" 
+                            type="button" onclick="showPriorityModal()">
                         Next
                         <i class="fas fa-arrow-right text-sm"></i>
                     </button>
@@ -329,11 +329,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
                 
                 <div class="flex justify-end gap-3">
                     <button type="button" onclick="closePriorityModal()" 
-                            class="border border-blue-500 text-blue-500 rounded-md text-sm hover:bg-blue-50 transition" style="padding: 8px 24px; width: 86px; height: 30px;">
+                            class="border border-blue-500 text-blue-500 rounded-md text-sm hover:bg-blue-50 transition font-medium px-6 py-2 min-w-[100px]">
                         Cancel
                     </button>
-                    <button type="button" onclick="showQrCodeModal()" 
-                            class="bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition" style="padding: 8px 24px; width: 90px; height: 30px;">
+                    <button type="button" onclick="submitPriorityForm()" 
+                            class="bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition font-medium px-6 py-2 min-w-[100px]">
                         Continue
                     </button>
                 </div>
@@ -393,13 +393,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
                     </label>
                 </div>
 
-                <div class="flex justify-center" style="gap: 10px;">
-                    <button type="button" onclick="closeQrCodeModal()" class="border border-blue-500 text-blue-500 rounded-md text-sm hover:bg-blue-50 transition"
-                            style="padding: 8px 24px; width: 250px; height: 36px;">
+                <div class="flex justify-center gap-3">
+                    <button type="button" onclick="closeQrCodeModal()" 
+                            class="border border-blue-500 text-blue-500 rounded-md text-sm hover:bg-blue-50 transition font-medium px-6 py-2 min-w-[120px]">
                         Cancel
                     </button>
-                    <button type="submit" name="final_submit" class="bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition"
-                            style="padding: 8px 24px; width: 250px; height: 36px;">
+                    <button type="submit" name="final_submit" 
+                            class="bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition font-medium px-6 py-2 min-w-[120px]">
                         Confirm
                     </button>
                 </div>
@@ -449,6 +449,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
         
         function closePriorityModal() {
             document.getElementById('priorityModal').classList.add('hidden');
+        }
+        
+        // Priority Form Submission
+        function submitPriorityForm() {
+            const form = document.getElementById('priorityForm');
+            const formData = new FormData(form);
+            
+            // Validate that a priority group is selected
+            const priorityGroup = formData.get('priority_group');
+            if (!priorityGroup) {
+                alert('Please select whether you belong to a priority group.');
+                return;
+            }
+            
+            // Submit the form
+            fetch('QueueRequest3.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Close priority modal and show QR code modal
+                closePriorityModal();
+                showQrCodeModal();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
         }
         
         // QR Code Modal Functions

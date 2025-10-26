@@ -101,19 +101,87 @@
 </div>
 
 <style>
-    .nav-tab {
-        transition: all 0.2s ease-in-out;
+    /* Global smooth navigation styles */
+    * {
+        box-sizing: border-box;
     }
+    
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    body {
+        transition: opacity 0.2s ease-in-out;
+    }
+    
+    /* Navigation tab styles */
+    .nav-tab {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border-bottom: 2px solid transparent;
+        position: relative;
+        transform: translateZ(0); /* Hardware acceleration */
+        will-change: background-color, color, border-color;
+    }
+    
     .nav-tab:hover {
         background-color: #f3f4f6;
+        transform: translateY(-1px);
     }
+    
     .nav-tab.active {
         background-color: #dbeafe;
-        border-bottom: 2px solid #1e40af;
+        border-bottom-color: #1e40af;
+        transform: translateY(0);
     }
+    
     .nav-tab.active .nav-icon,
     .nav-tab.active .nav-text {
-        color: #1e40af;
+        color: #1e40af !important;
+    }
+    
+    .nav-tab:not(.active) .nav-icon,
+    .nav-tab:not(.active) .nav-text {
+        color: #6b7280;
+    }
+    
+    /* Prevent layout shifts */
+    .nav-tab i, .nav-tab span {
+        display: inline-block;
+        vertical-align: middle;
+    }
+    
+    /* Loading state for navigation */
+    .nav-tab.loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+    
+    /* Smooth page transitions */
+    .page-transition {
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    }
+    
+    .page-transition.loaded {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Loading spinner */
+    .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #1e40af;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 </style>
 
@@ -125,7 +193,9 @@
     document.addEventListener('DOMContentLoaded', function() {
         loadUserProfile();
         setupEventListeners();
-        updateActiveTab();
+        initPageTransition();
+        // Use requestAnimationFrame to ensure DOM is fully ready
+        requestAnimationFrame(updateActiveTab);
     });
     
     // Load user profile from backend
@@ -152,9 +222,14 @@
     // Update user display elements
     function updateUserDisplay() {
         if (currentUser) {
-            document.getElementById('userName').textContent = currentUser.name || 'Admin User';
-            document.getElementById('userRole').textContent = currentUser.role || 'Administrator';
-            document.getElementById('userProfileImage').src = currentUser.profileImage || 'https://placehold.co/40x40/4f46e5/ffffff?text=U';
+            // Only update elements that exist
+            const userNameElement = document.getElementById('userName');
+            const userRoleElement = document.getElementById('userRole');
+            const userProfileImageElement = document.getElementById('userProfileImage');
+            
+            if (userNameElement) userNameElement.textContent = currentUser.name || 'Admin User';
+            if (userRoleElement) userRoleElement.textContent = currentUser.role || 'Administrator';
+            if (userProfileImageElement) userProfileImageElement.src = currentUser.profileImage || 'https://placehold.co/40x40/4f46e5/ffffff?text=U';
         }
     }
     
@@ -176,25 +251,66 @@
             }
         });
         
-        // Navigation tab click handlers
+        // Add smooth navigation with loading states
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.addEventListener('click', function(e) {
-                // Remove active class from all tabs
-                document.querySelectorAll('.nav-tab').forEach(t => {
-                    t.classList.remove('active');
-                    t.querySelector('.nav-icon').classList.remove('text-blue-600');
-                    t.querySelector('.nav-icon').classList.add('text-gray-600');
-                    t.querySelector('.nav-text').classList.remove('text-blue-600');
-                    t.querySelector('.nav-text').classList.add('text-gray-600');
-                });
+                // Add loading state
+                this.classList.add('loading');
                 
-                // Add active class to clicked tab
-                this.classList.add('active');
-                this.querySelector('.nav-icon').classList.remove('text-gray-600');
-                this.querySelector('.nav-icon').classList.add('text-blue-600');
-                this.querySelector('.nav-text').classList.remove('text-gray-600');
-                this.querySelector('.nav-text').classList.add('text-blue-600');
+                // Add loading spinner
+                const originalContent = this.innerHTML;
+                this.innerHTML = '<div class="loading-spinner"></div>';
+                
+                // Preload the target page
+                const href = this.getAttribute('href');
+                if (href) {
+                    preloadPage(href);
+                }
+                
+                // Smooth page transition
+                setTimeout(() => {
+                    // Restore original content
+                    this.innerHTML = originalContent;
+                    this.classList.remove('loading');
+                }, 300);
             });
+            
+            // Preload on hover
+            tab.addEventListener('mouseenter', function() {
+                const href = this.getAttribute('href');
+                if (href) {
+                    preloadPage(href);
+                }
+            });
+        });
+    }
+    
+    // Preload page for faster navigation
+    function preloadPage(url) {
+        if (preloadPage.cache && preloadPage.cache[url]) {
+            return; // Already preloaded
+        }
+        
+        if (!preloadPage.cache) {
+            preloadPage.cache = {};
+        }
+        
+        // Create a hidden link to preload the page
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.href = url;
+        document.head.appendChild(link);
+        
+        preloadPage.cache[url] = true;
+    }
+    
+    // Smooth page load animation
+    function initPageTransition() {
+        document.body.classList.add('page-transition');
+        
+        // Trigger loaded state after a short delay
+        requestAnimationFrame(() => {
+            document.body.classList.add('loaded');
         });
     }
     
@@ -205,20 +321,12 @@
         // Remove active class from all tabs
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.classList.remove('active');
-            tab.querySelector('.nav-icon').classList.remove('text-blue-600');
-            tab.querySelector('.nav-icon').classList.add('text-gray-600');
-            tab.querySelector('.nav-text').classList.remove('text-blue-600');
-            tab.querySelector('.nav-text').classList.add('text-gray-600');
         });
         
         // Add active class to current page tab
         const activeTab = document.querySelector(`a[href="${currentPage}"]`);
         if (activeTab) {
             activeTab.classList.add('active');
-            activeTab.querySelector('.nav-icon').classList.remove('text-gray-600');
-            activeTab.querySelector('.nav-icon').classList.add('text-blue-600');
-            activeTab.querySelector('.nav-text').classList.remove('text-gray-600');
-            activeTab.querySelector('.nav-text').classList.add('text-blue-600');
         }
     }
     

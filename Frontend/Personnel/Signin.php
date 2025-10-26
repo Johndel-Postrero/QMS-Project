@@ -54,7 +54,7 @@
             <p class="text-xs text-gray-500">Only use on trusted office computers</p>
             <button class="w-full bg-blue-900 text-white font-medium rounded-md py-3 mt-2 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-700" type="submit">Login</button>
             <div class="flex justify-end">
-                <a class="text-blue-600 text-sm hover:underline" href="#">Forgot Password?</a>
+                <a class="text-blue-600 text-sm hover:underline" href="ForgotPassword.php">Forgot Password?</a>
             </div>
             <p class="text-center text-xs text-gray-600">First time login? Check with supervisor</p>
         </form>

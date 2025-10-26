@@ -196,7 +196,7 @@
         <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4">
             <!-- Modal Header -->
             <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 class="text-xl font-bold text-blue-600" id="modalTitle">View #202100123 Details</h2>
+                <h2 class="text-xl font-bold text-blue-600" id="modalTitle">View User Details</h2>
                 <button onclick="closeViewModal()" class="text-gray-400 hover:text-gray-600 transition">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -213,19 +213,19 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="text-sm font-medium text-blue-600">Full Name<span class="text-red-500">*</span></label>
-                            <p class="text-gray-900 font-medium mt-1" id="modalFullName">Maria Santos</p>
+                            <p class="text-gray-900 font-medium mt-1" id="modalFullName">--</p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-blue-600">ID Number<span class="text-red-500">*</span></label>
-                            <p class="text-gray-900 font-medium mt-1" id="modalIdNumber">202100123</p>
+                            <p class="text-gray-900 font-medium mt-1" id="modalIdNumber">--</p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-blue-600">Course/Program<span class="text-red-500">*</span></label>
-                            <p class="text-gray-900 font-medium mt-1" id="modalCourse">BSIT</p>
+                            <p class="text-gray-900 font-medium mt-1" id="modalCourse">--</p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-blue-600">Year Level<span class="text-red-500">*</span></label>
-                            <p class="text-gray-900 font-medium mt-1" id="modalYearLevel">3</p>
+                            <p class="text-gray-900 font-medium mt-1" id="modalYearLevel">--</p>
                         </div>
                     </div>
                 </div>
@@ -239,11 +239,11 @@
                     <div class="grid grid-cols-2 gap-6">
                         <div>
                             <label class="text-sm font-medium text-blue-600">Email Address<span class="text-red-500">*</span></label>
-                            <p class="text-gray-900 font-medium mt-1 break-words" id="modalEmail">student@uc.edu.ph</p>
+                            <p class="text-gray-900 font-medium mt-1 break-words" id="modalEmail">--</p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-blue-600">Mobile Number<span class="text-red-500">*</span></label>
-                            <p class="text-gray-900 font-medium mt-1" id="modalMobile">09675467587</p>
+                            <p class="text-gray-900 font-medium mt-1" id="modalMobile">--</p>
                         </div>
                     </div>
                 </div>
@@ -381,7 +381,7 @@
                         <div class="flex items-center space-x-2">
                             <input type="text" id="generatedPassword" readonly
                                    class="flex-1 px-4 py-2 bg-yellow-100 border border-yellow-300 rounded-lg font-mono text-gray-900"
-                                   value="Uc2025@Temp!9x">
+                                   value="">
                             <button type="button" onclick="regeneratePassword()"
                                     class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
                                 Regenerate
@@ -455,27 +455,27 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="text-sm text-gray-600">Full Name</label>
-                        <p class="font-semibold text-gray-900" id="successFullName">Maria Santos</p>
+                        <p class="font-semibold text-gray-900" id="successFullName">--</p>
                     </div>
                     <div>
                         <label class="text-sm text-gray-600">ID Number</label>
-                        <p class="font-semibold text-gray-900" id="successIdNumber">202100123</p>
+                        <p class="font-semibold text-gray-900" id="successIdNumber">--</p>
                     </div>
                     <div>
                         <label class="text-sm text-gray-600">Course/Program</label>
-                        <p class="font-semibold text-gray-900" id="successCourse">BSIT</p>
+                        <p class="font-semibold text-gray-900" id="successCourse">--</p>
                     </div>
                     <div>
                         <label class="text-sm text-gray-600">Year Level</label>
-                        <p class="font-semibold text-gray-900" id="successYearLevel">3</p>
+                        <p class="font-semibold text-gray-900" id="successYearLevel">--</p>
                     </div>
                     <div>
                         <label class="text-sm text-gray-600">Email</label>
-                        <p class="font-semibold text-gray-900 break-words" id="successEmail">student@uc.edu.ph</p>
+                        <p class="font-semibold text-gray-900 break-words" id="successEmail">--</p>
                     </div>
                     <div>
                         <label class="text-sm text-gray-600">Mobile Number</label>
-                        <p class="font-semibold text-gray-900" id="successMobile">09675467587</p>
+                        <p class="font-semibold text-gray-900" id="successMobile">--</p>
                     </div>
                 </div>
             </div>
@@ -496,7 +496,7 @@
         <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <!-- Modal Header -->
             <div class="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-2xl">
-                <h2 class="text-2xl font-bold text-blue-600" id="editModalTitle">Update #202100123 Account</h2>
+                <h2 class="text-2xl font-bold text-blue-600" id="editModalTitle">Update Account</h2>
                 <button onclick="closeEditAccountModal()" class="text-gray-400 hover:text-gray-600 transition">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -616,7 +616,7 @@
                         <div class="flex items-center space-x-2">
                             <input type="text" id="editGeneratedPassword" readonly
                                    class="flex-1 px-4 py-2 bg-yellow-100 border border-yellow-300 rounded-lg font-mono text-gray-900"
-                                   value="Uc2025@Temp!9x">
+                                   value="">
                             <button type="button" onclick="regenerateEditPassword()"
                                     class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
                                 Regenerate
@@ -710,62 +710,9 @@
                     updateExportButton();
                 })
                 .catch(error => {
-                    console.log('No backend connection yet - using sample data');
-                    // Sample dummy data for testing
-                    users = [
-                        {
-                            id: 1,
-                            idNumber: "202112345",
-                            name: "Juan Miguel Dela Cruz",
-                            email: "juanmiguel.delacruz@uc.edu.ph",
-                            profileImage: "https://ui-avatars.com/api/?name=Juan+Miguel+Dela+Cruz&background=1e40af&color=fff",
-                            role: "working_scholar",
-                            status: "active",
-                            lastActive: "2 hours ago",
-                            course: "BSIT",
-                            yearLevel: "4",
-                            mobile: "09123456789"
-                        },
-                        {
-                            id: 2,
-                            idNumber: "202054321",
-                            name: "Maria Santos",
-                            email: "maria.santos@uc.edu.ph",
-                            profileImage: "https://ui-avatars.com/api/?name=Maria+Santos&background=ec4899&color=fff",
-                            role: "working_scholar",
-                            status: "active",
-                            lastActive: "Just now",
-                            course: "BSIT",
-                            yearLevel: "3",
-                            mobile: "09675467587"
-                        },
-                        {
-                            id: 3,
-                            idNumber: "201998765",
-                            name: "Carlos Reyes",
-                            email: "carlos.reyes@uc.edu.ph",
-                            profileImage: "https://ui-avatars.com/api/?name=Carlos+Reyes&background=10b981&color=fff",
-                            role: "admin",
-                            status: "active",
-                            lastActive: "5 mins ago",
-                            course: "BSCS",
-                            yearLevel: "2",
-                            mobile: "09987654321"
-                        },
-                        {
-                            id: 4,
-                            idNumber: "202111223",
-                            name: "Ana Garcia",
-                            email: "ana.garcia@uc.edu.ph",
-                            profileImage: "https://ui-avatars.com/api/?name=Ana+Garcia&background=f59e0b&color=fff",
-                            role: "working_scholar",
-                            status: "inactive",
-                            lastActive: "3 days ago",
-                            course: "BSBA",
-                            yearLevel: "1",
-                            mobile: "09456789123"
-                        }
-                    ];
+                    console.log('No backend connection yet - no data available');
+                    // No dummy data - empty state
+                    users = [];
                     totalPages = 1;
                     updateUsersTable();
                     updatePagination();
@@ -1163,7 +1110,7 @@
             }
             
             // Populate modal with user data
-            document.getElementById('modalTitle').textContent = `View #${user.idNumber} Details`;
+            document.getElementById('modalTitle').textContent = `View #${user.idNumber || 'Unknown'} Details`;
             document.getElementById('modalFullName').textContent = user.name || '--';
             document.getElementById('modalIdNumber').textContent = user.idNumber || '--';
             document.getElementById('modalCourse').textContent = user.course || '--';
@@ -1194,7 +1141,7 @@
             }
             
             // Populate modal with user data
-            document.getElementById('editModalTitle').textContent = `Update #${user.idNumber} Account`;
+            document.getElementById('editModalTitle').textContent = `Update #${user.idNumber || 'Unknown'} Account`;
             document.getElementById('editUserId').value = user.id;
             document.getElementById('editFullName').value = user.name || '';
             document.getElementById('editIdNumber').value = user.idNumber || '';
