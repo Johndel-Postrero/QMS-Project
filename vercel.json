@@ -1,0 +1,41 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/student/(.*)",
+      "dest": "/student/$1"
+    },
+    {
+      "src": "/personnel/admin/(.*)",
+      "dest": "/personnel/admin/$1"
+    },
+    {
+      "src": "/personnel/working/(.*)",
+      "dest": "/personnel/working/$1"
+    },
+    {
+      "src": "/personnel/(.*)",
+      "dest": "/personnel/$1"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    }
+  ],
+  "env": {
+    "POSTGRES_URL": "@postgres_url",
+    "POSTGRES_PRISMA_URL": "@postgres_prisma_url",
+    "POSTGRES_URL_NON_POOLING": "@postgres_url_non_pooling",
+    "POSTGRES_USER": "@postgres_user",
+    "POSTGRES_HOST": "@postgres_host",
+    "POSTGRES_PASSWORD": "@postgres_password",
+    "POSTGRES_DATABASE": "@postgres_database",
+    "JWT_SECRET": "@jwt_secret"
+  }
+}
