@@ -120,7 +120,7 @@ include 'Header.php';
         }
     </script>
     <style>
-        .carousel-container {
+            .carousel-container {
             overflow: hidden;
         }
         .carousel-track {
@@ -132,6 +132,47 @@ include 'Header.php';
             flex-shrink: 0;
             width: 33.333%;
         }
+
+        /* Ensure each slide card fills the slide and cards are same height */
+        .carousel-slide > .rounded-lg {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        /* Make the white info panel stretch so all cards align bottoms */
+        .carousel-slide > .rounded-lg > .bg-white {
+            flex: 1 1 auto;
+        }
+
+        /* Meet The Team specific background */
+        .team-bg {
+            background-image:
+                linear-gradient(rgba(14,42,91,0.65), rgba(14,42,91,0.45)),
+                url('../Assests/UC.jpg'); /* <-- uses Frontend/Assests/UC.jpg relative to this file */
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* darker card top */
+        .team-card-top,
+        .carousel-slide > .rounded-lg > .bg-uc-blue,
+        .carousel-slide > .rounded-lg > .team-card-top {
+            background: linear-gradient(180deg, #083163 0%, #0b4b7a 100%);
+            flex-shrink: 0;
+        }
+
+        /* Center absolute avatar horizontally and keep same overlap */
+        .carousel-slide .rounded-lg .w-28.absolute {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Ensure avatar image is centered/cropped consistently */
+        .carousel-slide .rounded-lg .w-28 img {
+            object-fit: cover;
+            object-position: center;
+        }
+
         .feature-icon {
             width: 48px;
             height: 48px;
@@ -143,6 +184,33 @@ include 'Header.php';
             color: white;
             font-size: 24px;
         }
+           .carousel-slide .rounded-lg .team-avatar {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 10rem;   /* matches w-28 */
+            height: 10rem;  /* matches h-28 */
+            border-radius: 9999px;
+            border: 4px solid var(--uc-yellow, #fbbf24);
+            background: #fff;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .carousel-slide .rounded-lg .team-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        /* add a little extra top padding so white panel doesn't overlap when avatar is centered */
+        .carousel-slide > .rounded-lg > .bg-white {
+            padding-top: 2rem; /* increased from pt-16 equivalent */
+        }
+        
     </style>
 </head>
 <body class="bg-gray-50">
@@ -248,87 +316,113 @@ include 'Header.php';
     </section>
 
     <!-- Meet The Team Section -->
-    <section class="py-12 bg-uc-blue relative">
+    <section class="py-12 relative team-bg">
         <div class="px-6 md:px-10 mx-20 md:mx-34 lg:mx-44">
             <h2 class="text-3xl font-bold text-white text-center mb-3">Meet The Team</h2>
             <p class="text-lg text-white text-center mb-8">Charlie Three Group - IT-TESQUA 31 (MW)</p>
-            
             <!-- Carousel Container -->
-            <div class="carousel-container relative overflow-hidden">
-				<div class="carousel-track flex" id="carouselTrack">
-					<?php 
-						$visibleCount = 3; // number of cards visible at once (w-1/3)
-						$total = count($team_members);
-						// Prepend last N clones for seamless previous navigation
-						for ($i = $total - $visibleCount; $i < $total; $i++): 
-							$member = $team_members[$i];
-						?>
-					<div class="carousel-slide flex-shrink-0 w-1/3 px-2" data-clone="prepend">
-						<div class="bg-white p-6 rounded-lg shadow-lg text-center transform transition-transform duration-300 hover:scale-105">
-							<div class="w-24 h-24 mx-auto mb-4 rounded-full border-3 border-uc-yellow overflow-hidden bg-uc-blue">
-								<img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>" class="w-full h-full object-cover">
-							</div>
-							<div class="bg-uc-blue text-white text-xs px-3 py-1 rounded-full inline-block mb-3 uppercase font-medium"><?php echo $member['role']; ?></div>
-							<h3 class="text-lg font-bold text-uc-blue mb-1"><?php echo $member['name']; ?></h3>
-							<div class="text-sm text-gray-600 mb-3"><?php echo $member['full_name']; ?></div>
-							<p class="text-xs text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
-						</div>
-					</div>
-					<?php endfor; ?>
+           <div class="carousel-container relative overflow-hidden">
+                <div class="carousel-track flex" id="carouselTrack">
+                    <?php 
+                        $visibleCount = 3; // number of cards visible at once (w-1/3)
+                        $total = count($team_members);
+                        // Prepend last N clones for seamless previous navigation
+                        for ($i = $total - $visibleCount; $i < $total; $i++): 
+                            $member = $team_members[$i];
+                        ?>
+                     <div class="carousel-slide flex-shrink-0 w-1/3 px-2" data-clone="prepend">
+                        <div class="rounded-lg shadow-lg overflow-hidden">
+                            <!-- top blue panel -->
+                            <div class="bg-uc-blue h-40 flex items-start justify-center relative">
+                                <!-- avatar overlaps (centered in blue panel) -->
+                                <div class="team-avatar">
+                                    <img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>">
+                                </div>
+                            </div>
+                            <!-- white info panel -->
+                            <div class="bg-white pt-16 pb-6 px-6">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="inline-block bg-uc-blue text-white text-xs px-3 py-1 rounded-full uppercase font-medium"><?php echo $member['role']; ?></div>
+                                </div>
+                                <h3 class="text-lg font-bold text-uc-blue mb-1"><?php echo $member['name']; ?></h3>
+                                <div class="text-sm text-gray-600 mb-3"><?php echo $member['full_name']; ?></div>
+                                <p class="text-xs text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endfor; ?>
 
-					<?php foreach($team_members as $member): ?>
-					<div class="carousel-slide flex-shrink-0 w-1/3 px-2">
-						<div class="bg-white p-6 rounded-lg shadow-lg text-center transform transition-transform duration-300 hover:scale-105">
-							<div class="w-24 h-24 mx-auto mb-4 rounded-full border-3 border-uc-yellow overflow-hidden bg-uc-blue">
-								<img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>" class="w-full h-full object-cover">
-							</div>
-							<div class="bg-uc-blue text-white text-xs px-3 py-1 rounded-full inline-block mb-3 uppercase font-medium"><?php echo $member['role']; ?></div>
-							<h3 class="text-lg font-bold text-uc-blue mb-1"><?php echo $member['name']; ?></h3>
-							<div class="text-sm text-gray-600 mb-3"><?php echo $member['full_name']; ?></div>
-							<p class="text-xs text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
-						</div>
-					</div>
-					<?php endforeach; ?>
+                    <?php foreach($team_members as $member): ?>
+                      <div class="carousel-slide flex-shrink-0 w-1/3 px-2">
+                        <div class="rounded-lg shadow-lg overflow-hidden">
+                            <!-- top blue panel -->
+                            <div class="bg-uc-blue h-40 flex items-start justify-center relative">
+                                <!-- avatar overlaps (centered in blue panel) -->
+                                <div class="team-avatar">
+                                    <img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>">
+                                </div>
+                            </div>
+                            <!-- white info panel -->
+                            <div class="bg-white pt-16 pb-6 px-6">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="inline-block bg-uc-blue text-white text-xs px-3 py-1 rounded-full uppercase font-medium"><?php echo $member['role']; ?></div>
+                                </div>
+                                <h3 class="text-lg font-bold text-uc-blue mb-1"><?php echo $member['name']; ?></h3>
+                                <div class="text-sm text-gray-600 mb-3"><?php echo $member['full_name']; ?></div>
+                                <p class="text-xs text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
 
-					<?php 
-						// Append first N clones for seamless next navigation
-						for ($i = 0; $i < $visibleCount; $i++): 
-							$member = $team_members[$i];
-						?>
-					<div class="carousel-slide flex-shrink-0 w-1/3 px-2" data-clone="append">
-						<div class="bg-white p-6 rounded-lg shadow-lg text-center transform transition-transform duration-300 hover:scale-105">
-							<div class="w-24 h-24 mx-auto mb-4 rounded-full border-3 border-uc-yellow overflow-hidden bg-uc-blue">
-								<img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>" class="w-full h-full object-cover">
-							</div>
-							<div class="bg-uc-blue text-white text-xs px-3 py-1 rounded-full inline-block mb-3 uppercase font-medium"><?php echo $member['role']; ?></div>
-							<h3 class="text-lg font-bold text-uc-blue mb-1"><?php echo $member['name']; ?></h3>
-							<div class="text-sm text-gray-600 mb-3"><?php echo $member['full_name']; ?></div>
-							<p class="text-xs text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
-						</div>
-					</div>
-					<?php endfor; ?>
-				</div>
+                    <?php 
+                        // Append first N clones for seamless next navigation
+                        for ($i = 0; $i < $visibleCount; $i++): 
+                            $member = $team_members[$i];
+                        ?>
+                    <div class="carousel-slide flex-shrink-0 w-1/3 px-2" data-clone="append">
+                        <div class="rounded-lg shadow-lg overflow-hidden">
+                            <!-- top blue panel -->
+                            <div class="bg-uc-blue h-40 flex items-start justify-center relative">
+                                <!-- avatar overlaps (centered in blue panel) -->
+                                <div class="team-avatar">
+                                    <img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>">
+                                </div>
+                            </div>
+                            <!-- white info panel -->
+                            <div class="bg-white pt-16 pb-6 px-6">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="inline-block bg-uc-blue text-white text-xs px-3 py-1 rounded-full uppercase font-medium"><?php echo $member['role']; ?></div>
+                                </div>
+                                <h3 class="text-lg font-bold text-uc-blue mb-1"><?php echo $member['name']; ?></h3>
+                                <div class="text-sm text-gray-600 mb-3"><?php echo $member['full_name']; ?></div>
+                                <p class="text-xs text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endfor; ?>
+                </div>
                 
                 <!-- Navigation Arrows -->
-                <button onclick="previousSlide()" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 rounded-full p-2 shadow-lg hover:bg-opacity-100 transition-all z-10">
-                    <svg class="w-5 h-5 text-uc-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button onclick="previousSlide()" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-uc-blue text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:scale-105 transition-all z-10">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
                 </button>
-                <button onclick="nextSlide(); resetTimer();" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 rounded-full p-2 shadow-lg hover:bg-opacity-100 transition-all z-10">
-                    <svg class="w-5 h-5 text-uc-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button onclick="nextSlide(); resetTimer();" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-uc-blue text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:scale-105 transition-all z-10">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </button>
             </div>
             
             <!-- Carousel Indicators -->
-            <div class="flex justify-center mt-6 space-x-2">
+            <div class="flex justify-center mt-6 space-x-3">
                 <?php 
                 $totalSlides = count($team_members);
                 for($i = 0; $i < $totalSlides; $i++): 
                 ?>
-                <button onclick="goToSlide(<?php echo $i; ?>)" class="w-2 h-2 rounded-full bg-white hover:bg-gray-300 transition-colors" id="indicator-<?php echo $i; ?>"></button>
+                <button onclick="goToSlide(<?php echo $i; ?>)" class="w-3 h-3 rounded-full bg-white hover:bg-gray-200 transition-colors" id="indicator-<?php echo $i; ?>"></button>
                 <?php endfor; ?>
             </div>
         </div>
