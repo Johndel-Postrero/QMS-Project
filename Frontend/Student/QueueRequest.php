@@ -222,7 +222,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
             
             <div class="flex justify-center" style="gap: 80px;">
                 <button class="flex items-center gap-2 border border-slate-300 rounded-md text-slate-700 text-sm hover:bg-slate-100 transition font-medium" 
-                        onclick="window.location.href='Landing.php'" type="button" style="padding: 16px 32px; width: 130px; height: 36px; justify-content: center;">
+                        onclick="window.location.href='https://qmscharlie.byethost5.com'" type="button" style="padding: 16px 32px; width: 130px; height: 36px; justify-content: center;">
                     <i class="fas fa-home text-sm"></i>
                     Home
                 </button>

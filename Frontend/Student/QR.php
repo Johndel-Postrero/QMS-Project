@@ -127,7 +127,7 @@ unset($_SESSION['fullname'], $_SESSION['studentid'], $_SESSION['yearlevel'],
             
             <!-- Action Buttons -->
             <div class="flex flex-col gap-3 fade-in">
-                <button onclick="window.location.href='Landing.php'" 
+                <button onclick="window.location.href='https://qmscharlie.byethost5.com/index.php'"
                         class="w-full bg-blue-900 text-white rounded-md py-3 text-sm hover:bg-blue-800 transition flex items-center justify-center gap-2">
                     <i class="fas fa-check"></i>
                     Finish
