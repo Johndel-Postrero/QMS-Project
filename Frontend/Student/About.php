@@ -33,58 +33,58 @@ $team_members = [
     ],
     [
         'id' => 4,
-        'name' => 'Maria Santos',
-        'full_name' => 'SANTOS, Maria',
+        'name' => 'Dave',
+        'full_name' => 'GULAY, Dave ',
         'role' => 'Backend Developer',
         'description' => 'Handles server-side logic, database management, and API development for the queue management system.',
         'image' => '../Assests/team/maria.jpg'
     ],
     [
         'id' => 5,
-        'name' => 'John Cruz',
-        'full_name' => 'CRUZ, John',
-        'role' => 'UI/UX Designer',
-        'description' => 'Creates user-friendly designs and ensures optimal user experience across all system interfaces.',
+        'name' => 'Russel',
+        'full_name' => 'GILLERA, Russel Ray',
+        'role' => 'Backend Developer',
+        'description' => 'Handles server-side logic, database management, and API development for the queue management system.',
         'image' => '../Assests/team/john.jpg'
     ],
     [
         'id' => 6,
-        'name' => 'Ana Rodriguez',
-        'full_name' => 'RODRIGUEZ, Ana',
-        'role' => 'Quality Assurance',
-        'description' => 'Ensures software quality through comprehensive testing and validation processes.',
+        'name' => 'Vincent',
+        'full_name' => 'YBAÑEZ, Felix Vincent',
+        'role' => 'Lead Designer',
+        'description' => 'Leads the design process, ensuring cohesive visuals and user-centered experiences.',
         'image' => '../Assests/team/ana.jpg'
     ],
     [
         'id' => 7,
-        'name' => 'Carlos Mendez',
-        'full_name' => 'MENDEZ, Carlos',
-        'role' => 'Database Administrator',
-        'description' => 'Manages database systems and ensures data integrity and performance optimization.',
+        'name' => 'JAM',
+        'full_name' => 'LUPIAN, John Alfred',
+        'role' => 'UI/UX Designer',
+        'description' => 'Creates user-friendly designs and ensures optimal user experience across all system interfaces.',
         'image' => '../Assests/team/carlos.jpg'
     ],
     [
         'id' => 8,
-        'name' => 'Lisa Chen',
-        'full_name' => 'CHEN, Lisa',
-        'role' => 'System Analyst',
-        'description' => 'Analyzes system requirements and designs efficient solutions for business processes.',
+        'name' => 'Paul',
+        'full_name' => 'ALARBA, Paul',
+        'role' => 'Lead Tester',
+        'description' => 'Oversees the testing team, ensuring product reliability through systematic test planning and execution.',
         'image' => '../Assests/team/lisa.jpg'
     ],
     [
         'id' => 9,
-        'name' => 'Michael Torres',
-        'full_name' => 'TORRES, Michael',
-        'role' => 'DevOps Engineer',
-        'description' => 'Manages deployment pipelines and ensures smooth system operations and monitoring.',
+        'name' => 'Ekoy',
+        'full_name' => 'SERVICE, Jerick',
+        'role' => 'Tester',
+        'description' => 'Conducts software testing to identify bugs and ensure the product meets quality standards.',
         'image' => '../Assests/team/michael.jpg'
     ],
     [
         'id' => 10,
-        'name' => 'Sarah Johnson',
-        'full_name' => 'JOHNSON, Sarah',
-        'role' => 'Technical Writer',
-        'description' => 'Creates comprehensive documentation and user guides for the system.',
+        'name' => 'Erwin',
+        'full_name' => 'SEMORIO, Erwin',
+        'role' => 'Tester',
+        'description' => 'Conducts software testing to identify bugs and ensure the product meets quality standards.',
         'image' => '../Assests/team/sarah.jpg'
     ]
 ];
