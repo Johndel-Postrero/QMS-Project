@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="min-h-screen flex flex-col bg-white text-gray-700">
     <?php include 'LoginHeader.php'; ?>
     <main class="flex-grow flex justify-center items-center bg-gradient-to-r from-white via-slate-300 to-slate-600 relative overflow-hidden py-12">
-        <img alt="University of Cebu campus buildings with modern architecture, blue sky, and trees, faded and tinted blue as background" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover opacity-70 pointer-events-none select-none" src="https://placehold.co/1920x1080/png?text=University+of+Cebu+Campus+Buildings+Background"/>
+        <img alt="Background" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover opacity-70 pointer-events-none select-none" src="/Frontend/Assests/Background.png"/>
         <form aria-label="SeQueueR Login Form" class="relative bg-white rounded-lg shadow-md max-w-xl w-full p-10 space-y-6" method="post" action="">
             <?php if (!empty($loginError)) { ?>
                 <div class="rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-700">

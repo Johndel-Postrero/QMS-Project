@@ -151,7 +151,7 @@ $project_stats = [
         .team-bg {
             background-image:
                 linear-gradient(rgba(14,42,91,0.65), rgba(14,42,91,0.45)),
-                url('../Assests/UC.jpg'); /* <-- uses Frontend/Assests/UC.jpg relative to this file */
+                url('Assests/Background.png');
             background-size: cover;
             background-position: center;
         }

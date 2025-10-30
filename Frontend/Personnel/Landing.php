@@ -1,5 +1,17 @@
 <?php
 // Main Landing page for SeQueueR - Personnel
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+// Optional force-logout for troubleshooting: /Frontend/Personnel/Landing.php?logout=1
+if (isset($_GET['logout'])) {
+    $_SESSION = [];
+    if (ini_get('session.use_cookies')) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+    }
+    session_destroy();
+    header('Location: Landing.php');
+    exit;
+}
 ?>
 
 <html lang="en">
@@ -21,8 +33,19 @@
   </style>
  </head>
  <body class="bg-white text-gray-700">
-    <!-- Header Component -->
-    <?php include 'Header.php'; ?>
+    <!-- Simple top header (logo left, Login right) -->
+    <header class="bg-white border-b border-gray-300">
+      <div class="flex items-center justify-between py-3 px-6 md:px-10 mx-20 md:mx-34 lg:mx-44">
+        <a href="./Landing.php" class="flex items-center hover:opacity-80 transition-opacity">
+          <img alt="University of Cebu Student Affairs circular seal" class="h-12 w-12 rounded-full object-cover" src="/Frontend/Assests/sao logo.jpg"/>
+          <div class="ml-4 text-left">
+            <h1 class="text-blue-900 font-bold text-xl -mb-1">SeQueueR</h1>
+            <p class="text-gray-600 text-sm">UC Student Affairs</p>
+          </div>
+        </a>
+        <a href="Signin.php" class="bg-yellow-400 text-blue-900 font-semibold rounded-md shadow-sm hover:brightness-110 transition flex items-center justify-center" style="padding: 8px 16px; min-width: 92px; height: 36px;">Login</a>
+      </div>
+    </header>
    <main class="bg-[#00447a] text-white flex items-center" style="height: calc(100vh - 80px);">
      <div class="flex flex-col md:flex-row items-center justify-between px-6 md:px-10 gap-12 md:gap-20 w-full mx-20 md:mx-34 lg:mx-44 ">
     <div class="flex-1 space-y-6">
@@ -50,7 +73,7 @@
     </div>
     <div class="flex-1 flex justify-center md:justify-end">
      <div class="w-[320px] h-[320px] sm:w-[370px] sm:h-[370px] md:w-[420px] md:h-[420px] lg:w-[477px] lg:h-[477px] rounded-full border-8 border-white shadow-2xl flex items-center justify-center bg-white">
-      <img alt="University of Cebu Student Affairs Office logo" class="w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] md:w-[400px] md:h-[400px] lg:w-[457px] lg:h-[457px] object-cover rounded-full" src="../../sao-logo.jpg"/>
+       <img alt="University of Cebu Student Affairs Office logo" class="w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] md:w-[400px] md:h-[400px] lg:w-[457px] lg:h-[457px] object-cover rounded-full" src="/Frontend/Assests/sao logo.jpg"/>
      </div>
     </div>
    </div>

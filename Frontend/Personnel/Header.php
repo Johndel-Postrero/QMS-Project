@@ -1,5 +1,6 @@
 <?php
 // Admin Header Component for SeQueueR
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 ?>
 <header class="bg-white border-b border-gray-200 shadow-sm">
     <div class="flex items-center justify-between py-3 px-6 md:px-10 mx-4 md:mx-8 lg:mx-12">
@@ -42,22 +43,30 @@
                 </a>
             </nav>
             
-            <!-- User Profile Section -->
-            <div class="flex items-center space-x-3">
-                <!-- User Profile Picture -->
-                <div class="relative">
-                    <img id="userProfileImage" 
-                         src="https://placehold.co/40x40/4f46e5/ffffff?text=U" 
-                         alt="User Profile" 
-                         class="w-10 h-10 rounded-full border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-colors"
-                         onclick="toggleUserDropdown()">
+            <!-- Right side: Login button if not logged in, else user profile -->
+            <?php if (!isset($_SESSION['user'])): ?>
+                <div>
+                    <a href="Signin.php" class="bg-yellow-400 text-blue-900 font-semibold rounded-md shadow-sm hover:brightness-110 transition flex items-center justify-center" style="padding: 8px 16px; min-width: 92px; height: 36px;">
+                        Login
+                    </a>
                 </div>
-                
-                <!-- Dropdown Arrow -->
-                <button id="userDropdownBtn" class="text-gray-400 hover:text-gray-600 transition-colors" onclick="toggleUserDropdown()">
-                    <i class="fas fa-chevron-down text-sm transition-transform" id="profileArrow"></i>
-                </button>
-            </div>
+            <?php else: ?>
+                <div class="flex items-center space-x-3">
+                    <!-- User Profile Picture -->
+                    <div class="relative">
+                        <img id="userProfileImage" 
+                             src="https://placehold.co/40x40/4f46e5/ffffff?text=U" 
+                             alt="User Profile" 
+                             class="w-10 h-10 rounded-full border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-colors"
+                             onclick="toggleUserDropdown()">
+                    </div>
+                    
+                    <!-- Dropdown Arrow -->
+                    <button id="userDropdownBtn" class="text-gray-400 hover:text-gray-600 transition-colors" onclick="toggleUserDropdown()">
+                        <i class="fas fa-chevron-down text-sm transition-transform" id="profileArrow"></i>
+                    </button>
+                </div>
+            <?php endif; ?>
     </div>
 </header>
 
@@ -377,9 +386,7 @@
     
     // Confirm logout
     function confirmLogout() {
-        // TODO: Add logout logic here (clear session, redirect to login page, etc.)
-        // For now, redirect to signin page
-        window.location.href = '../Signin.php';
+        window.location.href = 'Logout.php';
     }
     
     // Make functions globally available

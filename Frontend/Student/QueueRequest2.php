@@ -63,8 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="min-h-screen flex flex-col bg-gradient-to-r from-white via-slate-200 to-sky-500">
     <?php include 'Header.php'; ?>
     
-    <main class="flex-grow flex items-start justify-center pt-20 pb-20">
-        <div class="bg-white rounded-lg shadow-lg max-w-xl w-full p-8" style="box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);">
+    <main class="flex-grow flex items-start justify-center pt-20 pb-20 relative overflow-hidden">
+        <img alt="Background" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none select-none" src="/Frontend/Assests/Background.png"/>
+        <div class="relative bg-white rounded-lg shadow-lg max-w-xl w-full p-8" style="box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);">
                 <div class="flex justify-center mb-6">
                     <div class="bg-yellow-100 rounded-full p-4">
                         <i class="fas fa-ticket-alt text-yellow-400 text-xl"></i>
