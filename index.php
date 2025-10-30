@@ -21,7 +21,7 @@
  </head>
  <body class="bg-white text-gray-700">
     <!-- Header Component -->
-    <?php include 'Header.php'; ?>
+    <?php include 'Frontend/Student/Header.php'; ?>
    <main class="bg-[#00447a] text-white flex items-center" style="height: calc(100vh - 80px);">
      <div class="flex flex-col md:flex-row items-center justify-between px-6 md:px-10 gap-12 md:gap-20 w-full mx-20 md:mx-34 lg:mx-44 ">
     <div class="flex-1 space-y-6">
@@ -55,6 +55,6 @@
    </div>
   </main>
   <!-- Footer Component -->
-  <?php include '../Footer.php'; ?>
+  <?php include 'Frontend/Footer.php'; ?>
  </body>
 </html>

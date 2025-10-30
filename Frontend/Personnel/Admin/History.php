@@ -1,3 +1,98 @@
+<?php
+session_start();
+require_once __DIR__ . '/../../Student/db_config.php';
+require_once __DIR__ . '/../admin_functions.php';
+
+// Get database connection
+$conn = getDBConnection();
+
+// Pagination
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$limit = 10;
+$offset = ($page - 1) * $limit;
+
+// Filters
+$search = $_GET['search'] ?? '';
+$dateRange = $_GET['date_range'] ?? '';
+$status = $_GET['status'] ?? '';
+$service = $_GET['service'] ?? '';
+
+// Build query
+$where = ["DATE(q.created_at) <= CURDATE()"];
+$params = [];
+$types = '';
+
+if ($search) {
+    $where[] = "(q.queue_number LIKE ? OR q.student_name LIKE ? OR q.student_id LIKE ?)";
+    $searchTerm = "%$search%";
+    $params[] = $searchTerm;
+    $params[] = $searchTerm;
+    $params[] = $searchTerm;
+    $types .= 'sss';
+}
+
+if ($status) {
+    $where[] = "q.status = ?";
+    $params[] = $status;
+    $types .= 's';
+}
+
+if ($dateRange) {
+    switch ($dateRange) {
+        case 'today':
+            $where[] = "DATE(q.created_at) = CURDATE()";
+            break;
+        case 'week':
+            $where[] = "YEARWEEK(q.created_at) = YEARWEEK(NOW())";
+            break;
+        case 'month':
+            $where[] = "MONTH(q.created_at) = MONTH(NOW()) AND YEAR(q.created_at) = YEAR(NOW())";
+            break;
+    }
+}
+
+$whereClause = implode(' AND ', $where);
+
+// Get total count
+$countQuery = "SELECT COUNT(*) as total FROM queues q WHERE $whereClause";
+if ($types) {
+    $countStmt = $conn->prepare($countQuery);
+    $countStmt->bind_param($types, ...$params);
+    $countStmt->execute();
+    $countResult = $countStmt->get_result();
+} else {
+    $countResult = $conn->query($countQuery);
+}
+$totalRows = $countResult->fetch_assoc()['total'];
+$totalPages = ceil($totalRows / $limit);
+
+// Get transactions
+$query = "
+    SELECT 
+        q.*,
+        GROUP_CONCAT(qs.service_name SEPARATOR ', ') as services
+    FROM queues q
+    LEFT JOIN queue_services qs ON q.id = qs.queue_id
+    WHERE $whereClause
+    GROUP BY q.id
+    ORDER BY q.created_at DESC
+    LIMIT ? OFFSET ?
+";
+
+$params[] = $limit;
+$params[] = $offset;
+$types .= 'ii';
+
+$stmt = $conn->prepare($query);
+if ($types) {
+    $stmt->bind_param($types, ...$params);
+}
+$stmt->execute();
+$result = $stmt->get_result();
+$transactions = $result->fetch_all(MYSQLI_ASSOC);
+
+$conn->close();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,10 +109,8 @@
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Include Admin Header -->
     <?php include 'Header.php'; ?>
     
-    <!-- Main Content -->
     <main class="bg-gray-50 min-h-screen">
         <div class="py-8 px-6 md:px-10 mx-4 md:mx-8 lg:mx-12">
             <!-- Header Section -->
@@ -26,53 +119,10 @@
                     <h1 class="text-3xl font-bold text-gray-900">Transaction History</h1>
                     <p class="text-gray-600 mt-2">View and manage your past queue transactions</p>
                 </div>
-                <!-- Export Dropdown -->
-                <div class="mt-4 sm:mt-0 relative" id="exportDropdown">
-                    <button id="exportBtn" class="bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg flex items-center space-x-2" onclick="toggleExportDropdown(event)">
-                        <i class="fas fa-download"></i>
-                        <span>Export</span>
-                        <i class="fas fa-chevron-down ml-1"></i>
-                    </button>
-                    
-                    <!-- Dropdown Menu -->
-                    <div id="exportMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-10">
-                        <div class="py-2">
-                            <div class="px-4 py-2 text-sm font-medium text-gray-700 border-b border-gray-100">
-                                File Type
-                            </div>
-                            <div class="py-1">
-                                <button onclick="exportToPDF()" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-3">
-                                    <div class="w-6 h-6 bg-red-500 rounded flex items-center justify-center">
-                                        <span class="text-white text-xs font-bold">PDF</span>
-                                    </div>
-                                    <span>PDF</span>
-                                </button>
-                                <button onclick="exportToExcel()" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-3">
-                                    <div class="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
-                                        <span class="text-white text-xs font-bold">X</span>
-                                    </div>
-                                    <span>Excel</span>
-                                </button>
-                                <button onclick="exportToCSV()" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-3">
-                                    <div class="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
-                                        <span class="text-white text-xs font-bold">CSV</span>
-                                    </div>
-                                    <span>CSV</span>
-                                </button>
-                                <button onclick="exportToWord()" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-3">
-                                    <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
-                                        <span class="text-white text-xs font-bold">W</span>
-                                    </div>
-                                    <span>Word</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Search and Filter Bar -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+            <form method="GET" action="History.php" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:space-x-4 space-y-4 lg:space-y-0">
                     <!-- Search Input -->
                     <div class="flex-1">
@@ -80,56 +130,38 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-search text-gray-400"></i>
                             </div>
-                            <input type="text" id="searchInput" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Search by queue number, student name, or...">
+                            <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Search by queue number, student name, or ID...">
                         </div>
                     </div>
                     
                     <!-- Filter Dropdowns -->
                     <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-                        <div class="relative">
-                            <select id="dateRangeFilter" class="appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Select Date Range</option>
-                                <option value="today">Today</option>
-                                <option value="week">This Week</option>
-                                <option value="month">This Month</option>
-                                <option value="custom">Custom Range</option>
-                            </select>
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                <i class="fas fa-calendar text-gray-400"></i>
-                            </div>
-                        </div>
+                        <select name="date_range" class="appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">All Time</option>
+                            <option value="today" <?php echo $dateRange === 'today' ? 'selected' : ''; ?>>Today</option>
+                            <option value="week" <?php echo $dateRange === 'week' ? 'selected' : ''; ?>>This Week</option>
+                            <option value="month" <?php echo $dateRange === 'month' ? 'selected' : ''; ?>>This Month</option>
+                        </select>
                         
-                        <div class="relative">
-                            <select id="statusFilter" class="appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">All Statuses</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                                <option value="stalled">Stalled</option>
-                            </select>
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                <i class="fas fa-circle text-gray-400"></i>
-                            </div>
-                        </div>
+                        <select name="status" class="appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">All Statuses</option>
+                            <option value="completed" <?php echo $status === 'completed' ? 'selected' : ''; ?>>Completed</option>
+                            <option value="stalled" <?php echo $status === 'stalled' ? 'selected' : ''; ?>>Stalled</option>
+                            <option value="skipped" <?php echo $status === 'skipped' ? 'selected' : ''; ?>>Skipped</option>
+                        </select>
                         
-                        <div class="relative">
-                            <select id="serviceFilter" class="appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">All Services</option>
-                                <option value="good_moral">Good Moral Certificate</option>
-                                <option value="transcript">Transcript Request</option>
-                                <option value="certificate">Certificate Request</option>
-                            </select>
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                <i class="fas fa-file-alt text-gray-400"></i>
-                            </div>
-                        </div>
-                        
-                        <button id="clearFiltersBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-md flex items-center space-x-2">
-                            <i class="fas fa-sync-alt"></i>
-                            <span>Clear Filters</span>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md flex items-center space-x-2">
+                            <i class="fas fa-filter"></i>
+                            <span>Filter</span>
                         </button>
+                        
+                        <a href="History.php" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-md flex items-center space-x-2">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Clear</span>
+                        </a>
                     </div>
                 </div>
-            </div>
+            </form>
 
             <!-- Transaction Table -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -137,446 +169,123 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('queueNumber')">
-                                    <div class="flex items-center space-x-1">
-                                        <span>Queue Number</span>
-                                        <i class="fas fa-sort text-gray-400"></i>
-                                    </div>
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('studentName')">
-                                    <div class="flex items-center space-x-1">
-                                        <span>Student Name</span>
-                                        <i class="fas fa-sort text-gray-400"></i>
-                                    </div>
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('serviceType')">
-                                    <div class="flex items-center space-x-1">
-                                        <span>Service Type</span>
-                                        <i class="fas fa-sort text-gray-400"></i>
-                                    </div>
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('status')">
-                                    <div class="flex items-center space-x-1">
-                                        <span>Status</span>
-                                        <i class="fas fa-sort text-gray-400"></i>
-                                    </div>
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('dateTime')">
-                                    <div class="flex items-center space-x-1">
-                                        <span>Date & Time</span>
-                                        <i class="fas fa-sort text-gray-400"></i>
-                                    </div>
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('waitTime')">
-                                    <div class="flex items-center space-x-1">
-                                        <span>Wait Time</span>
-                                        <i class="fas fa-sort text-gray-400"></i>
-                                    </div>
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('handledBy')">
-                                    <div class="flex items-center space-x-1">
-                                        <span>Handled By</span>
-                                        <i class="fas fa-sort text-gray-400"></i>
-                                    </div>
-                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Queue #</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Service Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date & Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Wait Time</th>
                             </tr>
                         </thead>
-                        <tbody id="transactionTableBody" class="bg-white divide-y divide-gray-200">
-                            <!-- Data will be populated by JavaScript -->
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <?php if (empty($transactions)): ?>
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center">
+                                    <div class="flex flex-col items-center">
+                                        <i class="fas fa-history text-gray-300 text-4xl mb-4"></i>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-2">No transactions found</h3>
+                                        <p class="text-gray-500">Try adjusting your filters or search terms</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php else: ?>
+                            <?php foreach ($transactions as $transaction): ?>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <?php if ($transaction['queue_type'] === 'priority'): ?>
+                                        <i class="fas fa-star text-yellow-500 mr-2"></i>
+                                        <?php endif; ?>
+                                        <span class="text-sm font-medium text-blue-600"><?php echo htmlspecialchars($transaction['queue_number']); ?></span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($transaction['student_name']); ?></div>
+                                    <div class="text-sm text-gray-500"><?php echo htmlspecialchars($transaction['student_id']); ?></div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900">
+                                        <?php 
+                                        $services = $transaction['services'] ? explode(', ', $transaction['services']) : [];
+                                        echo !empty($services) ? htmlspecialchars($services[0]) : 'N/A';
+                                        if (count($services) > 1) {
+                                            echo ' <span class="text-xs text-blue-600">+' . (count($services) - 1) . '</span>';
+                                        }
+                                        ?>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <?php
+                                    $statusColors = [
+                                        'completed' => 'bg-green-100 text-green-800',
+                                        'stalled' => 'bg-yellow-100 text-yellow-800',
+                                        'skipped' => 'bg-red-100 text-red-800',
+                                        'waiting' => 'bg-blue-100 text-blue-800',
+                                        'serving' => 'bg-purple-100 text-purple-800'
+                                    ];
+                                    $statusColor = $statusColors[$transaction['status']] ?? 'bg-gray-100 text-gray-800';
+                                    ?>
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full <?php echo $statusColor; ?>">
+                                        <?php echo ucfirst($transaction['status']); ?>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?php 
+                                    $datetime = new DateTime($transaction['created_at']);
+                                    echo $datetime->format('M d, Y');
+                                    ?>
+                                    <div class="text-gray-500"><?php echo $datetime->format('g:i A'); ?></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?php 
+                                    if ($transaction['served_at'] && $transaction['created_at']) {
+                                        $created = new DateTime($transaction['created_at']);
+                                        $served = new DateTime($transaction['served_at']);
+                                        $diff = $created->diff($served);
+                                        echo $diff->h . 'h ' . $diff->i . 'm';
+                                    } else {
+                                        echo '--';
+                                    }
+                                    ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <!-- Pagination -->
+            <?php if ($totalPages > 1): ?>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-6">
                 <div class="text-sm text-gray-700 mb-4 sm:mb-0">
-                    Showing <span id="showingFrom">0</span> to <span id="showingTo">0</span> of <span id="totalResults">0</span> results
+                    Showing <?php echo min($offset + 1, $totalRows); ?> to <?php echo min($offset + $limit, $totalRows); ?> of <?php echo $totalRows; ?> results
                 </div>
-                <div id="pagination" class="flex items-center space-x-2">
-                    <!-- Pagination will be generated dynamically -->
+                <div class="flex items-center space-x-2">
+                    <?php if ($page > 1): ?>
+                    <a href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&date_range=<?php echo $dateRange; ?>&status=<?php echo $status; ?>" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                        &lt; Previous
+                    </a>
+                    <?php endif; ?>
+                    
+                    <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
+                    <a href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&date_range=<?php echo $dateRange; ?>&status=<?php echo $status; ?>" class="px-3 py-2 text-sm font-medium <?php echo $i === $page ? 'text-blue-600 bg-blue-50 border-blue-300' : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50'; ?> border rounded-md">
+                        <?php echo $i; ?>
+                    </a>
+                    <?php endfor; ?>
+                    
+                    <?php if ($page < $totalPages): ?>
+                    <a href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&date_range=<?php echo $dateRange; ?>&status=<?php echo $status; ?>" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                        Next &gt;
+                    </a>
+                    <?php endif; ?>
                 </div>
             </div>
+            <?php endif; ?>
         </div>
     </main>
     
-    <!-- Include Footer -->
     <?php include '../../Footer.php'; ?>
-    
-    <script>
-        // Backend-ready JavaScript for Transaction History
-        let transactions = [];
-        let currentPage = 1;
-        let totalPages = 1;
-        let itemsPerPage = 10;
-        let currentSort = { column: '', direction: 'asc' };
-        let currentFilters = {
-            search: '',
-            dateRange: '',
-            status: '',
-            service: ''
-        };
-        
-        // Initialize the interface
-        document.addEventListener('DOMContentLoaded', function() {
-            loadTransactionHistory();
-            setupEventListeners();
-        });
-        
-        // Load transaction history from backend
-        function loadTransactionHistory() {
-            const params = new URLSearchParams({
-                page: currentPage,
-                limit: itemsPerPage,
-                sort: currentSort.column,
-                direction: currentSort.direction,
-                ...currentFilters
-            });
-            
-            // TODO: Replace with actual API call
-            fetch(`/api/history/transactions?${params}`)
-                .then(response => response.json())
-                .then(data => {
-                    transactions = data.transactions || [];
-                    totalPages = data.totalPages || 1;
-                    updateTransactionTable();
-                    updatePagination();
-                    updateExportButton();
-                })
-                .catch(error => {
-                    console.log('No backend connection yet - using empty state');
-                    transactions = [];
-                    totalPages = 1;
-                    updateTransactionTable();
-                    updatePagination();
-                    updateExportButton();
-                });
-        }
-        
-        // Update transaction table
-        function updateTransactionTable() {
-            const tbody = document.getElementById('transactionTableBody');
-            
-            if (transactions.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="px-6 py-12 text-center">
-                            <div class="flex flex-col items-center">
-                                <i class="fas fa-history text-gray-300 text-4xl mb-4"></i>
-                                <h3 class="text-lg font-medium text-gray-900 mb-2">No transactions found</h3>
-                                <p class="text-gray-500">No transaction history available at the moment.</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            tbody.innerHTML = transactions.map(transaction => `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            ${transaction.priority === 'priority' ? '<i class="fas fa-star text-yellow-500 mr-2"></i>' : ''}
-                            <span class="text-sm font-medium text-blue-600">${transaction.queueNumber}</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div>
-                            <div class="text-sm font-medium text-gray-900">${transaction.studentName}</div>
-                            <div class="text-sm text-gray-500">${transaction.studentId}</div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <i class="fas fa-certificate text-yellow-500 mr-2"></i>
-                            <span class="text-sm text-gray-900">${transaction.serviceType}</span>
-                            ${transaction.additionalServices > 0 ? `<span class="text-xs text-blue-600 ml-1">+${transaction.additionalServices}</span>` : ''}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            transaction.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            transaction.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                            'bg-yellow-100 text-yellow-800'
-                        }">
-                            ${transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <div>
-                            <div>${transaction.dateTime}</div>
-                            <div class="text-gray-500">${transaction.time}</div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${transaction.waitTime}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${transaction.handledBy || '--'}
-                    </td>
-                </tr>
-            `).join('');
-        }
-        
-        // Update pagination
-        function updatePagination() {
-            const pagination = document.getElementById('pagination');
-            const showingFrom = document.getElementById('showingFrom');
-            const showingTo = document.getElementById('showingTo');
-            const totalResults = document.getElementById('totalResults');
-            
-            const startItem = (currentPage - 1) * itemsPerPage + 1;
-            const endItem = Math.min(currentPage * itemsPerPage, transactions.length);
-            
-            showingFrom.textContent = transactions.length > 0 ? startItem : 0;
-            showingTo.textContent = endItem;
-            totalResults.textContent = transactions.length;
-            
-            if (totalPages <= 1) {
-                pagination.innerHTML = '';
-                return;
-            }
-            
-            let paginationHTML = '';
-            
-            // Previous button
-            if (currentPage > 1) {
-                paginationHTML += `
-                    <button onclick="changePage(${currentPage - 1})" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                        < Previous
-                    </button>
-                `;
-            } else {
-                paginationHTML += `
-                    <button disabled class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-300 border border-gray-300 rounded-md cursor-not-allowed">
-                        < Previous
-                    </button>
-                `;
-            }
-            
-            // Page numbers
-            const maxVisiblePages = 5;
-            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-            
-            if (endPage - startPage + 1 < maxVisiblePages) {
-                startPage = Math.max(1, endPage - maxVisiblePages + 1);
-            }
-            
-            if (startPage > 1) {
-                paginationHTML += `
-                    <button onclick="changePage(1)" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">1</button>
-                `;
-                if (startPage > 2) {
-                    paginationHTML += `<span class="px-3 py-2 text-sm text-gray-500">...</span>`;
-                }
-            }
-            
-            for (let i = startPage; i <= endPage; i++) {
-                paginationHTML += `
-                    <button onclick="changePage(${i})" class="px-3 py-2 text-sm font-medium ${
-                        i === currentPage ? 'text-blue-600 bg-blue-50 border-blue-300' : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50'
-                    } border rounded-md">
-                        ${i}
-                    </button>
-                `;
-            }
-            
-            if (endPage < totalPages) {
-                if (endPage < totalPages - 1) {
-                    paginationHTML += `<span class="px-3 py-2 text-sm text-gray-500">...</span>`;
-                }
-                paginationHTML += `
-                    <button onclick="changePage(${totalPages})" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">${totalPages}</button>
-                `;
-            }
-            
-            // Next button
-            if (currentPage < totalPages) {
-                paginationHTML += `
-                    <button onclick="changePage(${currentPage + 1})" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                        Next >
-                    </button>
-                `;
-            } else {
-                paginationHTML += `
-                    <button disabled class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-300 border border-gray-300 rounded-md cursor-not-allowed">
-                        Next >
-                    </button>
-                `;
-            }
-            
-            pagination.innerHTML = paginationHTML;
-        }
-        
-        // Update export button state
-        function updateExportButton() {
-            const exportBtn = document.getElementById('exportBtn');
-            if (transactions.length === 0) {
-                exportBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                exportBtn.classList.remove('hover:bg-blue-800');
-            } else {
-                exportBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                exportBtn.classList.add('hover:bg-blue-800');
-            }
-        }
-        
-        // Setup event listeners
-        function setupEventListeners() {
-            document.getElementById('searchInput').addEventListener('input', debounce(handleSearch, 300));
-            document.getElementById('dateRangeFilter').addEventListener('change', handleFilterChange);
-            document.getElementById('statusFilter').addEventListener('change', handleFilterChange);
-            document.getElementById('serviceFilter').addEventListener('change', handleFilterChange);
-            document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                const dropdown = document.getElementById('exportDropdown');
-                if (!dropdown.contains(event.target)) {
-                    closeExportDropdown();
-                }
-            });
-        }
-        
-        // Handle search
-        function handleSearch(event) {
-            currentFilters.search = event.target.value;
-            currentPage = 1;
-            loadTransactionHistory();
-        }
-        
-        // Handle filter changes
-        function handleFilterChange(event) {
-            const filterType = event.target.id.replace('Filter', '');
-            currentFilters[filterType] = event.target.value;
-            currentPage = 1;
-            loadTransactionHistory();
-        }
-        
-        // Clear all filters
-        function clearFilters() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('dateRangeFilter').value = '';
-            document.getElementById('statusFilter').value = '';
-            document.getElementById('serviceFilter').value = '';
-            
-            currentFilters = {
-                search: '',
-                dateRange: '',
-                status: '',
-                service: ''
-            };
-            
-            currentPage = 1;
-            loadTransactionHistory();
-        }
-        
-        // Change page
-        function changePage(page) {
-            currentPage = page;
-            loadTransactionHistory();
-        }
-        
-        // Sort table
-        function sortTable(column) {
-            if (currentSort.column === column) {
-                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-            } else {
-                currentSort.column = column;
-                currentSort.direction = 'asc';
-            }
-            
-            currentPage = 1;
-            loadTransactionHistory();
-        }
-        
-        // Toggle export dropdown
-        function toggleExportDropdown(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            
-            // Don't open dropdown if there are no transactions
-            if (transactions.length === 0) {
-                console.log('No transactions to export');
-                return;
-            }
-            
-            console.log('Export button clicked'); // Debug log
-            
-            const menu = document.getElementById('exportMenu');
-            if (menu.classList.contains('hidden')) {
-                openExportDropdown();
-            } else {
-                closeExportDropdown();
-            }
-        }
-        
-        // Open export dropdown
-        function openExportDropdown() {
-            const menu = document.getElementById('exportMenu');
-            menu.classList.remove('hidden');
-            console.log('Dropdown opened'); // Debug log
-        }
-        
-        // Close export dropdown
-        function closeExportDropdown() {
-            const menu = document.getElementById('exportMenu');
-            menu.classList.add('hidden');
-            console.log('Dropdown closed'); // Debug log
-        }
-        
-        // Export functions (no backend yet)
-        function exportToPDF() {
-            if (transactions.length === 0) {
-                console.log('No transactions to export to PDF');
-                return;
-            }
-            closeExportDropdown();
-            console.log('Export to PDF - Backend not implemented yet');
-        }
-        
-        function exportToExcel() {
-            if (transactions.length === 0) {
-                console.log('No transactions to export to Excel');
-                return;
-            }
-            closeExportDropdown();
-            console.log('Export to Excel - Backend not implemented yet');
-        }
-        
-        function exportToCSV() {
-            if (transactions.length === 0) {
-                console.log('No transactions to export to CSV');
-                return;
-            }
-            closeExportDropdown();
-            console.log('Export to CSV - Backend not implemented yet');
-        }
-        
-        function exportToWord() {
-            if (transactions.length === 0) {
-                console.log('No transactions to export to Word');
-                return;
-            }
-            closeExportDropdown();
-            console.log('Export to Word - Backend not implemented yet');
-        }
-        
-        // Debounce function for search
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-        
-        // Auto-refresh data every 60 seconds
-        setInterval(loadTransactionHistory, 60000);
-    </script>
 </body>
 </html>

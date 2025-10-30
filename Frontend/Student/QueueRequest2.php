@@ -16,6 +16,7 @@ $services = [
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['services']) && is_array($_POST['services'])) {
         $_SESSION['selected_services'] = $_POST['services'];
+        header('Location: create_ticket.php');
         // Redirect to Step 3
         header('Location: QueueRequest3.php');
         exit;

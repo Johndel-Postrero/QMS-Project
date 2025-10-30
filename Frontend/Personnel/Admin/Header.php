@@ -6,7 +6,7 @@
             <!-- Logo and Application Name Section -->
             <div class="flex items-center space-x-4">
                 <!-- University Seal Logo -->
-                <img alt="University of Cebu Student Affairs circular seal" class="h-12 w-12 rounded-full object-cover" src="../../../sao-nobg.png"/>
+                <img alt="University of Cebu Student Affairs circular seal" class="h-12 w-12 rounded-full object-cover" src="/Frontend/Assests/sao logo.jpg"/>
                 
                 <!-- Application Name -->
                 <div class="leading-tight">

@@ -78,11 +78,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['studentid'] = $oldStudentId;
         $_SESSION['yearlevel'] = $oldYearLevel;
         $_SESSION['courseprogram'] = $oldCourseProgram;
-
+		
+        header('Location: create_ticket.php');
         // Redirect to Step 2
         header('Location: QueueRequest2.php');
         exit;
     }
+   
 }
 
 // TODO: Handle AJAX course search when implementing backend
