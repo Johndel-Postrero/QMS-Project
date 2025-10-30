@@ -1,3 +1,190 @@
+<?php
+// Handle backend actions for Account Management (create user)
+if (isset($_GET['action']) && $_GET['action'] === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Ensure no previous output corrupts JSON
+    if (function_exists('ob_get_level')) {
+        while (ob_get_level() > 0) { ob_end_clean(); }
+    }
+    header('Content-Type: application/json; charset=utf-8');
+
+    require_once __DIR__ . '/../../../config.php';
+
+    $raw = file_get_contents('php://input');
+    $data = json_decode($raw, true);
+    if (!is_array($data)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Invalid JSON payload']);
+        exit;
+    }
+
+    $fullName = trim($data['fullName'] ?? '');
+    $idNumber = trim($data['idNumber'] ?? '');
+    $course = trim($data['course'] ?? '');
+    $yearLevel = trim($data['yearLevel'] ?? '');
+    $email = trim($data['email'] ?? '');
+    $mobile = trim($data['mobile'] ?? '');
+    $password = (string)($data['password'] ?? '');
+
+    if ($fullName === '' || $idNumber === '' || $course === '' || $yearLevel === '' || $email === '' || $password === '') {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Missing required fields']);
+        exit;
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Invalid email address']);
+        exit;
+    }
+
+    // Map to your DB schema
+    // StudentID is int(8): sanitize to digits only
+    $studentIdDigits = preg_replace('/\D+/', '', $idNumber);
+    if ($studentIdDigits === '') {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'ID Number must contain digits']);
+        exit;
+    }
+    $studentId = (int)$studentIdDigits;
+
+    // Password column is varchar(32): store MD5 (32 chars). Note: legacy.
+    $passwordMd5 = md5($password);
+
+    // Update table name here if different from `users`
+    $table = 'Accounts';
+
+    // Ensure a table with columns (FullName, StudentID, Course, YearLevel, Email, Password) exists
+    $stmt = $conn->prepare(
+        "INSERT INTO {$table} (FullName, StudentID, Course, YearLevel, Email, Password) VALUES (?, ?, ?, ?, ?, ?)"
+    );
+
+    if (!$stmt) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Prepare failed: ' . $conn->error]);
+        exit;
+    }
+
+    $stmt->bind_param('sissss', $fullName, $studentId, $course, $yearLevel, $email, $passwordMd5);
+
+    if (!$stmt->execute()) {
+        $error = $stmt->error ?: 'Insert failed';
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => $error]);
+        $stmt->close();
+        exit;
+    }
+
+    $newId = $stmt->insert_id;
+    $stmt->close();
+
+    echo json_encode([
+        'success' => true,
+        'user' => [
+            'id' => $newId,
+            'idNumber' => $studentId,
+            'name' => $fullName,
+            'email' => $email,
+            'course' => $course,
+            'yearLevel' => $yearLevel,
+            'mobile' => $mobile
+        ]
+    ]);
+    exit;
+}
+// Handle backend action: list users
+if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    if (function_exists('ob_get_level')) { while (ob_get_level() > 0) { ob_end_clean(); } }
+    header('Content-Type: application/json; charset=utf-8');
+
+    require_once __DIR__ . '/../../../config.php';
+
+    $page = max(1, (int)($_GET['page'] ?? 1));
+    $limit = max(1, min(100, (int)($_GET['limit'] ?? 10)));
+    $offset = ($page - 1) * $limit;
+
+    $sort = $_GET['sort'] ?? '';
+    $direction = strtolower($_GET['direction'] ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
+    $allowedSort = [
+        'idNumber' => 'StudentID',
+        'name' => 'FullName',
+        'email' => 'Email'
+    ];
+    $orderBy = $allowedSort[$sort] ?? 'FullName';
+
+    $search = trim((string)($_GET['search'] ?? ''));
+
+    $whereSql = '';
+    $params = [];
+    $types = '';
+    if ($search !== '') {
+        $whereSql = 'WHERE FullName LIKE ? OR Email LIKE ? OR CAST(StudentID AS CHAR) LIKE ?';
+        $like = '%' . $search . '%';
+        $params = [$like, $like, $like];
+        $types = 'sss';
+    }
+
+    // Count total
+    $countSql = "SELECT COUNT(*) AS cnt FROM Accounts $whereSql";
+    $countStmt = $conn->prepare($countSql);
+    if ($countStmt) {
+        if ($types !== '') { $countStmt->bind_param($types, ...$params); }
+        $countStmt->execute();
+        $countRes = $countStmt->get_result();
+        $row = $countRes ? $countRes->fetch_assoc() : ['cnt' => 0];
+        $total = (int)($row['cnt'] ?? 0);
+        $countStmt->close();
+    } else {
+        $total = 0;
+    }
+
+    // Fetch page
+    $sql = "SELECT FullName, StudentID, Course, YearLevel, Email FROM Accounts $whereSql ORDER BY $orderBy $direction LIMIT ? OFFSET ?";
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Prepare failed: ' . $conn->error]);
+        exit;
+    }
+
+    if ($types !== '') {
+        $typesWithLimit = $types . 'ii';
+        $paramsWithLimit = array_merge($params, [$limit, $offset]);
+        $stmt->bind_param($typesWithLimit, ...$paramsWithLimit);
+    } else {
+        $stmt->bind_param('ii', $limit, $offset);
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $users = [];
+    $autoId = $offset + 1;
+    while ($r = $result->fetch_assoc()) {
+        $users[] = [
+            'id' => $autoId++,
+            'idNumber' => (string)$r['StudentID'],
+            'name' => $r['FullName'],
+            'email' => $r['Email'],
+            'course' => $r['Course'],
+            'yearLevel' => $r['YearLevel'],
+            'mobile' => '',
+            'role' => 'working_scholar',
+            'status' => 'active',
+            'lastActive' => '-'
+        ];
+    }
+    $stmt->close();
+
+    $totalPages = max(1, (int)ceil($total / $limit));
+
+    echo json_encode([
+        'success' => true,
+        'users' => $users,
+        'total' => $total,
+        'totalPages' => $totalPages
+    ]);
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -675,6 +862,7 @@
         let users = [];
         let currentPage = 1;
         let totalPages = 1;
+        let totalCount = 0;
         let itemsPerPage = 10;
         let currentSort = { column: '', direction: 'asc' };
         let currentFilters = {
@@ -699,12 +887,13 @@
                 ...currentFilters
             });
             
-            // TODO: Replace with actual API call
-            fetch(`/api/admin/users?${params}`)
+            // Fetch from backend in this file
+            fetch(`User.php?action=list&${params}`)
                 .then(response => response.json())
                 .then(data => {
                     users = data.users || [];
                     totalPages = data.totalPages || 1;
+                    totalCount = data.total || users.length;
                     updateUsersTable();
                     updatePagination();
                     updateExportButton();
@@ -714,6 +903,7 @@
                     // No dummy data - empty state
                     users = [];
                     totalPages = 1;
+                    totalCount = 0;
                     updateUsersTable();
                     updatePagination();
                     updateExportButton();
@@ -765,12 +955,7 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="w-2 h-2 rounded-full mr-2 ${
-                                user.status === 'active' ? 'bg-green-500' : 'bg-gray-400'
-                            }"></div>
-                            <span class="text-sm text-gray-900">${user.status === 'active' ? 'Active' : 'Inactive'}</span>
-                        </div>
+                        <span class="text-sm text-gray-900">-</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         ${user.lastActive}
@@ -808,11 +993,11 @@
             const totalResults = document.getElementById('totalResults');
             
             const startItem = (currentPage - 1) * itemsPerPage + 1;
-            const endItem = Math.min(currentPage * itemsPerPage, users.length);
+            const endItem = Math.min(currentPage * itemsPerPage, totalCount);
             
-            showingFrom.textContent = users.length > 0 ? startItem : 0;
+            showingFrom.textContent = totalCount > 0 ? startItem : 0;
             showingTo.textContent = endItem;
-            totalResults.textContent = users.length;
+            totalResults.textContent = totalCount;
             
             if (totalPages <= 1) {
                 pagination.innerHTML = '';
@@ -1441,8 +1626,8 @@
             // TODO: Send data to backend
             console.log('Submitting account data:', formData);
             
-            // Simulate API call
-            fetch('/api/admin/users/create', {
+            // Create account via backend handler in this file
+            fetch('User.php?action=create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1451,40 +1636,17 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Success:', data);
-                // Close add account modal
-                closeAddAccountModal();
-                // Show success modal with account details
-                showSuccessModal(formData);
-                // Refresh the user list
-                loadUsers();
+                if (data && data.success) {
+                    closeAddAccountModal();
+                    showSuccessModal(formData);
+                    loadUsers();
+                } else {
+                    throw new Error(data && data.error ? data.error : 'Unknown error');
+                }
             })
             .catch((error) => {
                 console.error('Error:', error);
-                // For demo purposes, show success message
-                closeAddAccountModal();
-                
-                // Add user to the list for demonstration
-                const newUser = {
-                    id: users.length + 1,
-                    idNumber: formData.idNumber,
-                    name: formData.fullName,
-                    email: formData.email,
-                    profileImage: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.fullName)}&background=1e40af&color=fff`,
-                    role: "working_scholar",
-                    status: "active",
-                    lastActive: "Just now",
-                    course: formData.course,
-                    yearLevel: formData.yearLevel,
-                    mobile: formData.mobile
-                };
-                
-                users.unshift(newUser);
-                updateUsersTable();
-                updatePagination();
-                
-                // Show success modal with account details
-                showSuccessModal(formData);
+                alert('Failed to create account: ' + (error?.message || 'Unknown error'));
             });
         }
         

@@ -1,3 +1,62 @@
+<?php
+// Session and DB-backed login for SeQueueR
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+
+$loginError = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once __DIR__ . '/../../config.php';
+
+    $username = trim($_POST['username'] ?? ''); // StudentID (may contain dashes)
+    $password = trim((string)($_POST['password'] ?? ''));
+
+    if ($username === '' || $password === '') {
+        $loginError = 'Please enter your ID number and password.';
+    } else {
+        // StudentID is sometimes stored as int (digits only) or kept with separators.
+        // We'll try to match both the numeric value and the raw string to be tolerant.
+        $studentIdDigits = preg_replace('/\D+/', '', $username);
+
+        $stmt = $conn->prepare('SELECT FullName, StudentID, Email, Course, YearLevel, Password FROM Accounts WHERE StudentID = ? OR StudentID = ? LIMIT 1');
+        if ($stmt) {
+            $studentId = (int)$studentIdDigits;
+            $stmt->bind_param('is', $studentId, $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row = $result ? $result->fetch_assoc() : null;
+            $stmt->close();
+
+            if ($row) {
+                $dbPassword = trim((string)$row['Password']);
+                // Accept both legacy MD5 hashes (32 hex chars) and plain-text for flexibility
+                if (preg_match('/^[a-f0-9]{32}$/i', $dbPassword)) {
+                    $passwordMatches = hash_equals(strtolower($dbPassword), strtolower(md5($password)));
+                } else {
+                    $passwordMatches = hash_equals($dbPassword, $password);
+                }
+                if ($passwordMatches) {
+                    $_SESSION['user'] = [
+                        'studentId' => (string)$row['StudentID'],
+                        'fullName' => $row['FullName'],
+                        'email' => $row['Email'],
+                        'course' => $row['Course'],
+                        'yearLevel' => $row['YearLevel'],
+                        'role' => 'working_scholar'
+                    ];
+                    header('Location: Working/Queue.php');
+                    exit;
+                } else {
+                    $loginError = 'Invalid credentials. Please try again.';
+                }
+            } else {
+                $loginError = 'Account not found.';
+            }
+        } else {
+            $loginError = 'Unable to process login right now.';
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,7 +77,12 @@
     <?php include 'LoginHeader.php'; ?>
     <main class="flex-grow flex justify-center items-center bg-gradient-to-r from-white via-slate-300 to-slate-600 relative overflow-hidden py-12">
         <img alt="University of Cebu campus buildings with modern architecture, blue sky, and trees, faded and tinted blue as background" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover opacity-70 pointer-events-none select-none" src="https://placehold.co/1920x1080/png?text=University+of+Cebu+Campus+Buildings+Background"/>
-        <form aria-label="SeQueueR Login Form" class="relative bg-white rounded-lg shadow-md max-w-xl w-full p-10 space-y-6">
+        <form aria-label="SeQueueR Login Form" class="relative bg-white rounded-lg shadow-md max-w-xl w-full p-10 space-y-6" method="post" action="">
+            <?php if (!empty($loginError)) { ?>
+                <div class="rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                    <?php echo htmlspecialchars($loginError, ENT_QUOTES, 'UTF-8'); ?>
+                </div>
+            <?php } ?>
             <div class="flex justify-center">
                 <div class="bg-yellow-400 rounded-full p-4">
                     <i class="fas fa-user-graduate text-blue-700 text-xl"></i>
