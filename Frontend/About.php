@@ -102,6 +102,7 @@ $project_stats = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php include '../Components/Head.php'; ?>
     <title>About SeQueueR - UC Student Affairs</title>
     <link rel="icon" type="image/png" href="/Frontend/favicon.php">
     <script src="https://cdn.tailwindcss.com"></script>
