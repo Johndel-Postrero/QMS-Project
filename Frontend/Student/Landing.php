@@ -34,12 +34,12 @@
      <p class="text-[18px] font-light leading-relaxed" style="max-width: 600px;">
       Skip the long lines. Get your queue number instantly and track your turn in real-time. Make your student affairs visits more efficient and stress-free.
      </p>
-     <div class="flex flex-wrap" style="gap: 30px;">
-      <a href="QueueRequest.php" class="bg-yellow-400 text-black font-semibold rounded-md shadow-md flex items-center gap-2 hover:brightness-110 transition text-[18px]" style="padding: 12px 24px; width: 260px; height: 50px; justify-content: center;">
+     <div class="flex flex-nowrap items-center" style="gap: 30px; overflow-x: auto;">
+      <a href="QueueRequest.php" class="bg-yellow-400 text-black font-semibold rounded-md shadow-md flex items-center gap-2 hover:brightness-110 transition text-[18px] shrink-0" style="padding: 12px 24px; width: 260px; height: 50px; justify-content: center;">
        <i class="fas fa-ticket-alt text-lg style="color: #070066ff !important;"></i>
        Get Queue Number
       </a>
-      <a href="About.php" class="border border-white text-white font-semibold rounded-md flex items-center gap-2 hover:bg-white hover:text-[#00447a] transition text-[18px]" style="padding: 12px 24px; width: 260px; height: 50px; justify-content: center;">
+      <a href="About.php" class="border border-white text-white font-semibold rounded-md flex items-center gap-2 hover:bg-white hover:text-[#00447a] transition text-[18px] shrink-0" style="padding: 12px 24px; width: 260px; height: 50px; justify-content: center;">
        <i class="fa fa-clock " style="color: #ffffff !important; "></i>
        </i>
        About SeQueueR

@@ -137,14 +137,14 @@ $conn->close();
                     <!-- Queue Status Overview -->
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-6">Queue Status Overview</h3>
-                        <div class="flex flex-col lg:flex-row lg:items-center lg:space-x-8">
+                        <div class="flex flex-col items-center">
                             <!-- Pie Chart -->
-                            <div class="flex-1 mb-6 lg:mb-0">
+                            <div class="mb-6 w-full max-w-sm">
                                 <canvas id="queueStatusChart" width="300" height="300"></canvas>
                             </div>
                             
                             <!-- Legend -->
-                            <div class="flex-1">
+                            <div class="w-full">
                                 <div class="space-y-3" id="queueStatusLegend">
                                     <!-- Will be populated by JavaScript -->
                                 </div>

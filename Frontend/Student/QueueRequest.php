@@ -131,7 +131,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col bg-gradient-to-r from-white via-slate-200 to-sky-500">
+<body class="min-h-screen flex flex-col" style="background-image: url('../Assests/QueueReqPic.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;">
     <?php include 'Header.php'; ?>
 
     <main class="flex-grow flex items-start justify-center pt-20 pb-20">
@@ -178,7 +178,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
                     </label>
                     <input autocomplete="student-id" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400" 
                            id="studentid" name="studentid" placeholder="e.g., 21411277" 
-                           required type="text" value="<?php echo htmlspecialchars($oldStudentId); ?>"/>
+                           required type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,'')" value="<?php echo htmlspecialchars($oldStudentId); ?>"/>
                     <p class="text-xs text-slate-500 mt-1">Enter your official university ID number</p>
                     <?php if ($errors['studentid']) { ?>
                         <p class="text-xs text-red-600 mt-1"><?php echo htmlspecialchars($errors['studentid']); ?></p>
