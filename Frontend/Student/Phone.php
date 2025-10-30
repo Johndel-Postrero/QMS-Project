@@ -1,9 +1,13 @@
 <?php
-// Example queue data - Replace with actual database query
-$queueNumber = "R-01";  // or "P-01" for priority
-$isPriority = (strpos($queueNumber, 'P-') === 0); // Check if it starts with 'P-'
-$position = 3;
-$peopleAhead = 2;
+// Queue Status Display - Backend Ready
+// TODO: Add backend integration to fetch queue data
+// Expected data: queueNumber, isPriority, position, peopleAhead
+
+// Default placeholder values (remove when backend is connected)
+$queueNumber = "--";
+$isPriority = false;
+$position = 0;
+$peopleAhead = 0;
 
 // Set colors based on queue type
 if ($isPriority) {
