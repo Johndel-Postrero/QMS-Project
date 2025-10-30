@@ -1,9 +1,42 @@
+<?php
+session_start();
+require_once __DIR__ . '/../../Student/db_config.php';
+require_once __DIR__ . '/../admin_functions.php';
+
+// Get database connection
+$conn = getDBConnection();
+
+// Get all dashboard data
+$stats = getQueueStatistics($conn);
+$recentActivity = getWaitingQueuesList($conn, 5); // Get last 5 for recent activity
+$currentlyServing = getCurrentlyServing($conn);
+
+// Get top services
+$topServicesQuery = "
+    SELECT qs.service_name, COUNT(*) as count
+    FROM queue_services qs
+    JOIN queues q ON qs.queue_id = q.id
+    WHERE DATE(q.created_at) = CURDATE()
+    GROUP BY qs.service_name
+    ORDER BY count DESC
+    LIMIT 5
+";
+$topServicesResult = $conn->query($topServicesQuery);
+$topServices = [];
+while ($row = $topServicesResult->fetch_assoc()) {
+    $topServices[] = $row;
+}
+
+// Close connection
+$conn->close();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - SeQueueR</title>
+    <link rel="icon" type="image/png" href="/Frontend/favicon.php">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -26,6 +59,7 @@
 <body class="bg-gray-50">
     <!-- Include Admin Header -->
     <?php include 'Header.php'; ?>
+    
     <!-- Main Content -->
     <main class="min-h-screen">
         <div class="py-8 px-6 md:px-10 mx-4 md:mx-8 lg:mx-12">
@@ -38,7 +72,7 @@
                             <i class="fas fa-list text-blue-600 text-xl"></i>
                         </div>
                         <div class="ml-4">
-                            <p class="text-3xl font-bold text-gray-900" id="totalQueuesToday">0</p>
+                            <p class="text-3xl font-bold text-gray-900"><?php echo $stats['total_today']; ?></p>
                             <p class="text-sm text-gray-600">Total Queues Today</p>
                         </div>
                     </div>
@@ -51,9 +85,21 @@
                             <i class="fas fa-user text-yellow-600 text-xl"></i>
                         </div>
                         <div class="ml-4">
-                            <p class="text-3xl font-bold text-gray-900" id="currentlyServing">--</p>
+                            <p class="text-3xl font-bold text-gray-900">
+                                <?php 
+                                echo $stats['serving'] > 0 
+                                    ? (isset($currentlyServing[0]) ? $currentlyServing[0]['queue_number'] : '--')
+                                    : '--';
+                                ?>
+                            </p>
                             <p class="text-sm text-gray-600">Currently Serving</p>
-                            <p class="text-xs text-gray-500" id="servingCounter">Counter 1</p>
+                            <p class="text-xs text-gray-500">
+                                <?php 
+                                echo $stats['serving'] > 0 && isset($currentlyServing[0]['window_number'])
+                                    ? 'Counter ' . $currentlyServing[0]['window_number']
+                                    : 'No active counter';
+                                ?>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -65,7 +111,7 @@
                             <i class="fas fa-check text-green-600 text-xl"></i>
                         </div>
                         <div class="ml-4">
-                            <p class="text-3xl font-bold text-gray-900" id="completedQueues">0</p>
+                            <p class="text-3xl font-bold text-gray-900"><?php echo $stats['completed']; ?></p>
                             <p class="text-sm text-gray-600">Completed Queues</p>
                         </div>
                     </div>
@@ -78,7 +124,7 @@
                             <i class="fas fa-clock text-orange-600 text-xl"></i>
                         </div>
                         <div class="ml-4">
-                            <p class="text-3xl font-bold text-gray-900" id="pendingQueues">0</p>
+                            <p class="text-3xl font-bold text-gray-900"><?php echo $stats['waiting']; ?></p>
                             <p class="text-sm text-gray-600">Pending Queues</p>
                         </div>
                     </div>
@@ -87,7 +133,7 @@
 
             <!-- Main Content Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Left Column - Queue Status Overview and Recent Activity -->
+                <!-- Left Column -->
                 <div class="lg:col-span-2 space-y-8">
                     <!-- Queue Status Overview -->
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -101,7 +147,7 @@
                             <!-- Legend -->
                             <div class="flex-1">
                                 <div class="space-y-3" id="queueStatusLegend">
-                                    <!-- Legend items will be populated by JavaScript -->
+                                    <!-- Will be populated by JavaScript -->
                                 </div>
                             </div>
                         </div>
@@ -114,27 +160,63 @@
                             <a href="History.php" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View All</a>
                         </div>
                         
-                        <!-- Activity Table -->
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Queue Number</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Type</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Queue #</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Services</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
                                     </tr>
                                 </thead>
-                                <tbody id="recentActivityTable" class="bg-white divide-y divide-gray-200">
-                                    <!-- Data will be populated by JavaScript -->
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <?php if (empty($recentActivity)): ?>
+                                    <tr>
+                                        <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                                            No recent activity
+                                        </td>
+                                    </tr>
+                                    <?php else: ?>
+                                    <?php foreach ($recentActivity as $activity): ?>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <?php if ($activity['queue_type'] === 'priority'): ?>
+                                                <i class="fas fa-star text-yellow-500 mr-2"></i>
+                                                <?php endif; ?>
+                                                <span class="text-sm font-medium text-blue-600"><?php echo htmlspecialchars($activity['queue_number']); ?></span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($activity['student_name']); ?></div>
+                                            <div class="text-sm text-gray-500"><?php echo htmlspecialchars($activity['student_id']); ?></div>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="text-sm text-gray-900"><?php echo $activity['services_count']; ?> service(s)</span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                Waiting
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                            <?php 
+                                            $time = new DateTime($activity['created_at']);
+                                            echo $time->format('g:i A');
+                                            ?>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Column - Quick Actions, Top Services, System Status -->
+                <!-- Right Column -->
                 <div class="space-y-8">
                     <!-- Quick Actions -->
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -148,9 +230,9 @@
                                 <i class="fas fa-plus"></i>
                                 <span>Add Account</span>
                             </a>
-                            <button onclick="generateReport()" class="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
-                                <i class="fas fa-download"></i>
-                                <span>Generate Report</span>
+                            <button onclick="window.location.href='History.php'" class="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+                                <i class="fas fa-history"></i>
+                                <span>View History</span>
                             </button>
                         </div>
                     </div>
@@ -158,8 +240,27 @@
                     <!-- Top Services Today -->
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-6">Top Services Today</h3>
-                        <div class="space-y-4" id="topServicesList">
-                            <!-- Service items will be populated by JavaScript -->
+                        <div class="space-y-4">
+                            <?php if (empty($topServices)): ?>
+                            <p class="text-gray-500 text-sm">No services data available</p>
+                            <?php else: ?>
+                            <?php 
+                            $maxCount = max(array_column($topServices, 'count'));
+                            foreach ($topServices as $service): 
+                            ?>
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($service['service_name']); ?></span>
+                                        <span class="text-sm font-bold text-gray-900"><?php echo $service['count']; ?></span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="service-bar bg-blue-600 h-2 rounded-full" style="width: <?php echo ($service['count'] / $maxCount) * 100; ?>%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -168,15 +269,15 @@
                         <h3 class="text-lg font-semibold text-gray-900 mb-6">System Status</h3>
                         <div class="space-y-4">
                             <div class="flex items-center space-x-3">
-                                <div class="w-3 h-3 bg-green-500 rounded-full" id="systemStatusDot"></div>
-                                <span class="text-sm font-medium text-gray-900" id="systemStatusText">System Online</span>
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <span class="text-sm font-medium text-gray-900">System Online</span>
                             </div>
                             <div class="flex items-center space-x-3">
-                                <div class="w-3 h-3 bg-green-500 rounded-full" id="queueSystemStatusDot"></div>
-                                <span class="text-sm font-medium text-gray-900" id="queueSystemStatusText">Queue System Active</span>
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <span class="text-sm font-medium text-gray-900">Queue System Active</span>
                             </div>
-                            <div class="text-xs text-gray-500 mt-4" id="lastUpdated">
-                                Last updated: <span id="lastUpdatedTime">--</span>
+                            <div class="text-xs text-gray-500 mt-4">
+                                Last updated: <span id="lastUpdatedTime"><?php echo date('g:i A'); ?></span>
                             </div>
                         </div>
                     </div>
@@ -189,119 +290,37 @@
     <?php include '../../Footer.php'; ?>
     
     <script>
-        // Backend-ready JavaScript for Admin Dashboard
-        let dashboardData = {
-            summary: {
-                totalQueuesToday: 0,
-                currentlyServing: '--',
-                servingCounter: 'Counter 1',
-                completedQueues: 0,
-                pendingQueues: 0
-            },
+        // Dashboard data from PHP
+        const dashboardData = {
             queueStatus: {
-                waiting: 0,
-                inService: 0,
-                skipped: 0,
-                completed: 0,
-                stalled: 0,
-                cancelled: 0
-            },
-            recentActivity: [],
-            topServices: [],
-            systemStatus: {
-                systemOnline: true,
-                queueSystemActive: true,
-                lastUpdated: new Date()
+                waiting: <?php echo $stats['waiting']; ?>,
+                serving: <?php echo $stats['serving']; ?>,
+                completed: <?php echo $stats['completed']; ?>,
+                priority: <?php echo $stats['priority']; ?>,
+                regular: <?php echo $stats['regular']; ?>
             }
         };
         
         let queueStatusChart = null;
         
-        // Initialize the dashboard
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            loadDashboardData();
-            setupEventListeners();
+            updateQueueStatusChart();
             updateLastUpdatedTime();
             
             // Auto-refresh every 30 seconds
-            setInterval(loadDashboardData, 30000);
+            setInterval(() => location.reload(), 30000);
             setInterval(updateLastUpdatedTime, 60000);
         });
-        
-        // Load dashboard data from backend
-        function loadDashboardData() {
-            // TODO: Replace with actual API call
-            fetch('/api/admin/dashboard')
-                .then(response => response.json())
-                .then(data => {
-                    dashboardData = data;
-                    updateDashboard();
-                })
-                .catch(error => {
-                    console.log('No backend connection yet - using empty state');
-                    // Reset to empty state when no backend
-                    dashboardData = {
-                        summary: {
-                            totalQueuesToday: 0,
-                            currentlyServing: '--',
-                            servingCounter: 'Counter 1',
-                            completedQueues: 0,
-                            pendingQueues: 0
-                        },
-                        queueStatus: {
-                            waiting: 0,
-                            inService: 0,
-                            skipped: 0,
-                            completed: 0,
-                            stalled: 0,
-                            cancelled: 0
-                        },
-                        recentActivity: [],
-                        topServices: [],
-                        systemStatus: {
-                            systemOnline: true,
-                            queueSystemActive: true,
-                            lastUpdated: new Date()
-                        }
-                    };
-                    updateDashboard();
-                });
-        }
-        
-        // Update dashboard display
-        function updateDashboard() {
-            updateSummaryCards();
-            updateQueueStatusChart();
-            updateRecentActivity();
-            updateTopServices();
-            updateSystemStatus();
-        }
-        
-        // Update summary cards
-        function updateSummaryCards() {
-            document.getElementById('totalQueuesToday').textContent = dashboardData.summary.totalQueuesToday;
-            document.getElementById('currentlyServing').textContent = dashboardData.summary.currentlyServing;
-            document.getElementById('servingCounter').textContent = dashboardData.summary.servingCounter;
-            document.getElementById('completedQueues').textContent = dashboardData.summary.completedQueues;
-            document.getElementById('pendingQueues').textContent = dashboardData.summary.pendingQueues;
-        }
         
         // Update queue status chart
         function updateQueueStatusChart() {
             const ctx = document.getElementById('queueStatusChart').getContext('2d');
             
-            // Destroy existing chart if it exists
-            if (queueStatusChart) {
-                queueStatusChart.destroy();
-            }
-            
             const data = [
                 dashboardData.queueStatus.waiting,
-                dashboardData.queueStatus.inService,
-                dashboardData.queueStatus.skipped,
-                dashboardData.queueStatus.completed,
-                dashboardData.queueStatus.stalled,
-                dashboardData.queueStatus.cancelled
+                dashboardData.queueStatus.serving,
+                dashboardData.queueStatus.completed
             ];
             
             const total = data.reduce((sum, value) => sum + value, 0);
@@ -309,17 +328,10 @@
             queueStatusChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Waiting', 'In Service', 'Skipped', 'Completed', 'Stalled', 'Cancelled'],
+                    labels: ['Waiting', 'Serving', 'Completed'],
                     datasets: [{
                         data: data,
-                        backgroundColor: [
-                            '#3B82F6', // Blue
-                            '#6B7280', // Gray
-                            '#9CA3AF', // Light Gray
-                            '#10B981', // Green
-                            '#F59E0B', // Yellow
-                            '#EF4444'  // Red
-                        ],
+                        backgroundColor: ['#F59E0B', '#10B981', '#3B82F6'],
                         borderWidth: 0
                     }]
                 },
@@ -334,15 +346,14 @@
                 }
             });
             
-            // Update legend
             updateQueueStatusLegend(data, total);
         }
         
-        // Update queue status legend
+        // Update legend
         function updateQueueStatusLegend(data, total) {
             const legend = document.getElementById('queueStatusLegend');
-            const labels = ['Waiting', 'In Service', 'Skipped', 'Completed', 'Stalled', 'Cancelled'];
-            const colors = ['#3B82F6', '#6B7280', '#9CA3AF', '#10B981', '#F59E0B', '#EF4444'];
+            const labels = ['Waiting', 'Serving', 'Completed'];
+            const colors = ['#F59E0B', '#10B981', '#3B82F6'];
             
             legend.innerHTML = labels.map((label, index) => {
                 const value = data[index];
@@ -359,133 +370,14 @@
             }).join('');
         }
         
-        // Update recent activity table
-        function updateRecentActivity() {
-            const tbody = document.getElementById('recentActivityTable');
-            
-            if (dashboardData.recentActivity.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="px-4 py-8 text-center text-gray-500">
-                            No recent activity
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            tbody.innerHTML = dashboardData.recentActivity.map(activity => `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-3 whitespace-nowrap">
-                        <div class="flex items-center">
-                            ${activity.priority === 'priority' ? '<i class="fas fa-star text-yellow-500 mr-2"></i>' : ''}
-                            <span class="text-sm font-medium text-blue-600">${activity.queueNumber}</span>
-                        </div>
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap">
-                        <div>
-                            <div class="text-sm font-medium text-gray-900">${activity.studentName}</div>
-                            <div class="text-sm text-gray-500">${activity.studentId}</div>
-                        </div>
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <i class="fas fa-certificate text-yellow-500 mr-2"></i>
-                            <span class="text-sm text-gray-900">${activity.serviceType}</span>
-                            ${activity.additionalServices > 0 ? `<span class="text-xs text-blue-600 ml-1">+${activity.additionalServices}</span>` : ''}
-                        </div>
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap">
-                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            activity.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            activity.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                            'bg-yellow-100 text-yellow-800'
-                        }">
-                            ${activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}
-                        </span>
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                        <div>
-                            <div>${activity.date}</div>
-                            <div class="text-gray-500">${activity.time}</div>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-        
-        // Update top services
-        function updateTopServices() {
-            const container = document.getElementById('topServicesList');
-            
-            if (dashboardData.topServices.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-sm">No services data available</p>';
-                return;
-            }
-            
-            const maxCount = Math.max(...dashboardData.topServices.map(service => service.count));
-            
-            container.innerHTML = dashboardData.topServices.map(service => `
-                <div class="flex items-center justify-between">
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="text-sm font-medium text-gray-900">${service.name}</span>
-                            <span class="text-sm font-bold text-gray-900">${service.count}</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="service-bar bg-blue-600 h-2 rounded-full" style="width: ${(service.count / maxCount) * 100}%"></div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        // Update system status
-        function updateSystemStatus() {
-            const systemDot = document.getElementById('systemStatusDot');
-            const systemText = document.getElementById('systemStatusText');
-            const queueDot = document.getElementById('queueSystemStatusDot');
-            const queueText = document.getElementById('queueSystemStatusText');
-            
-            // System status
-            if (dashboardData.systemStatus.systemOnline) {
-                systemDot.className = 'w-3 h-3 bg-green-500 rounded-full';
-                systemText.textContent = 'System Online';
-            } else {
-                systemDot.className = 'w-3 h-3 bg-red-500 rounded-full';
-                systemText.textContent = 'System Offline';
-            }
-            
-            // Queue system status
-            if (dashboardData.systemStatus.queueSystemActive) {
-                queueDot.className = 'w-3 h-3 bg-green-500 rounded-full';
-                queueText.textContent = 'Queue System Active';
-            } else {
-                queueDot.className = 'w-3 h-3 bg-red-500 rounded-full';
-                queueText.textContent = 'Queue System Inactive';
-            }
-        }
-        
-        // Update last updated time
+        // Update time
         function updateLastUpdatedTime() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', { 
+            document.getElementById('lastUpdatedTime').textContent = now.toLocaleTimeString('en-US', { 
                 hour: 'numeric', 
                 minute: '2-digit',
                 hour12: true 
             });
-            document.getElementById('lastUpdatedTime').textContent = timeString;
-        }
-        
-        // Setup event listeners
-        function setupEventListeners() {
-            // Add any additional event listeners here
-        }
-        
-        // Generate report function
-        function generateReport() {
-            // TODO: Implement report generation
-            console.log('Generate report - Backend not implemented yet');
         }
     </script>
 </body>

@@ -13,7 +13,7 @@ $team_members = [
         'full_name' => 'VERDIDA, Lourdyn Niel',
         'role' => 'Project Manager',
         'description' => 'Oversees project planning, coordination, and delivery ensuring all milestones are met.',
-        'image' => '../Assests/team/lourdyn.jpg'
+        'image' => 'Assests/team/lourdyn.jpg'
     ],
     [
         'id' => 2,
@@ -21,7 +21,7 @@ $team_members = [
         'full_name' => 'VILLARIN, Euwen Aldrich',
         'role' => 'Lead Programmer',
         'description' => 'Leads the development team and ensures code quality and architecture standards.',
-        'image' => '../Assests/team/euwen.jpg'
+        'image' => 'Assests/team/Euwen.png'
     ],
     [
         'id' => 3,
@@ -29,63 +29,63 @@ $team_members = [
         'full_name' => 'POSTRERO, Johndel',
         'role' => 'Front-End Developer',
         'description' => 'Builds responsive and intuitive interfaces for all system modules.',
-        'image' => '../Assests/team/johndel.jpg'
+        'image' => 'Assests/team/johndel.png'
     ],
     [
         'id' => 4,
-        'name' => 'Maria Santos',
-        'full_name' => 'SANTOS, Maria',
+        'name' => 'Dave',
+        'full_name' => 'GULAY, Dave ',
         'role' => 'Backend Developer',
         'description' => 'Handles server-side logic, database management, and API development for the queue management system.',
-        'image' => '../Assests/team/maria.jpg'
+        'image' => 'Assests/team/dave.png'
     ],
     [
         'id' => 5,
-        'name' => 'John Cruz',
-        'full_name' => 'CRUZ, John',
-        'role' => 'UI/UX Designer',
-        'description' => 'Creates user-friendly designs and ensures optimal user experience across all system interfaces.',
-        'image' => '../Assests/team/john.jpg'
+        'name' => 'Russell',
+        'full_name' => 'GILLERA, Russell Ray',
+        'role' => 'Backend Developer',
+        'description' => 'Handles server-side logic, database management, and API development for the queue management system.',
+        'image' => 'Assests/team/russell.png'
     ],
     [
         'id' => 6,
-        'name' => 'Ana Rodriguez',
-        'full_name' => 'RODRIGUEZ, Ana',
-        'role' => 'Quality Assurance',
-        'description' => 'Ensures software quality through comprehensive testing and validation processes.',
-        'image' => '../Assests/team/ana.jpg'
+        'name' => 'Vincent',
+        'full_name' => 'YBAÑEZ, Felix Vincent',
+        'role' => 'Lead Designer',
+        'description' => 'Leads the design process, ensuring cohesive visuals and user-centered experiences.',
+        'image' => 'Assests/team/felix.png'
     ],
     [
         'id' => 7,
-        'name' => 'Carlos Mendez',
-        'full_name' => 'MENDEZ, Carlos',
-        'role' => 'Database Administrator',
-        'description' => 'Manages database systems and ensures data integrity and performance optimization.',
-        'image' => '../Assests/team/carlos.jpg'
+        'name' => 'JAM',
+        'full_name' => 'LUPIAN, John Alfred',
+        'role' => 'UI/UX Designer',
+        'description' => 'Creates user-friendly designs and ensures optimal user experience across all system interfaces.',
+        'image' => 'Assests/team/alfred.png'
     ],
     [
         'id' => 8,
-        'name' => 'Lisa Chen',
-        'full_name' => 'CHEN, Lisa',
-        'role' => 'System Analyst',
-        'description' => 'Analyzes system requirements and designs efficient solutions for business processes.',
-        'image' => '../Assests/team/lisa.jpg'
+        'name' => 'Paul',
+        'full_name' => 'ALARBA, Paul',
+        'role' => 'Lead Tester',
+        'description' => 'Oversees the testing team, ensuring product reliability through systematic test planning and execution.',
+        'image' => 'Assests/team/paul.jpg'
     ],
     [
         'id' => 9,
-        'name' => 'Michael Torres',
-        'full_name' => 'TORRES, Michael',
-        'role' => 'DevOps Engineer',
-        'description' => 'Manages deployment pipelines and ensures smooth system operations and monitoring.',
-        'image' => '../Assests/team/michael.jpg'
+        'name' => 'Ekoy',
+        'full_name' => 'SERVICE, Jerick',
+        'role' => 'Tester',
+        'description' => 'Conducts software testing to identify bugs and ensure the product meets quality standards.',
+        'image' => 'Assests/team/jerick.png'
     ],
     [
         'id' => 10,
-        'name' => 'Sarah Johnson',
-        'full_name' => 'JOHNSON, Sarah',
-        'role' => 'Technical Writer',
-        'description' => 'Creates comprehensive documentation and user guides for the system.',
-        'image' => '../Assests/team/sarah.jpg'
+        'name' => 'Erwin',
+        'full_name' => 'SEMORIO, Erwin',
+        'role' => 'Tester',
+        'description' => 'Conducts software testing to identify bugs and ensure the product meets quality standards.',
+        'image' => 'Assests/team/erwin.png'
     ]
 ];
 
@@ -95,9 +95,6 @@ $project_stats = [
     'user_types' => 3,
     'transaction_states' => 6
 ];
-
-// Include header
-include 'Header.php';
 ?>
 
 <!DOCTYPE html>
@@ -106,6 +103,7 @@ include 'Header.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About SeQueueR - UC Student Affairs</title>
+    <link rel="icon" type="image/png" href="/Frontend/favicon.php">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -119,8 +117,12 @@ include 'Header.php';
             }
         }
     </script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
     <style>
-        .carousel-container {
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+            .carousel-container {
             overflow: hidden;
         }
         .carousel-track {
@@ -132,6 +134,48 @@ include 'Header.php';
             flex-shrink: 0;
             width: 33.333%;
         }
+
+        /* Ensure each slide card fills the slide and cards are same height */
+        .carousel-slide > .rounded-lg {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 520px; /* Increased height to accommodate taller blue section */
+        }
+        /* Make the white info panel stretch so all cards align bottoms */
+        .carousel-slide > .rounded-lg > .bg-white {
+            flex: 1 1 auto;
+        }
+
+        /* Meet The Team specific background */
+        .team-bg {
+            background-image:
+                linear-gradient(rgba(14,42,91,0.65), rgba(14,42,91,0.45)),
+                url('../Assests/UC.jpg'); /* <-- uses Frontend/Assests/UC.jpg relative to this file */
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* darker card top */
+        .team-card-top,
+        .carousel-slide > .rounded-lg > .bg-uc-blue,
+        .carousel-slide > .rounded-lg > .team-card-top {
+            background: linear-gradient(180deg, #083163 0%, #0b4b7a 100%);
+            flex-shrink: 0;
+        }
+
+        /* Center absolute avatar horizontally and keep same overlap */
+        .carousel-slide .rounded-lg .w-28.absolute {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Ensure avatar image is centered/cropped consistently */
+        .carousel-slide .rounded-lg .w-28 img {
+            object-fit: cover;
+            object-position: center;
+        }
+
         .feature-icon {
             width: 48px;
             height: 48px;
@@ -143,10 +187,38 @@ include 'Header.php';
             color: white;
             font-size: 24px;
         }
+           .carousel-slide .rounded-lg .team-avatar {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 10rem;   /* matches w-28 */
+            height: 10rem;  /* matches h-28 */
+            border-radius: 9999px;
+            border: 4px solid var(--uc-yellow, #fbbf24);
+            background: #fff;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .carousel-slide .rounded-lg .team-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        /* add a little extra top padding so white panel doesn't overlap when avatar is centered */
+        .carousel-slide > .rounded-lg > .bg-white {
+            padding-top: 0.5rem; /* further reduced to shrink white panel height */
+        }
+        
     </style>
 </head>
 <body class="bg-gray-50">
     
+<?php include 'Student/Header.php'; ?>
     <!-- Hero Section -->
     <section class="bg-uc-blue text-white py-20">
         <div class="px-6 md:px-10 mx-20 md:mx-34 lg:mx-44 text-center">
@@ -248,94 +320,122 @@ include 'Header.php';
     </section>
 
     <!-- Meet The Team Section -->
-    <section class="py-12 bg-uc-blue relative">
+    <section class="py-12 relative team-bg">
         <div class="px-6 md:px-10 mx-20 md:mx-34 lg:mx-44">
             <h2 class="text-3xl font-bold text-white text-center mb-3">Meet The Team</h2>
-            <p class="text-lg text-white text-center mb-8">Charlie Three Group - IT-TESQUA 31 (MW)</p>
-            
+            <p class="text-lg text-black text-center mb-8">Charlie Three Group - IT-TESQUA 31 (MW)</p>
             <!-- Carousel Container -->
-            <div class="carousel-container relative overflow-hidden">
-				<div class="carousel-track flex" id="carouselTrack">
-					<?php 
-						$visibleCount = 3; // number of cards visible at once (w-1/3)
-						$total = count($team_members);
-						// Prepend last N clones for seamless previous navigation
-						for ($i = $total - $visibleCount; $i < $total; $i++): 
-							$member = $team_members[$i];
-						?>
-					<div class="carousel-slide flex-shrink-0 w-1/3 px-2" data-clone="prepend">
-						<div class="bg-white p-6 rounded-lg shadow-lg text-center transform transition-transform duration-300 hover:scale-105">
-							<div class="w-24 h-24 mx-auto mb-4 rounded-full border-3 border-uc-yellow overflow-hidden bg-uc-blue">
-								<img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>" class="w-full h-full object-cover">
-							</div>
-							<div class="bg-uc-blue text-white text-xs px-3 py-1 rounded-full inline-block mb-3 uppercase font-medium"><?php echo $member['role']; ?></div>
-							<h3 class="text-lg font-bold text-uc-blue mb-1"><?php echo $member['name']; ?></h3>
-							<div class="text-sm text-gray-600 mb-3"><?php echo $member['full_name']; ?></div>
-							<p class="text-xs text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
-						</div>
-					</div>
-					<?php endfor; ?>
+           <div class="carousel-container relative overflow-hidden">
+                <div class="carousel-track flex" id="carouselTrack">
+                    <?php 
+                        $visibleCount = 3; // number of cards visible at once (w-1/3)
+                        $total = count($team_members);
+                        // Prepend last N clones for seamless previous navigation
+                        for ($i = $total - $visibleCount; $i < $total; $i++): 
+                            $member = $team_members[$i];
+                        ?>
+                     <div class="carousel-slide flex-shrink-0 w-1/3 px-2" data-clone="prepend">
+                        <div class="rounded-lg shadow-lg overflow-hidden">
+                            <!-- top blue panel with gradient -->
+                            <div class="team-card-top h-72 flex items-center justify-center relative">
+                                <!-- avatar centered in blue panel -->
+                                <div class="team-avatar">
+                                    <img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>">
+                                </div>
+                            </div>
+                            <!-- white info panel -->
+                            <div class="bg-white pt-2 pb-3 px-6">
+                                <div class="flex items-center justify-start mb-2">
+                                    <div class="inline-block bg-uc-blue text-white text-xs px-4 py-1.5 rounded-full uppercase font-semibold"><?php echo $member['role']; ?></div>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-1"><?php echo $member['name']; ?></h3>
+                                <div class="text-sm text-gray-600 mb-2"><?php echo $member['full_name']; ?></div>
+                                <p class="text-sm text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endfor; ?>
 
-					<?php foreach($team_members as $member): ?>
-					<div class="carousel-slide flex-shrink-0 w-1/3 px-2">
-						<div class="bg-white p-6 rounded-lg shadow-lg text-center transform transition-transform duration-300 hover:scale-105">
-							<div class="w-24 h-24 mx-auto mb-4 rounded-full border-3 border-uc-yellow overflow-hidden bg-uc-blue">
-								<img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>" class="w-full h-full object-cover">
-							</div>
-							<div class="bg-uc-blue text-white text-xs px-3 py-1 rounded-full inline-block mb-3 uppercase font-medium"><?php echo $member['role']; ?></div>
-							<h3 class="text-lg font-bold text-uc-blue mb-1"><?php echo $member['name']; ?></h3>
-							<div class="text-sm text-gray-600 mb-3"><?php echo $member['full_name']; ?></div>
-							<p class="text-xs text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
-						</div>
-					</div>
-					<?php endforeach; ?>
+                    <?php foreach($team_members as $member): ?>
+                      <div class="carousel-slide flex-shrink-0 w-1/3 px-2">
+                        <div class="rounded-lg shadow-lg overflow-hidden">
+                            <!-- top blue panel with gradient -->
+                            <div class="team-card-top h-72 flex items-center justify-center relative">
+                                <!-- avatar centered in blue panel -->
+                                <div class="team-avatar">
+                                    <img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>">
+                                </div>
+                            </div>
+                            <!-- white info panel -->
+                            <div class="bg-white pt-2 pb-3 px-6">
+                                <div class="flex items-center justify-start mb-2">
+                                    <div class="inline-block bg-uc-blue text-white text-xs px-4 py-1.5 rounded-full uppercase font-semibold"><?php echo $member['role']; ?></div>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-1"><?php echo $member['name']; ?></h3>
+                                <div class="text-sm text-gray-600 mb-2"><?php echo $member['full_name']; ?></div>
+                                <p class="text-sm text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
 
-					<?php 
-						// Append first N clones for seamless next navigation
-						for ($i = 0; $i < $visibleCount; $i++): 
-							$member = $team_members[$i];
-						?>
-					<div class="carousel-slide flex-shrink-0 w-1/3 px-2" data-clone="append">
-						<div class="bg-white p-6 rounded-lg shadow-lg text-center transform transition-transform duration-300 hover:scale-105">
-							<div class="w-24 h-24 mx-auto mb-4 rounded-full border-3 border-uc-yellow overflow-hidden bg-uc-blue">
-								<img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>" class="w-full h-full object-cover">
-							</div>
-							<div class="bg-uc-blue text-white text-xs px-3 py-1 rounded-full inline-block mb-3 uppercase font-medium"><?php echo $member['role']; ?></div>
-							<h3 class="text-lg font-bold text-uc-blue mb-1"><?php echo $member['name']; ?></h3>
-							<div class="text-sm text-gray-600 mb-3"><?php echo $member['full_name']; ?></div>
-							<p class="text-xs text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
-						</div>
-					</div>
-					<?php endfor; ?>
-				</div>
-                
-                <!-- Navigation Arrows -->
-                <button onclick="previousSlide()" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 rounded-full p-2 shadow-lg hover:bg-opacity-100 transition-all z-10">
-                    <svg class="w-5 h-5 text-uc-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                </button>
-                <button onclick="nextSlide(); resetTimer();" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 rounded-full p-2 shadow-lg hover:bg-opacity-100 transition-all z-10">
-                    <svg class="w-5 h-5 text-uc-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </button>
+                    <?php 
+                        // Append first N clones for seamless next navigation
+                        for ($i = 0; $i < $visibleCount; $i++): 
+                            $member = $team_members[$i];
+                        ?>
+                    <div class="carousel-slide flex-shrink-0 w-1/3 px-2" data-clone="append">
+                        <div class="rounded-lg shadow-lg overflow-hidden">
+                            <!-- top blue panel with gradient -->
+                            <div class="team-card-top h-72 flex items-center justify-center relative">
+                                <!-- avatar centered in blue panel -->
+                                <div class="team-avatar">
+                                    <img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>">
+                                </div>
+                            </div>
+                            <!-- white info panel -->
+                            <div class="bg-white pt-2 pb-3 px-6">
+                                <div class="flex items-center justify-start mb-2">
+                                    <div class="inline-block bg-uc-blue text-white text-xs px-4 py-1.5 rounded-full uppercase font-semibold"><?php echo $member['role']; ?></div>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-1"><?php echo $member['name']; ?></h3>
+                                <div class="text-sm text-gray-600 mb-2"><?php echo $member['full_name']; ?></div>
+                                <p class="text-sm text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endfor; ?>
+                </div>
             </div>
+
+            <!-- Navigation Arrows: placed outside the overflow-hidden container -->
+            <button onclick="previousSlide()" class="absolute left-40 top-1/2 transform -translate-y-1/2 bg-uc-blue text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:scale-105 transition-all z-10">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+            <button onclick="nextSlide(); resetTimer();" class="absolute right-40 top-1/2 transform -translate-y-1/2 bg-uc-blue text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:scale-105 transition-all z-10">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
             
             <!-- Carousel Indicators -->
-            <div class="flex justify-center mt-6 space-x-2">
+            <div class="flex justify-center mt-6 space-x-3">
                 <?php 
                 $totalSlides = count($team_members);
                 for($i = 0; $i < $totalSlides; $i++): 
                 ?>
-                <button onclick="goToSlide(<?php echo $i; ?>)" class="w-2 h-2 rounded-full bg-white hover:bg-gray-300 transition-colors" id="indicator-<?php echo $i; ?>"></button>
+                <button onclick="goToSlide(<?php echo $i; ?>)" class="w-3 h-3 rounded-full bg-white hover:bg-gray-200 transition-colors" id="indicator-<?php echo $i; ?>"></button>
                 <?php endfor; ?>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <?php include '../Footer.php'; ?>
+    <div class="mx-20 md:mx-34 lg:mx-44">
+    <?php include 'Footer.php'; ?>
+    </div>
 
     <script>
         const visibleCount = 3; // number of visible cards (w-1/3)
@@ -434,4 +534,3 @@ include 'Header.php';
     </script>
 </body>
 </html>
-

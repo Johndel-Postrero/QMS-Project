@@ -1,6 +1,6 @@
 <?php
-// Backend-ready structure - ready for future implementation
 session_start();
+require_once 'db_config.php';
 
 // Get data from session
 $studentData = [
@@ -14,18 +14,66 @@ $selectedServices = $_SESSION['selected_services'] ?? [];
 $priorityGroup = $_SESSION['priority_group'] ?? 'no';
 $generateQr = $_SESSION['generate_qr'] ?? 'no';
 
-// TODO: Generate queue number (backend implementation)
-// For now, generate a sample queue number
-$queueNumber = 'R-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
+// Validate required data
+if (empty($studentData['full_name']) || empty($studentData['student_id'])) {
+    header("Location: index.php");
+    exit();
+}
 
-// TODO: Store queue data in database
-// TODO: Log queue generation
-// TODO: Update queue status system
-
-// Clear session data after successful generation
-unset($_SESSION['fullname'], $_SESSION['studentid'], $_SESSION['yearlevel'], 
-      $_SESSION['courseprogram'], $_SESSION['selected_services'], 
-      $_SESSION['priority_group'], $_SESSION['generate_qr']);
+try {
+    // Get database connection
+    $conn = getDBConnection();
+    
+    // Determine queue type - check both session variable formats
+    $queueType = 'regular'; // default
+    if (isset($_SESSION['priority_group']) && $_SESSION['priority_group'] === 'yes') {
+        $queueType = 'priority';
+    } elseif ($priorityGroup === 'yes') {
+        $queueType = 'priority';
+    }
+    
+    // Generate queue number
+    $queueNumber = generateQueueNumber($conn, $queueType);
+    
+    // Prepare queue data
+    $queueData = [
+        'queue_number' => $queueNumber,
+        'queue_type' => $queueType,
+        'student_name' => $studentData['full_name'],
+        'student_id' => $studentData['student_id'],
+        'year_level' => $studentData['year_level'],
+        'course_program' => $studentData['course_program'],
+        'services_count' => count($selectedServices),
+        'has_qr' => 0,
+        'qr_code_url' => null
+    ];
+    
+    // Insert queue record
+    $queueId = insertQueueRecord($conn, $queueData);
+    
+    // Insert selected services
+    if (!empty($selectedServices)) {
+        insertQueueServices($conn, $queueId, $selectedServices);
+    }
+    
+    // Log queue generation
+    logQueueAction($conn, $queueId, 'generated', 'Queue number generated without QR code - Type: ' . $queueType);
+    
+    // Close connection
+    $conn->close();
+    
+    // Debug log
+    error_log("Queue generated: $queueNumber (Type: $queueType)");
+    
+    // Clear session data after successful generation
+    unset($_SESSION['fullname'], $_SESSION['studentid'], $_SESSION['yearlevel'], 
+          $_SESSION['courseprogram'], $_SESSION['selected_services'], 
+          $_SESSION['priority_group'], $_SESSION['generate_qr']);
+    
+} catch (Exception $e) {
+    error_log("Error in QueueNumber.php: " . $e->getMessage());
+    die("An error occurred while generating your queue number. Please try again.");
+}
 ?>
 
 <!DOCTYPE html>
@@ -34,6 +82,7 @@ unset($_SESSION['fullname'], $_SESSION['studentid'], $_SESSION['yearlevel'],
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
     <title>Queue Number Generated - SeQueueR</title>
+    <link rel="icon" type="image/png" href="/Frontend/favicon.php">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
@@ -82,9 +131,14 @@ unset($_SESSION['fullname'], $_SESSION['studentid'], $_SESSION['yearlevel'],
             <!-- Queue Number -->
             <div class="mb-6 fade-in">
                 <h3 class="text-blue-900 font-bold text-lg mb-2">Your Queue Number</h3>
-                <div class="text-4xl font-black text-slate-900 mb-4">
+                <div class="text-4xl font-black mb-2" style="color: <?php echo $queueType === 'priority' ? '#dc2626' : '#0f172a'; ?>">
                     <?php echo htmlspecialchars($queueNumber); ?>
                 </div>
+                <?php if ($queueType === 'priority'): ?>
+                <div class="inline-block bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold mb-2">
+                    <i class="fas fa-star"></i> PRIORITY QUEUE
+                </div>
+                <?php endif; ?>
                 <p class="text-slate-600 text-sm">
                     Please take a seat and wait for your queue number to appear on the screen.
                 </p>
@@ -108,7 +162,9 @@ unset($_SESSION['fullname'], $_SESSION['studentid'], $_SESSION['yearlevel'],
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-600">Priority:</span>
-                        <span class="text-slate-900 font-medium"><?php echo $priorityGroup === 'yes' ? 'Priority' : 'Regular'; ?></span>
+                        <span class="text-slate-900 font-medium">
+                            <?php echo $priorityGroup === 'yes' ? 'Priority' : 'Regular'; ?>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -127,18 +183,9 @@ unset($_SESSION['fullname'], $_SESSION['studentid'], $_SESSION['yearlevel'],
     <?php include '../Footer.php'; ?>
 
     <script>
-        // Auto-refresh queue status (optional)
-        function checkQueueStatus() {
-            // TODO: Implement AJAX call to check queue status
-            // This would be used to update the queue status in real-time
-            console.log('Checking queue status for: <?php echo $queueNumber; ?>');
-        }
-        
-        // Optional: Set up periodic status checking
-        // setInterval(checkQueueStatus, 30000); // Check every 30 seconds
-        
         // Log queue number generation for analytics
         console.log('Queue number generated: <?php echo $queueNumber; ?>');
+        console.log('Queue type: <?php echo $queueType; ?>');
     </script>
 </body>
 </html>

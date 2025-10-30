@@ -78,11 +78,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['studentid'] = $oldStudentId;
         $_SESSION['yearlevel'] = $oldYearLevel;
         $_SESSION['courseprogram'] = $oldCourseProgram;
-
+		
+        header('Location: create_ticket.php');
         // Redirect to Step 2
         header('Location: QueueRequest2.php');
         exit;
     }
+   
 }
 
 // TODO: Handle AJAX course search when implementing backend
@@ -103,6 +105,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
     <title>SeQueueR Request Form</title>
+    <link rel="icon" type="image/png" href="/Frontend/favicon.php">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>

@@ -16,6 +16,7 @@ $services = [
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['services']) && is_array($_POST['services'])) {
         $_SESSION['selected_services'] = $_POST['services'];
+        header('Location: create_ticket.php');
         // Redirect to Step 3
         header('Location: QueueRequest3.php');
         exit;
@@ -29,6 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
     <title>Queue Number Request</title>
+    <title>SeQueueR Request Step 2</title>
+    <link rel="icon" type="image/png" href="/Frontend/favicon.php">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
