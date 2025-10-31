@@ -143,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
         @keyframes fadeInBackdrop { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
-<body class="min-h-screen flex flex-col bg-gradient-to-r from-white via-slate-200 to-sky-500">
+<body class="min-h-screen flex flex-col" style="background-image: url('../Assests/QueueReqPic.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;">
     <?php include 'Header.php'; ?>
     
     <main class="flex-grow flex items-start justify-center pt-20 pb-20 relative overflow-hidden">
