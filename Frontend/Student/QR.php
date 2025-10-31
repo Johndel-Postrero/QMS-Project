@@ -24,8 +24,8 @@ try {
     // Get database connection
     $conn = getDBConnection();
     
-    // Determine queue type - check both session variable formats
-    $queueType = 'regular'; // default
+    // Determine queue type
+    $queueType = 'regular';
     if (isset($_SESSION['priority_group']) && $_SESSION['priority_group'] === 'yes') {
         $queueType = 'priority';
     } elseif ($priorityGroup === 'yes') {
@@ -35,9 +35,9 @@ try {
     // Generate queue number
     $queueNumber = generateQueueNumber($conn, $queueType);
     
-    // Generate QR code
-    $qrCodeData = "https://qms.uc.edu.ph/queue/" . $queueNumber;
-    $qrCodeImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . urlencode($qrCodeData);
+    // Generate QR code URL that redirects to track.php
+    $trackingUrl = "https://qmscharlie.byethost5.com/Frontend/Student/track.php?queue=" . urlencode($queueNumber);
+    $qrCodeImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . urlencode($trackingUrl);
     
     // Prepare queue data
     $queueData = [
@@ -66,8 +66,7 @@ try {
     // Close connection
     $conn->close();
     
-    // Debug log
-    error_log("Queue generated: $queueNumber (Type: $queueType)");
+    error_log("Queue generated: $queueNumber (Type: $queueType) with tracking URL: $trackingUrl");
     
     // Clear session data after successful generation
     unset($_SESSION['fullname'], $_SESSION['studentid'], $_SESSION['yearlevel'], 
@@ -79,7 +78,6 @@ try {
     die("An error occurred while generating your queue number. Please try again.");
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -91,21 +89,15 @@ try {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-        .success-animation {
-            animation: bounceIn 0.6s ease-out;
-        }
+        body { font-family: 'Poppins', sans-serif; }
+        .success-animation { animation: bounceIn 0.6s ease-out; }
         @keyframes bounceIn {
             0% { transform: scale(0.3); opacity: 0; }
             50% { transform: scale(1.05); }
             70% { transform: scale(0.9); }
             100% { transform: scale(1); opacity: 1; }
         }
-        .fade-in {
-            animation: fadeInUp 0.8s ease-out;
-        }
+        .fade-in { animation: fadeInUp 0.8s ease-out; }
         @keyframes fadeInUp {
             from { transform: translateY(30px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -117,7 +109,8 @@ try {
     
     <main class="flex-grow flex items-center justify-center px-4 py-6 relative overflow-hidden">
         <img alt="Background" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none select-none" src="/Frontend/Assests/Background.png"/>
-        <div class="bg-white rounded-lg shadow-lg max-w-xl w-full p-8 text-center" style="box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);">
+        <div class="bg-white rounded-lg shadow-lg max-w-xl w-full p-8 text-center relative z-10" style="box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);">
+            
             <!-- Success Icon -->
             <div class="flex justify-center mb-6">
                 <div class="bg-yellow-100 rounded-full p-4 success-animation">
@@ -130,7 +123,6 @@ try {
                 Your queue number has been successfully generated!
             </h2>
             
-            <!-- Divider -->
             <hr class="border-slate-200 mb-6"/>
             
             <!-- Queue Number -->
@@ -153,7 +145,16 @@ try {
                          alt="QR Code for Queue <?php echo htmlspecialchars($queueNumber); ?>" 
                          class="w-48 h-48 mx-auto"/>
                 </div>
-                <p class="text-slate-600 text-sm mt-3">Scan to track your queue status</p>
+                <p class="text-slate-600 text-sm mt-3">
+                    <i class="fas fa-mobile-alt"></i> Scan to track your queue status on mobile
+                </p>
+                <div class="mt-2">
+                    <a href="<?php echo htmlspecialchars($trackingUrl); ?>" 
+                       class="text-blue-600 hover:text-blue-800 text-xs underline"
+                       target="_blank">
+                        Or click here to open on this device
+                    </a>
+                </div>
             </div>
             
             <!-- Queue Details -->
@@ -183,6 +184,11 @@ try {
             
             <!-- Action Buttons -->
             <div class="flex flex-col gap-3 fade-in">
+                <button onclick="downloadQR()" 
+                        class="w-full bg-blue-600 text-white rounded-md py-3 text-sm hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-download"></i>
+                    Download QR Code
+                </button>
                 <button onclick="window.location.href='https://qmscharlie.byethost5.com/index.php'"
                         class="w-full bg-blue-900 text-white rounded-md py-3 text-sm hover:bg-blue-800 transition flex items-center justify-center gap-2">
                     <i class="fas fa-check"></i>
@@ -195,10 +201,23 @@ try {
     <?php include '../Footer.php'; ?>
 
     <script>
-        // Log queue number generation for analytics
-        console.log('Queue number generated: <?php echo $queueNumber; ?>');
-        console.log('Queue type: <?php echo $queueType; ?>');
+        const queueNumber = '<?php echo addslashes($queueNumber); ?>';
+        const queueType = '<?php echo $queueType; ?>';
+        const qrCodeUrl = '<?php echo addslashes($qrCodeImageUrl); ?>';
+        
+        console.log('Queue generated:', queueNumber, '(Type:', queueType, ')');
         console.log('QR Code generated: Yes');
+        console.log('Tracking URL:', '<?php echo addslashes($trackingUrl); ?>');
+        
+        function downloadQR() {
+            // Create a temporary link to download the QR code
+            const link = document.createElement('a');
+            link.href = qrCodeUrl;
+            link.download = 'queue-' + queueNumber + '.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
 </body>
 </html>
