@@ -1,12 +1,12 @@
 <?php
 // Admin Header Component for SeQueueR
 ?>
-<header class="bg-white border-b border-gray-200 shadow-sm">
+<header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
     <div class="flex items-center justify-between py-3 px-6 md:px-10 mx-4 md:mx-8 lg:mx-12">
             <!-- Logo and Application Name Section -->
             <div class="flex items-center space-x-4">
                 <!-- University Seal Logo -->
-                <img alt="University of Cebu Student Affairs circular seal" class="h-12 w-12 rounded-full object-cover" src="/Frontend/Assests/sao logo.jpg"/>
+                <img alt="University of Cebu Student Affairs circular seal" class="h-12 w-12 rounded-full object-cover" src="/Frontend/Assests/SAO.png"/>
                 
                 <!-- Application Name -->
                 <div class="leading-tight">
