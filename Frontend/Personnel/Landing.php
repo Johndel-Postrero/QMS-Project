@@ -64,7 +64,7 @@ if (isset($_GET['logout'])) {
        </i>
        Manage Queue
       </a>
-      <a href="../Student/About.php" class="border border-white text-white font-semibold rounded-md flex items-center gap-2 hover:bg-white hover:text-[#00447a] transition text-[18px] shrink-0" style="padding: 12px 24px; width: 260px; height: 50px; justify-content: center;">
+      <a href="/Frontend/About.php?ref=landing" class="border border-white text-white font-semibold rounded-md flex items-center gap-2 hover:bg-white hover:text-[#00447a] transition text-[18px] shrink-0" style="padding: 12px 24px; width: 260px; height: 50px; justify-content: center;">
        <i class="far fa-clock text-sm">
        </i>
        About SeQueueR

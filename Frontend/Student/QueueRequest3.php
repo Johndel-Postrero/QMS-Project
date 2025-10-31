@@ -135,7 +135,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
     <style>
-        body { font-family: 'Poppins', sans-serif; }
+        body { 
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('../Assests/QueueReqPic.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -1;
+        }
         .radio-circle { border-radius: 50% !important; aspect-ratio: 1; }
         .modal { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -143,11 +159,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
         @keyframes fadeInBackdrop { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
-<body class="min-h-screen flex flex-col" style="background-image: url('../Assests/QueueReqPic.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;">
+<body class="min-h-screen flex flex-col">
     <?php include 'Header.php'; ?>
     
     <main class="flex-grow flex items-start justify-center pt-20 pb-20 relative overflow-hidden">
-        <img alt="Background" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none select-none" src="/Frontend/Assests/Background.png"/>
         <div class="relative z-10 bg-white rounded-lg shadow-lg max-w-xl w-full p-8" style="box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);">
             <div class="flex justify-center mb-6">
                 <div class="bg-yellow-100 rounded-full p-4">

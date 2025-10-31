@@ -89,6 +89,20 @@ try {
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('../Assests/QueueReqPic.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -1;
         }
         .success-animation {
             animation: bounceIn 0.6s ease-out;
@@ -108,11 +122,10 @@ try {
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col" style="background-image: url('../Assests/QueueReqPic.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;">
+<body class="min-h-screen flex flex-col">
     <?php include 'Header.php'; ?>
     
     <main class="flex-grow flex items-start justify-center pt-20 pb-20 relative overflow-hidden">
-        <img alt="Background" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none select-none" src="/Frontend/Assests/Background.png"/>
         <div class="bg-white rounded-lg shadow-lg max-w-xl w-full p-8 text-center" style="box-shadow: 0 12px 10px rgb(0 0 0 / 0.1);">
             <!-- Success Icon -->
             <div class="flex justify-center mb-6">

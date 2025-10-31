@@ -5,6 +5,15 @@
 // Include database connection if needed
 // require_once '../../config/database.php';
 
+// Determine redirect URL based on referrer
+$ref = isset($_GET['ref']) ? $_GET['ref'] : '';
+if ($ref === 'landing') {
+    $logoRedirectUrl = '/Frontend/Personnel/Landing.php';
+} else {
+    // Default to index.php (from index.php or no ref parameter)
+    $logoRedirectUrl = '/index.php';
+}
+
 // Fetch team members from database (example structure)
 $team_members = [
     [
@@ -218,7 +227,22 @@ $project_stats = [
 </head>
 <body class="bg-gray-50">
     
-<?php include 'Student/Header.php'; ?>
+<!-- Custom Header with dynamic redirect -->
+<header class="bg-white border-b border-gray-300 sticky top-0 z-50">
+    <div class="flex items-center justify-center py-3 px-6 md:px-10 mx-20 md:mx-34 lg:mx-44">
+        <a href="<?php echo htmlspecialchars($logoRedirectUrl); ?>" class="flex items-center hover:opacity-80 transition-opacity">
+            <img alt="University of Cebu Student Affairs circular seal" class="h-12 w-12 rounded-full object-cover" src="/Frontend/Assests/SAO.png"/>
+            <div class="ml-4 text-left">
+                <h1 class="text-blue-900 font-bold text-xl -mb-1">
+                    SeQueueR
+                </h1>
+                <p class="text-gray-600 text-sm">
+                    UC Student Affairs
+                </p>
+            </div>
+        </a>
+    </div>
+</header>
     <!-- Hero Section -->
     <section class="bg-uc-blue text-white py-20">
         <div class="px-6 md:px-10 mx-20 md:mx-34 lg:mx-44 text-center">

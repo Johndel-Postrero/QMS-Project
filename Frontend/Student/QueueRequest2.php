@@ -38,6 +38,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('../Assests/QueueReqPic.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -1;
         }
         input[type="checkbox"]:checked {
             /* Tailwind's text-blue-900 is #1e40af, override with #00417B */
@@ -60,11 +74,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col" style="background-image: url('../Assests/QueueReqPic.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;">
+<body class="min-h-screen flex flex-col">
     <?php include 'Header.php'; ?>
     
     <main class="flex-grow flex items-start justify-center pt-20 pb-20 relative overflow-hidden">
-        <img alt="Background" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none select-none" src="/Frontend/Assests/Background.png"/>
         <div class="relative bg-white rounded-lg shadow-lg max-w-xl w-full p-8" style="box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);">
                 <div class="flex justify-center mb-6">
                     <div class="bg-yellow-100 rounded-full p-4">

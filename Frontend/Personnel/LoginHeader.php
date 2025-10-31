@@ -1,10 +1,10 @@
 <?php
-// Login Header component for SeQueueR - Personnel
+// Header component for SeQueueR
 ?>
 
 <header class="bg-white border-b border-gray-300 sticky top-0 z-50">
     <div class="flex items-center justify-center py-3 px-6 md:px-10 mx-20 md:mx-34 lg:mx-44">
-        <a href="./Landing.php" class="flex items-center hover:opacity-80 transition-opacity">
+        <a href=" https://qmscharlie.byethost5.com/Frontend/Personnel/Landing.php" class="flex items-center hover:opacity-80 transition-opacity">
             <img alt="University of Cebu Student Affairs circular seal" class="h-12 w-12 rounded-full object-cover" src="/Frontend/Assests/SAO.png"/>
             <div class="ml-4 text-left">
                 <h1 class="text-blue-900 font-bold text-xl -mb-1">
@@ -17,4 +17,3 @@
         </a>
     </div>
 </header>
-
