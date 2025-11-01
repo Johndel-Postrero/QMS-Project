@@ -53,17 +53,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-repeat: no-repeat;
             z-index: -1;
         }
-        input[type="checkbox"]:checked {
-            /* Tailwind's text-blue-900 is #1e40af, override with #00417B */
-            --tw-text-opacity: 1;
-            color: #00417B;
-            border-color: #00417B;
-            background-color: #00417B;
-            background-image: none;
+        /* Custom checkbox styling - blue background with white check */
+        input[type="checkbox"].service-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            background-color: white;
+            cursor: pointer;
+            position: relative;
         }
-        input[type="checkbox"]:checked + label::before {
-            border-color: #00417B;
+        input[type="checkbox"].service-checkbox:checked {
             background-color: #00417B;
+            border-color: #00417B;
+        }
+        input[type="checkbox"].service-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            line-height: 1;
+        }
+        input[type="checkbox"].service-checkbox:focus {
+            outline: 2px solid #00417B;
+            outline-offset: 2px;
         }
         .error-message {
             animation: slideIn 0.3s ease-out;
@@ -119,12 +139,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <fieldset class="bg-white border border-gray-200 rounded-md p-5 space-y-4" id="service-type">
                     <?php foreach ($services as $key => $service): ?>
                     <div class="flex items-center">
-                        <input class="h-5 w-5 border-gray-300 rounded service-checkbox" 
-                               id="<?php echo $key; ?>" 
-                               name="services[]" 
-                               value="<?php echo $key; ?>"
-                               style="accent-color:#00417B" 
-                               type="checkbox"/>
+                    <input class="service-checkbox" 
+                           id="<?php echo $key; ?>" 
+                           name="services[]" 
+                           value="<?php echo $key; ?>"
+                           type="checkbox"/>
                         <label class="ml-3 text-gray-700 text-sm cursor-pointer" for="<?php echo $key; ?>">
                             <?php echo htmlspecialchars($service); ?>
                         </label>

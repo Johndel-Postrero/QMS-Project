@@ -35,7 +35,7 @@
      <p class="text-[18px] font-light leading-relaxed" style="max-width: 600px;">
       Skip the long lines. Get your queue number instantly and track your turn in real-time. Make your student affairs visits more efficient and stress-free.
      </p>
-     <div class="flex flex-wrap" style="gap: 30px;">
+     <div class="flex flex-nowrap" style="gap: 30px;">
       <a href="/Frontend/Student/QueueRequest.php" class="bg-yellow-400 text-black font-semibold rounded-md shadow-md flex items-center gap-2 hover:brightness-110 transition text-[18px]" style="padding: 12px 24px; width: 260px; height: 50px; justify-content: center;">
        <i class="fas fa-laptop text-sm">
        </i>

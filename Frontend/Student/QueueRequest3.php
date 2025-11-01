@@ -236,7 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
                         Back
                     </button>
                     <button class="bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition flex items-center justify-center gap-2 font-medium px-6 py-3 min-w-[120px]" 
-                            type="button" onclick="showPriorityModal()">
+                            type="button" onclick="showDocumentsModal()">
                         Next
                         <i class="fas fa-arrow-right text-sm"></i>
                     </button>
@@ -270,6 +270,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
             <div class="flex justify-end">
                 <button type="button" onclick="closeServiceInfo()" 
                         class="bg-blue-900 text-white px-6 py-2 rounded-md text-sm hover:bg-blue-800 transition">
+                    Got It
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Required Documents Confirmation Modal -->
+    <div id="documentsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden modal-backdrop z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6 modal" style="border-radius: 8px;">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
+                <h3 id="documentsModalTitle" class="text-lg font-bold text-blue-900"></h3>
+                <button type="button" onclick="closeDocumentsModal()" class="text-gray-500 hover:text-gray-700 transition">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <div class="mb-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="bg-yellow-100 rounded-full p-2">
+                        <i class="fas fa-check text-yellow-400 text-sm"></i>
+                    </div>
+                    <h4 class="font-semibold text-blue-900">Required Documents</h4>
+                </div>
+                <ul id="documentsModalList" class="space-y-2 text-sm text-gray-700 pl-0">
+                    <!-- Documents will be populated by JavaScript -->
+                </ul>
+            </div>
+            <div class="flex justify-center">
+                <button type="button" onclick="handleDocumentsGotIt()" 
+                        class="bg-blue-900 text-white px-6 py-3 rounded-md text-sm hover:bg-blue-800 transition font-medium w-full">
                     Got It
                 </button>
             </div>
@@ -442,6 +471,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
             }
         }
         
+        // Documents Modal Functions
+        function showDocumentsModal() {
+            const selectedServices = <?php echo json_encode($selectedServices); ?>;
+            const serviceInfo = <?php echo json_encode($serviceInfo); ?>;
+            
+            if (selectedServices.length === 0) {
+                // No services selected, go directly to priority modal
+                showPriorityModal();
+                return;
+            }
+            
+            // Determine title - use first service or show combined
+            let modalTitle = '';
+            if (selectedServices.length === 1) {
+                const serviceKey = selectedServices[0];
+                modalTitle = serviceInfo[serviceKey]?.title || serviceKey;
+            } else {
+                // Multiple services - show generic title or first service
+                const firstServiceKey = selectedServices[0];
+                modalTitle = serviceInfo[firstServiceKey]?.title || 'Required Documents';
+            }
+            
+            // Collect all unique documents from all selected services
+            const allDocuments = new Set();
+            selectedServices.forEach(serviceKey => {
+                const docs = serviceInfo[serviceKey]?.required_documents || [];
+                docs.forEach(doc => allDocuments.add(doc));
+            });
+            
+            // Set modal title
+            document.getElementById('documentsModalTitle').textContent = modalTitle;
+            
+            // Populate documents list with blue bullet points
+            const documentsList = document.getElementById('documentsModalList');
+            documentsList.innerHTML = '';
+            
+            Array.from(allDocuments).forEach(doc => {
+                const li = document.createElement('li');
+                li.className = 'flex items-start gap-3';
+                li.innerHTML = `
+                    <span class="inline-block w-2 h-2 rounded-full bg-blue-900 mt-2 flex-shrink-0"></span>
+                    <span class="text-gray-700">${doc}</span>
+                `;
+                documentsList.appendChild(li);
+            });
+            
+            // Show the modal
+            document.getElementById('documentsModal').classList.remove('hidden');
+        }
+        
+        function closeDocumentsModal() {
+            document.getElementById('documentsModal').classList.add('hidden');
+        }
+        
+        function handleDocumentsGotIt() {
+            closeDocumentsModal();
+            // Show priority modal after documents modal is closed
+            showPriorityModal();
+        }
+        
         // Priority Modal Functions
         function showPriorityModal() {
             document.getElementById('priorityModal').classList.remove('hidden');
@@ -589,6 +678,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
         // Close modals when clicking outside
         document.getElementById('serviceModal').addEventListener('click', function(e) {
             if (e.target === this) closeServiceInfo();
+        });
+        
+        document.getElementById('documentsModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDocumentsModal();
         });
         
         document.getElementById('priorityModal').addEventListener('click', function(e) {

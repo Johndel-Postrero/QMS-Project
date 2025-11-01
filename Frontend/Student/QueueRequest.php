@@ -45,6 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate Student ID (exactly 8 digits)
     if ($oldStudentId === '') {
         $errors['studentid'] = 'Student ID is required.';
+    } elseif (!preg_match('/^\d{8}$/', $oldStudentId)) {
+        $errors['studentid'] = 'Student ID must be exactly 8 numeric digits.';
     }
 
     // Validate Year Level
@@ -179,8 +181,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
                     </label>
                     <input autocomplete="student-id" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400" 
                            id="studentid" name="studentid" placeholder="e.g., 21411277" 
-                           required type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,'')" value="<?php echo htmlspecialchars($oldStudentId); ?>"/>
-                    <p class="text-xs text-slate-500 mt-1">Enter your official university ID number</p>
+                           required type="text" inputmode="numeric" pattern="\d{8}" maxlength="8" oninput="this.value=this.value.replace(/[^0-9]/g,'')" value="<?php echo htmlspecialchars($oldStudentId); ?>"/>
+                    <p class="text-xs text-slate-500 mt-1">Enter your official university ID number (8 digits)</p>
                     <?php if ($errors['studentid']) { ?>
                         <p class="text-xs text-red-600 mt-1"><?php echo htmlspecialchars($errors['studentid']); ?></p>
                     <?php } ?>
@@ -346,6 +348,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
 
             // Event listeners
             input.addEventListener('click', () => {
+                // Reset filtered courses to all courses when clicking on empty field
+                if (input.value.length === 0) {
+                    filteredCourses = [...courses];
+                }
                 toggleDropdown(true);
             });
 
@@ -355,8 +361,12 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
                     toggleDropdown(true);
                     searchCourses(value);
                 } else {
+                    // When field is cleared, reset to show all courses if dropdown is open
                     hiddenInput.value = '';
-                    toggleDropdown(false);
+                    filteredCourses = [...courses]; // Reset filtered courses to all courses
+                    if (!dropdown.classList.contains('hidden')) {
+                        populateDropdown(filteredCourses); // Show all courses instead of closing
+                    }
                 }
 
                 // Live sync hidden when exact match is typed
@@ -443,8 +453,47 @@ if (isset($_GET['action']) && $_GET['action'] === 'search_courses') {
 
             // Form validation
             const form = document.querySelector('form');
+            const studentIdInput = document.getElementById('studentid');
+
+            // Client-side validation for Student ID
+            if (studentIdInput) {
+                studentIdInput.addEventListener('input', function() {
+                    const value = this.value.trim();
+                    if (value.length > 0 && value.length !== 8) {
+                        this.setCustomValidity('Student ID must be exactly 8 digits.');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+
+                studentIdInput.addEventListener('blur', function() {
+                    const value = this.value.trim();
+                    if (value.length > 0 && !/^\d{8}$/.test(value)) {
+                        this.setCustomValidity('Student ID must be exactly 8 numeric digits.');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+
+
             if (form) {
                 form.addEventListener('submit', (e) => {
+                    // Validate Student ID
+                    if (studentIdInput) {
+                        const studentIdValue = studentIdInput.value.trim();
+                        if (!/^\d{8}$/.test(studentIdValue)) {
+                            e.preventDefault();
+                            studentIdInput.setCustomValidity('Student ID must be exactly 8 numeric digits.');
+                            studentIdInput.reportValidity();
+                            studentIdInput.focus();
+                            return false;
+                        } else {
+                            studentIdInput.setCustomValidity('');
+                        }
+                    }
+
+
                     // If user typed manually, ensure it matches a course
                     const typed = input.value.trim();
                     if (typed && !hiddenInput.value) {

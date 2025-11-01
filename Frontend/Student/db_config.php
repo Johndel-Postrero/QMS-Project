@@ -30,30 +30,61 @@ function getDBConnection() {
 
 // Function to generate next queue number
 function generateQueueNumber($conn, $queueType) {
-    $conn->begin_transaction();
+    // Check if transaction is supported (InnoDB required)
+    $transactionSupported = true;
+    try {
+        $conn->begin_transaction();
+    } catch (Exception $e) {
+        $transactionSupported = false;
+        error_log("Transactions not supported, proceeding without transaction: " . $e->getMessage());
+    }
     
     try {
+        // Check if queue_counters table exists
+        $tableCheck = $conn->query("SHOW TABLES LIKE 'queue_counters'");
+        if ($tableCheck->num_rows === 0) {
+            throw new Exception("Database table 'queue_counters' does not exist. Please create the table first.");
+        }
+        
         // Check if today's date is different from last reset date
         $checkStmt = $conn->prepare("SELECT current_number, last_reset_date FROM queue_counters WHERE queue_type = ?");
+        if (!$checkStmt) {
+            throw new Exception("Failed to prepare statement: " . $conn->error);
+        }
         $checkStmt->bind_param("s", $queueType);
-        $checkStmt->execute();
+        if (!$checkStmt->execute()) {
+            throw new Exception("Failed to execute query: " . $checkStmt->error);
+        }
         $checkResult = $checkStmt->get_result();
         
         if ($checkResult->num_rows === 0) {
             // If counter doesn't exist, create it
             $insertStmt = $conn->prepare("INSERT INTO queue_counters (queue_type, current_number, last_reset_date) VALUES (?, 0, CURDATE())");
+            if (!$insertStmt) {
+                throw new Exception("Failed to prepare insert statement: " . $conn->error);
+            }
             $insertStmt->bind_param("s", $queueType);
-            $insertStmt->execute();
+            if (!$insertStmt->execute()) {
+                throw new Exception("Failed to insert queue counter: " . $insertStmt->error);
+            }
             $insertStmt->close();
             
             // Re-query to get the newly inserted row
             $checkStmt = $conn->prepare("SELECT current_number, last_reset_date FROM queue_counters WHERE queue_type = ?");
+            if (!$checkStmt) {
+                throw new Exception("Failed to prepare re-query statement: " . $conn->error);
+            }
             $checkStmt->bind_param("s", $queueType);
-            $checkStmt->execute();
+            if (!$checkStmt->execute()) {
+                throw new Exception("Failed to execute re-query: " . $checkStmt->error);
+            }
             $checkResult = $checkStmt->get_result();
         }
         
         $checkRow = $checkResult->fetch_assoc();
+        if (!$checkRow) {
+            throw new Exception("Failed to fetch queue counter data");
+        }
         $checkStmt->close();
         
         // Check if we need to reset the counter (new day)
@@ -61,8 +92,13 @@ function generateQueueNumber($conn, $queueType) {
         if ($checkRow['last_reset_date'] !== $today) {
             // Reset counter for new day
             $resetStmt = $conn->prepare("UPDATE queue_counters SET current_number = 0, last_reset_date = ? WHERE queue_type = ?");
+            if (!$resetStmt) {
+                throw new Exception("Failed to prepare reset statement: " . $conn->error);
+            }
             $resetStmt->bind_param("ss", $today, $queueType);
-            $resetStmt->execute();
+            if (!$resetStmt->execute()) {
+                throw new Exception("Failed to reset queue counter: " . $resetStmt->error);
+            }
             $resetStmt->close();
             
             $currentNumber = 0;
@@ -89,28 +125,46 @@ function generateQueueNumber($conn, $queueType) {
         
         // Verify the queue number doesn't already exist (extra safety)
         $verifyStmt = $conn->prepare("SELECT id FROM queues WHERE queue_number = ? AND DATE(created_at) = CURDATE()");
-        $verifyStmt->bind_param("s", $queueNumber);
-        $verifyStmt->execute();
-        $verifyResult = $verifyStmt->get_result();
-        
-        if ($verifyResult->num_rows > 0) {
-            // Queue number exists, try again with incremented number
+        if (!$verifyStmt) {
+            // If queues table doesn't exist, skip verification
+            error_log("Warning: queues table might not exist, skipping verification");
+        } else {
+            $verifyStmt->bind_param("s", $queueNumber);
+            if ($verifyStmt->execute()) {
+                $verifyResult = $verifyStmt->get_result();
+                
+                if ($verifyResult && $verifyResult->num_rows > 0) {
+                    // Queue number exists, try again with incremented number
+                    $verifyStmt->close();
+                    if ($transactionSupported) {
+                        $conn->rollback();
+                    }
+                    throw new Exception("Queue number collision detected. Please try again.");
+                }
+            }
             $verifyStmt->close();
-            $conn->rollback();
-            throw new Exception("Queue number collision detected. Please try again.");
         }
         
-        $verifyStmt->close();
-        
-        $conn->commit();
+        if ($transactionSupported) {
+            if (!$conn->commit()) {
+                throw new Exception("Failed to commit transaction: " . $conn->error);
+            }
+        }
         
         error_log("Generated queue number: $queueNumber for type: $queueType");
         
         return $queueNumber;
         
     } catch (Exception $e) {
-        $conn->rollback();
-        error_log("Error generating queue number: " . $e->getMessage());
+        if ($transactionSupported) {
+            try {
+                $conn->rollback();
+            } catch (Exception $rollbackError) {
+                error_log("Error during rollback: " . $rollbackError->getMessage());
+            }
+        }
+        error_log("Error generating queue number: " . $e->getMessage() . " | Queue Type: " . $queueType);
+        error_log("PHP Error Details: " . print_r(error_get_last(), true));
         throw $e;
     }
 }
@@ -118,6 +172,12 @@ function generateQueueNumber($conn, $queueType) {
 // Function to insert queue record
 function insertQueueRecord($conn, $queueData) {
     try {
+        // Check if queues table exists
+        $tableCheck = $conn->query("SHOW TABLES LIKE 'queues'");
+        if ($tableCheck->num_rows === 0) {
+            throw new Exception("Database table 'queues' does not exist. Please create the table first.");
+        }
+        
         $stmt = $conn->prepare("
             INSERT INTO queues (
                 queue_number, queue_type, student_name, student_id, 

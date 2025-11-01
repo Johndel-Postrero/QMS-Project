@@ -72,7 +72,24 @@ try {
     
 } catch (Exception $e) {
     error_log("Error in QueueNumber.php: " . $e->getMessage());
-    die("An error occurred while generating your queue number. Please try again.");
+    error_log("Stack trace: " . $e->getTraceAsString());
+    
+    // Check for common errors and provide more specific messages
+    $errorMessage = $e->getMessage();
+    $userMessage = "An error occurred while generating your queue number. Please try again.";
+    
+    // Provide more specific error messages for debugging (remove in production if needed)
+    if (strpos($errorMessage, "does not exist") !== false) {
+        $userMessage = "Database table missing. Please contact administrator. Error: " . htmlspecialchars($errorMessage);
+    } elseif (strpos($errorMessage, "Connection") !== false) {
+        $userMessage = "Database connection error. Please try again later.";
+    } elseif (strpos($errorMessage, "prepare") !== false || strpos($errorMessage, "execute") !== false) {
+        $userMessage = "Database query error. Please try again or contact administrator.";
+    }
+    
+    // For production, you might want to hide detailed errors
+    // For debugging, show the actual error message
+    die($userMessage);
 }
 ?>
 

@@ -223,6 +223,16 @@ $project_stats = [
             padding-top: 0.5rem; /* further reduced to shrink white panel height */
         }
         
+        /* Team card separator line */
+        .carousel-slide > .rounded-lg > .bg-white hr {
+            border: none !important;
+            height: 1px !important;
+            background-color: #d1d5db !important;
+            margin: 0.5rem 0 !important;
+            width: 100% !important;
+            display: block !important;
+        }
+        
     </style>
 </head>
 <body class="bg-gray-50">
@@ -374,6 +384,7 @@ $project_stats = [
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-900 mb-1"><?php echo $member['name']; ?></h3>
                                 <div class="text-sm text-gray-600 mb-2"><?php echo $member['full_name']; ?></div>
+                                <hr class="my-2 h-px bg-gray-300 border-0">
                                 <p class="text-sm text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
                             </div>
                         </div>
@@ -397,6 +408,7 @@ $project_stats = [
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-900 mb-1"><?php echo $member['name']; ?></h3>
                                 <div class="text-sm text-gray-600 mb-2"><?php echo $member['full_name']; ?></div>
+                                <hr class="my-2 h-px bg-gray-300 border-0">
                                 <p class="text-sm text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
                             </div>
                         </div>
@@ -424,6 +436,7 @@ $project_stats = [
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-900 mb-1"><?php echo $member['name']; ?></h3>
                                 <div class="text-sm text-gray-600 mb-2"><?php echo $member['full_name']; ?></div>
+                                <hr class="my-2 h-px bg-gray-300 border-0">
                                 <p class="text-sm text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
                             </div>
                         </div>
