@@ -5,10 +5,21 @@ ini_set('display_errors', '0');
 ini_set('display_startup_errors', '0');
 if (function_exists('mysqli_report')) { mysqli_report(MYSQLI_REPORT_OFF); }
 
-$host = "sql204.byethost5.com";
-$username = "b5_40277518";  
-$password = "euwen123"; 
-$database = "b5_40277518_QMS"; 
+// Auto-switch DB config for local XAMPP vs remote hosting
+$__host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+$__isLocal = in_array($__host, ['localhost', '127.0.0.1']) || PHP_SAPI === 'cli';
+
+if ($__isLocal) {
+    $host = '127.0.0.1';
+    $username = 'root';
+    $password = '';
+    $database = 'b5_40277518_QMS'; // Create locally in phpMyAdmin
+} else {
+    $host = 'sql204.byethost5.com';
+    $username = 'b5_40277518';  
+    $password = 'euwen123'; // Ensure matches cPanel password
+    $database = 'b5_40277518_QMS'; 
+}
 
 $conn = new mysqli($host, $username, $password, $database);
 

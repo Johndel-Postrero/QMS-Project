@@ -99,7 +99,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
     require_once __DIR__ . '/../../../config.php';
 
     $page = max(1, (int)($_GET['page'] ?? 1));
-    $limit = max(1, min(100, (int)($_GET['limit'] ?? 10)));
+    $limit = max(1, min(100, (int)($_GET['limit'] ?? 8)));
     $offset = ($page - 1) * $limit;
 
     $sort = $_GET['sort'] ?? '';
@@ -199,6 +199,67 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
         body {
             font-family: 'Inter', sans-serif;
         }
+        
+        .custom-dropdown {
+            position: relative;
+        }
+        
+        .dropdown-input {
+            position: relative;
+        }
+        
+        .dropdown-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            margin-top: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: none;
+        }
+        
+        .dropdown-options.show {
+            display: block;
+        }
+        
+        .dropdown-option {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+        
+        .dropdown-option:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .dropdown-option.selected {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .dropdown-options::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .dropdown-options::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .dropdown-options::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        .dropdown-options::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -209,7 +270,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
     <main class="bg-gray-50 min-h-screen">
         <div class="py-8 px-6 md:px-10 mx-4 md:mx-8 lg:mx-12">
             <!-- Header Section -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 px-5 py-5 mb-8">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 class="text-3xl font-bold text-gray-900">Account Management</h1>
                     <p class="text-gray-600 mt-2">Manage working scholar accounts and permissions</p>
@@ -218,7 +280,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
                 <div class="mt-4 sm:mt-0 flex items-center space-x-3">
                     <!-- Export Dropdown -->
                     <div class="relative" id="exportDropdown">
-                        <button id="exportBtn" class="border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-2 px-4 rounded-lg flex items-center space-x-2" onclick="toggleExportDropdown(event)">
+                            <button id="exportBtn" class="border border-blue-900 text-blue-900 bg-white hover:bg-blue-50 font-semibold py-2 px-4 rounded-lg flex items-center space-x-2" onclick="toggleExportDropdown(event)">
                             <i class="fas fa-download"></i>
                             <span>Export</span>
                             <i class="fas fa-chevron-down ml-1"></i>
@@ -259,6 +321,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
                         <i class="fas fa-plus"></i>
                         <span>Add Account</span>
                     </button>
+                    </div>
                 </div>
             </div>
 
@@ -315,47 +378,47 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
 
             <!-- Users Table -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div class="overflow-x-auto overflow-y-visible">
-                    <table class="min-w-full divide-y divide-gray-200">
+                <div class="overflow-x-auto overflow-y-visible" style="flex: 1 1 auto; min-height: 470px;">
+                    <table class="min-w-full table-fixed divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('idNumber')">
+                                <th scope="col" class="w-32 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('idNumber')">
                                     <div class="flex items-center space-x-1">
                                         <span>ID Number</span>
-                                        <i class="fas fa-sort text-gray-400"></i>
+                                        <i id="sort-idNumber" class="fas fa-sort text-gray-400"></i>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('name')">
+                                <th scope="col" class="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('name')">
                                     <div class="flex items-center space-x-1">
                                         <span>Name</span>
-                                        <i class="fas fa-sort text-gray-400"></i>
+                                        <i id="sort-name" class="fas fa-sort text-gray-400"></i>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('email')">
+                                <th scope="col" class="w-72 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('email')">
                                     <div class="flex items-center space-x-1">
                                         <span>Email Address</span>
-                                        <i class="fas fa-sort text-gray-400"></i>
+                                        <i id="sort-email" class="fas fa-sort text-gray-400"></i>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('role')">
+                                <th scope="col" class="w-32 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('role')">
                                     <div class="flex items-center space-x-1">
                                         <span>Role</span>
-                                        <i class="fas fa-sort text-gray-400"></i>
+                                        <i id="sort-role" class="fas fa-sort text-gray-400"></i>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('status')">
+                                <th scope="col" class="w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('status')">
                                     <div class="flex items-center space-x-1">
                                         <span>Status</span>
-                                        <i class="fas fa-sort text-gray-400"></i>
+                                        <i id="sort-status" class="fas fa-sort text-gray-400"></i>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('lastActive')">
+                                <th scope="col" class="w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('lastActive')">
                                     <div class="flex items-center space-x-1">
                                         <span>Last Active</span>
-                                        <i class="fas fa-sort text-gray-400"></i>
+                                        <i id="sort-lastActive" class="fas fa-sort text-gray-400"></i>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="w-24 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     <span>Actions</span>
                                 </th>
                             </tr>
@@ -365,15 +428,16 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
                         </tbody>
                     </table>
                 </div>
-            </div>
-
             <!-- Pagination -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-6">
+                <div class="bg-gray-50 border-t border-gray-200 px-5 py-4 rounded-b-lg">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div class="text-sm text-gray-700 mb-4 sm:mb-0">
                     Showing <span id="showingFrom">0</span> to <span id="showingTo">0</span> of <span id="totalResults">0</span> results
                 </div>
                 <div id="pagination" class="flex items-center space-x-2">
                     <!-- Pagination will be generated dynamically -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -486,16 +550,18 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
                             <label class="block text-sm font-medium text-blue-600 mb-2">
                                 Course/Program<span class="text-red-500">*</span>
                             </label>
-                            <select id="addCourse" name="course" required
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
-                                    style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1.25rem;">
-                                <option value="">Select course</option>
-                                <option value="BSIT">BSIT</option>
-                                <option value="BSCS">BSCS</option>
-                                <option value="BSBA">BSBA</option>
-                                <option value="BSA">BSA</option>
-                                <option value="BSEE">BSEE</option>
-                            </select>
+                            <div class="custom-dropdown">
+                                <div class="dropdown-input">
+                                    <input type="hidden" id="addCourse" name="course" required>
+                                    <input type="text" id="addCourseDisplay" 
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           placeholder="Type to search course/program..." autocomplete="off">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div id="addCourseOptions" class="dropdown-options"></div>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-blue-600 mb-2">
@@ -721,16 +787,18 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
                             <label class="block text-sm font-medium text-blue-600 mb-2">
                                 Course/Program<span class="text-red-500">*</span>
                             </label>
-                            <select id="editCourse" name="course" required
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
-                                    style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1.25rem;">
-                                <option value="">Select course</option>
-                                <option value="BSIT">BSIT</option>
-                                <option value="BSCS">BSCS</option>
-                                <option value="BSBA">BSBA</option>
-                                <option value="BSA">BSA</option>
-                                <option value="BSEE">BSEE</option>
-                            </select>
+                            <div class="custom-dropdown">
+                                <div class="dropdown-input">
+                                    <input type="hidden" id="editCourse" name="course" required>
+                                    <input type="text" id="editCourseDisplay" 
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           placeholder="Type to search course/program..." autocomplete="off">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div id="editCourseOptions" class="dropdown-options"></div>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-blue-600 mb-2">
@@ -861,10 +929,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
     <script>
         // Backend-ready JavaScript for Account Management
         let users = [];
+        let filteredUsers = [];
         let currentPage = 1;
         let totalPages = 1;
         let totalCount = 0;
-        let itemsPerPage = 10;
+        let itemsPerPage = 8;
         let currentSort = { column: '', direction: 'asc' };
         let currentFilters = {
             search: '',
@@ -872,10 +941,36 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
             role: ''
         };
         
+        // List of all Philippine course/program acronyms
+        const philippineCourses = [
+            'BSIT', 'BSCS', 'BSBA', 'BSA', 'BSEE', 'BSCE', 'BSME', 'BSECE', 'BSIE', 'BSCHE',
+            'BSN', 'BSPharm', 'BSMedTech', 'BS Physical Therapy', 'BS Occupational Therapy',
+            'BS Accounting Technology', 'BS Accounting Information', 'BS Accountancy', 'BS Management Accounting',
+            'BS Information Systems', 'BS Hospitality Management', 'BS Tourism Management', 'BS Culinary Arts',
+            'BS Psychology', 'BS Social Work', 'BS Criminology', 'BS Civil Engineering', 'BS Electrical Engineering',
+            'BS Computer Engineering', 'BS Mechanical Engineering', 'BS Electronics Engineering', 'BS Industrial Engineering',
+            'BS Chemical Engineering', 'BS Aeronautical Engineering', 'BS Marine Engineering', 'BS Naval Architecture',
+            'BS Architecture', 'BS Interior Design', 'BS Landscape Architecture', 'BS Fine Arts', 'BS Multimedia Arts',
+            'BS Animation', 'BS Graphic Design', 'BS Fashion Design', 'BS Biology', 'BS Chemistry', 'BS Mathematics',
+            'BS Physics', 'BS Environmental Science', 'BS Fisheries', 'BS Forestry', 'BS Agriculture',
+            'BS Agricultural Engineering', 'BS Veterinary Medicine', 'BS Communication', 'BS Journalism',
+            'BS Broadcasting', 'BS Public Relations', 'BS Marketing', 'BS Entrepreneurship', 'BS Human Resource Development',
+            'BS Development Management', 'BS Office Administration', 'BS Library Information Science', 'BS Elementary Education',
+            'BS Secondary Education', 'BS Special Education', 'BS Physical Education', 'BS Music', 'BS Dance',
+            'BS Theater Arts', 'BSSEcEd', 'BSBA Marketing', 'BSBA HRM', 'BSBA OPM', 'BSBA FM', 'BSBA TM',
+            'BSBA Financial Management', 'BSBA Operations Management', 'BSBA Marketing Management', 'BSBA Management',
+            'BS Accountancy', 'BS Accountancy Technology', 'BS Accounting Technology', 'BS Management',
+            'BS Education', 'BS Secondary Education Major in English', 'BS Secondary Education Major in Math',
+            'BS Secondary Education Major in Science', 'BS Elementary Education', 'BS Pre-School Education',
+            'BS Special Education Major in SPED', 'BS Early Childhood Education', 'BS Physical Education',
+            'BS Sports Science', 'BS Athletic Training', 'BS Exercise Science', 'BS Recreation Management'
+        ];
+        
         // Initialize the interface
         document.addEventListener('DOMContentLoaded', function() {
             loadUsers();
             setupEventListeners();
+            initializeCourseDropdowns();
         });
         
         // Load users from backend
@@ -892,22 +987,24 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
             fetch(`User.php?action=list&${params}`)
                 .then(response => response.json())
                 .then(data => {
+                    // Only use demo mode if explicitly enabled with ?demo=1
+                    if (isDemoEnabled()) {
+                        loadDemoUsers();
+                        return;
+                    }
                     users = data.users || [];
-                    totalPages = data.totalPages || 1;
-                    totalCount = data.total || users.length;
+                    // Apply client-side sorting and filtering for data
+                    applyClientSideSorting();
+                    applyClientSideFiltering();
+                    totalCount = filteredUsers.length;
+                    totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
                     updateUsersTable();
                     updatePagination();
                     updateExportButton();
                 })
                 .catch(error => {
-                    console.log('No backend connection yet - no data available');
-                    // No dummy data - empty state
-                    users = [];
-                    totalPages = 1;
-                    totalCount = 0;
-                    updateUsersTable();
-                    updatePagination();
-                    updateExportButton();
+                    console.log('Backend connection error - no data available');
+                    // Do not load demo data on error - let the table show empty state
                 });
         }
         
@@ -915,7 +1012,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
         function updateUsersTable() {
             const tbody = document.getElementById('usersTableBody');
             
-            if (users.length === 0) {
+            if (filteredUsers.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="7" class="px-6 py-12 text-center">
@@ -929,13 +1026,15 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
                 `;
                 return;
             }
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const pageItems = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
             
-            tbody.innerHTML = users.map(user => `
+            tbody.innerHTML = pageItems.map(user => `
                 <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap">
+                    <td class="px-6 py-4 whitespace-nowrap w-32 overflow-hidden text-ellipsis">
                         <span class="text-sm font-medium text-gray-900">${user.idNumber}</span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                    <td class="px-6 py-4 whitespace-nowrap w-64 overflow-hidden text-ellipsis">
                         <div class="flex items-center">
                             <div class="h-10 w-10 flex-shrink-0">
                                 <img class="h-10 w-10 rounded-full object-cover" src="${user.profileImage || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=1e40af&color=fff'}" alt="${user.name}">
@@ -945,23 +1044,26 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                    <td class="px-6 py-4 whitespace-nowrap w-72 overflow-hidden text-ellipsis">
                         <span class="text-sm text-gray-900">${user.email}</span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                    <td class="px-6 py-4 whitespace-nowrap w-32 overflow-hidden text-ellipsis">
                         <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
                             user.role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
                         }">
                             ${user.role === 'admin' ? 'Admin' : 'Working Scholar'}
                         </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="text-sm text-gray-900">-</span>
+                    <td class="px-6 py-4 whitespace-nowrap w-28 overflow-hidden text-ellipsis">
+                        <div class="flex items-center">
+                            <span class="w-2 h-2 rounded-full mr-2 ${user.status === 'active' ? 'bg-green-500' : 'bg-gray-400'}"></span>
+                            <span class="text-sm text-gray-900 capitalize">${user.status}</span>
+                        </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td class="px-6 py-4 whitespace-nowrap w-28 text-sm text-gray-900 overflow-hidden text-ellipsis">
                         ${user.lastActive}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 relative">
+                    <td class="px-6 py-4 whitespace-nowrap w-24 text-sm text-gray-500 relative">
                         <button onclick="toggleActionMenu(${user.id}, event)" class="text-gray-400 hover:text-gray-600">
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
@@ -1000,6 +1102,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
             showingTo.textContent = endItem;
             totalResults.textContent = totalCount;
             
+            totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
             if (totalPages <= 1) {
                 pagination.innerHTML = '';
                 return;
@@ -1042,9 +1145,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
             
             for (let i = startPage; i <= endPage; i++) {
                 paginationHTML += `
-                    <button onclick="changePage(${i})" class="px-3 py-2 text-sm font-medium ${
-                        i === currentPage ? 'text-white bg-blue-900 border-blue-900' : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50'
-                    } border rounded-md">
+                    <button onclick="changePage(${i})" class="px-3 py-2 text-sm font-medium border rounded-md ${
+                        i === currentPage ? 'bg-blue-900 text-white border-blue-900' : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50'
+                    }">
                         ${i}
                     </button>
                 `;
@@ -1087,6 +1190,108 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
                 exportBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 exportBtn.classList.add('hover:bg-gray-50');
             }
+        }
+        
+        // Initialize course dropdowns
+        function initializeCourseDropdowns() {
+            initializeDropdown('addCourseDisplay', 'addCourse', 'addCourseOptions');
+            initializeDropdown('editCourseDisplay', 'editCourse', 'editCourseOptions');
+        }
+        
+        // Initialize individual dropdown
+        function initializeDropdown(displayId, hiddenId, optionsId) {
+            const displayInput = document.getElementById(displayId);
+            const hiddenInput = document.getElementById(hiddenId);
+            const optionsContainer = document.getElementById(optionsId);
+            let selectedIndex = -1;
+            
+            // Render options
+            function renderOptions(filter = '') {
+                const filtered = philippineCourses.filter(course => 
+                    course.toLowerCase().includes(filter.toLowerCase())
+                );
+                
+                optionsContainer.innerHTML = filtered.map((course, idx) => 
+                    `<div class="dropdown-option" data-index="${idx}" data-value="${course}">${course}</div>`
+                ).join('');
+            }
+            
+            // Show/hide options
+            function showOptions() {
+                optionsContainer.classList.add('show');
+            }
+            
+            function hideOptions() {
+                optionsContainer.classList.remove('show');
+                selectedIndex = -1;
+            }
+            
+            // Handle input change
+            displayInput.addEventListener('input', function(e) {
+                const value = e.target.value;
+                hiddenInput.value = ''; // Clear hidden value when typing
+                renderOptions(value);
+                showOptions();
+            });
+            
+            // Handle focus
+            displayInput.addEventListener('focus', function() {
+                renderOptions(displayInput.value);
+                showOptions();
+            });
+            
+            // Handle option click
+            optionsContainer.addEventListener('click', function(e) {
+                const option = e.target.closest('.dropdown-option');
+                if (option) {
+                    const value = option.dataset.value;
+                    displayInput.value = value;
+                    hiddenInput.value = value;
+                    hideOptions();
+                }
+            });
+            
+            // Hide on outside click
+            document.addEventListener('click', function(e) {
+                if (!displayInput.closest('.custom-dropdown').contains(e.target)) {
+                    hideOptions();
+                }
+            });
+            
+            // Keyboard navigation
+            displayInput.addEventListener('keydown', function(e) {
+                const options = optionsContainer.querySelectorAll('.dropdown-option');
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, options.length - 1);
+                    options.forEach((opt, idx) => {
+                        opt.classList.toggle('selected', idx === selectedIndex);
+                    });
+                    if (options[selectedIndex]) {
+                        options[selectedIndex].scrollIntoView({ block: 'nearest' });
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, 0);
+                    options.forEach((opt, idx) => {
+                        opt.classList.toggle('selected', idx === selectedIndex);
+                    });
+                    if (options[selectedIndex]) {
+                        options[selectedIndex].scrollIntoView({ block: 'nearest' });
+                    }
+                } else if (e.key === 'Enter' && selectedIndex >= 0) {
+                    e.preventDefault();
+                    if (options[selectedIndex]) {
+                        options[selectedIndex].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    hideOptions();
+                }
+            });
+            
+            // Initial render
+            renderOptions();
         }
         
         // Setup event listeners
@@ -1168,7 +1373,15 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
         function handleSearch(event) {
             currentFilters.search = event.target.value;
             currentPage = 1;
-            loadUsers();
+            
+            // Apply sorting, filtering and update display
+            applyClientSideSorting();
+            applyClientSideFiltering();
+            totalCount = filteredUsers.length;
+            totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
+            updateUsersTable();
+            updatePagination();
+            updateExportButton();
         }
         
         // Handle filter changes
@@ -1176,7 +1389,15 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
             const filterType = event.target.id.replace('Filter', '');
             currentFilters[filterType] = event.target.value;
             currentPage = 1;
-            loadUsers();
+            
+            // Apply sorting, filtering and update display
+            applyClientSideSorting();
+            applyClientSideFiltering();
+            totalCount = filteredUsers.length;
+            totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
+            updateUsersTable();
+            updatePagination();
+            updateExportButton();
         }
         
         // Clear all filters
@@ -1192,13 +1413,155 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
             };
             
             currentPage = 1;
-            loadUsers();
+            
+            // Apply sorting, filtering and update display
+            applyClientSideSorting();
+            applyClientSideFiltering();
+            totalCount = filteredUsers.length;
+            totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
+            updateUsersTable();
+            updatePagination();
+            updateExportButton();
         }
         
         // Change page
         function changePage(page) {
-            currentPage = page;
-            loadUsers();
+            currentPage = Math.max(1, Math.min(page, Math.max(1, Math.ceil(totalCount / itemsPerPage))));
+            updateUsersTable();
+            updatePagination();
+        }
+
+        function isDemoEnabled() {
+            try {
+                const sp = new URLSearchParams(window.location.search);
+                return sp.get('demo') === '1';
+            } catch (_) { return false; }
+        }
+
+        // Build demo users array of given count
+        function buildDemoUsers(count, offset = 0) {
+            const courses = ['BSIT','BSCS','BSBA','BSA','BSEE'];
+            const names = ['Maria Santos','Juan Dela Cruz','Ana Dela Cruz','Carlos Reyes','Liza Gomez','Paolo Aquino','Ruth Villanueva','Mark dela Rosa','Jenny Cruz','Victor Lim','Erika Tan','Noel Abad','Grace Uy','Leo Santos','Cathy Ramos','Dino Perez','Olivia Reyes','Kenji Sato','Mina Park','Arman Lee'];
+            
+            // Helper function to generate realistic last active times
+            function generateLastActive(seed) {
+                const timestamps = ['Just now', '2 mins ago', '5 mins ago', '10 mins ago', '30 mins ago', 
+                                   '1 hour ago', '2 hours ago', '5 hours ago', '1 day ago', '2 days ago', '3 days ago'];
+                return timestamps[seed % timestamps.length];
+            }
+            
+            const arr = [];
+            for (let i = 0; i < count; i++) {
+                const idx = offset + i;
+                const name = names[idx % names.length];
+                const studentId = 2020 + (idx % 6) + '' + String(10000 + idx);
+                const isActive = idx % 10 !== 0; // 90% active, 10% inactive
+                arr.push({
+                    id: idx + 1,
+                    idNumber: studentId,
+                    name,
+                    email: name.toLowerCase().replace(/[^a-z]/g,'') + (idx%50) + '@example.com',
+                    course: courses[idx % courses.length],
+                    yearLevel: String((idx % 4) + 1),
+                    mobile: '',
+                    role: idx % 15 === 0 ? 'admin' : 'working_scholar',
+                    status: isActive ? 'active' : 'inactive',
+                    lastActive: generateLastActive(idx)
+                });
+            }
+            return arr;
+        }
+
+        // Demo data (50 users) when backend is unavailable
+        function loadDemoUsers() {
+            users = buildDemoUsers(50, 0);
+            applyClientSideSorting();
+            applyClientSideFiltering();
+            totalCount = filteredUsers.length;
+            totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
+            currentPage = 1;
+            updateUsersTable();
+            updatePagination();
+            updateExportButton();
+        }
+        
+        // Apply client-side sorting
+        function applyClientSideSorting() {
+            if (!currentSort.column || users.length === 0) return;
+            
+            users.sort((a, b) => {
+                let aVal, bVal;
+                
+                if (currentSort.column === 'idNumber') {
+                    aVal = a.idNumber;
+                    bVal = b.idNumber;
+                } else if (currentSort.column === 'name') {
+                    aVal = a.name;
+                    bVal = b.name;
+                } else if (currentSort.column === 'email') {
+                    aVal = a.email;
+                    bVal = b.email;
+                } else if (currentSort.column === 'role') {
+                    aVal = a.role;
+                    bVal = b.role;
+                } else if (currentSort.column === 'status') {
+                    aVal = a.status;
+                    bVal = b.status;
+                } else if (currentSort.column === 'lastActive') {
+                    // Convert "X ago" format to numeric for sorting
+                    aVal = parseTimeToMinutes(a.lastActive || '0');
+                    bVal = parseTimeToMinutes(b.lastActive || '0');
+                }
+                
+                if (aVal === null || aVal === undefined) return 1;
+                if (bVal === null || bVal === undefined) return -1;
+                
+                if (typeof aVal === 'string' && typeof bVal === 'string') {
+                    return currentSort.direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                }
+                
+                return currentSort.direction === 'asc' ? (aVal > bVal ? 1 : -1) : (aVal < bVal ? 1 : -1);
+            });
+        }
+        
+        // Helper to parse "X ago" time strings to minutes
+        function parseTimeToMinutes(timeStr) {
+            if (timeStr === 'Just now') return 0;
+            const minsMatch = timeStr.match(/(\d+)\s*mins?\s*ago/);
+            if (minsMatch) return parseInt(minsMatch[1]);
+            const hoursMatch = timeStr.match(/(\d+)\s*hours?\s*ago/);
+            if (hoursMatch) return parseInt(hoursMatch[1]) * 60;
+            const daysMatch = timeStr.match(/(\d+)\s*days?\s*ago/);
+            if (daysMatch) return parseInt(daysMatch[1]) * 1440;
+            return 999999; // Unknown format
+        }
+        
+        // Apply client-side filtering
+        function applyClientSideFiltering() {
+            filteredUsers = users.filter(user => {
+                // Status filter
+                if (currentFilters.status && user.status !== currentFilters.status) {
+                    return false;
+                }
+                
+                // Role filter
+                if (currentFilters.role && user.role !== currentFilters.role) {
+                    return false;
+                }
+                
+                // Search filter
+                if (currentFilters.search) {
+                    const searchLower = currentFilters.search.toLowerCase();
+                    const matchesId = user.idNumber && user.idNumber.toString().toLowerCase().includes(searchLower);
+                    const matchesName = user.name && user.name.toLowerCase().includes(searchLower);
+                    const matchesEmail = user.email && user.email.toLowerCase().includes(searchLower);
+                    if (!matchesId && !matchesName && !matchesEmail) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
         }
         
         // Sort table
@@ -1210,8 +1573,27 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
                 currentSort.direction = 'asc';
             }
             
+            // Update sort icons
+            document.querySelectorAll('[id^="sort-"]').forEach(icon => {
+                icon.className = 'fas fa-sort text-gray-400';
+            });
+            const sortIcon = document.getElementById('sort-' + column);
+            if (sortIcon) {
+                sortIcon.className = currentSort.direction === 'asc' 
+                    ? 'fas fa-sort-up text-blue-600' 
+                    : 'fas fa-sort-down text-blue-600';
+            }
+            
             currentPage = 1;
-            loadUsers();
+            
+            // Apply sorting and filtering, then update display
+            applyClientSideSorting();
+            applyClientSideFiltering();
+            totalCount = filteredUsers.length;
+            totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
+            updateUsersTable();
+            updatePagination();
+            updateExportButton();
         }
         
         // Toggle export dropdown
@@ -1332,6 +1714,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'list' && $_SERVER['REQUEST_ME
             document.getElementById('editFullName').value = user.name || '';
             document.getElementById('editIdNumber').value = user.idNumber || '';
             document.getElementById('editCourse').value = user.course || '';
+            document.getElementById('editCourseDisplay').value = user.course || '';
             document.getElementById('editYearLevel').value = user.yearLevel || '';
             document.getElementById('editEmail').value = user.email || '';
             document.getElementById('editMobile').value = user.mobile || '';

@@ -27,11 +27,11 @@ $waitingQueues = getWaitingQueuesList($conn, 50);
 $stats = getQueueStatistics($conn);
 
 // Get stalled and skipped queues
-$stalledQuery = "SELECT * FROM queues WHERE status = 'stalled' AND DATE(created_at) = CURDATE() ORDER BY created_at ASC";
+$stalledQuery = "SELECT q.*, GROUP_CONCAT(qs.service_name SEPARATOR ', ') as services FROM queues q LEFT JOIN queue_services qs ON q.id = qs.queue_id WHERE q.status = 'stalled' AND DATE(q.created_at) = CURDATE() GROUP BY q.id ORDER BY q.created_at ASC";
 $stalledResult = $conn->query($stalledQuery);
 $stalledQueues = $stalledResult->fetch_all(MYSQLI_ASSOC);
 
-$skippedQuery = "SELECT * FROM queues WHERE status = 'skipped' AND DATE(created_at) = CURDATE() ORDER BY created_at ASC";
+$skippedQuery = "SELECT q.*, GROUP_CONCAT(qs.service_name SEPARATOR ', ') as services FROM queues q LEFT JOIN queue_services qs ON q.id = qs.queue_id WHERE q.status = 'skipped' AND DATE(q.created_at) = CURDATE() GROUP BY q.id ORDER BY q.created_at ASC";
 $skippedResult = $conn->query($skippedQuery);
 $skippedQueues = $skippedResult->fetch_all(MYSQLI_ASSOC);
 
@@ -79,8 +79,12 @@ $conn->close();
                 <!-- Left Panel -->
                 <div class="lg:col-span-7 space-y-6">
                     <!-- Currently Serving Card -->
-                    <div class="bg-white border-2 border-yellow-600 rounded-lg p-8 text-center shadow-sm">
-                        <div class="text-6xl font-bold text-yellow-600 mb-3">
+                    <?php 
+                        $isPriorityColor = ($currentQueue && ($currentQueue['queue_type'] ?? '') === 'priority');
+                        $accentColor = $isPriorityColor ? '#DAA520' : '#003366';
+                    ?>
+                    <div class="bg-white border-2 rounded-lg p-8 text-center shadow-sm" style="border-color: <?php echo $accentColor; ?>;">
+                        <div class="text-6xl font-bold mb-3" style="color: <?php echo $accentColor; ?>;">
                             <?php echo $currentQueue ? htmlspecialchars($currentQueue['queue_number']) : '--'; ?>
                         </div>
                         <div class="flex items-center justify-center space-x-2">
@@ -133,12 +137,12 @@ $conn->close();
                                         <span class="text-sm text-gray-600 block mb-2">Priority Type</span>
                                         <div>
                                             <?php if ($currentQueueDetails && $currentQueueDetails['queue_type'] === 'priority'): ?>
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-yellow-200 text-gray-800">
-                                                <i class="fas fa-star mr-2 text-black"></i>
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold" style="background-color:#DAA520;color:#111;">
+                                                <i class="fas fa-star mr-2" style="color:#111;"></i>
                                                 Priority
                                             </span>
                                             <?php else: ?>
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-gray-200 text-gray-800">
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold" style="background-color:#003366;color:#fff;">
                                                 Regular
                                             </span>
                                             <?php endif; ?>
@@ -180,7 +184,6 @@ $conn->close();
                     <!-- Requested Services -->
                     <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
                         <h3 class="text-lg font-bold text-blue-800 mb-6">Requested Services</h3>
-                        
                         <?php if (empty($currentServices)): ?>
                         <div class="text-center py-12 text-gray-500">
                             <i class="fas fa-clipboard-list text-4xl mb-4"></i>
@@ -188,16 +191,104 @@ $conn->close();
                             <p class="text-sm">Services will appear here when a student requests them</p>
                         </div>
                         <?php else: ?>
+                            <!-- Tabs Header -->
+                            <div class="flex flex-wrap gap-2 mb-4" role="tablist">
+                                <?php foreach ($currentServices as $index => $service): ?>
+                                    <?php $tabId = 'svc-tab-' . $index; $panelId = 'svc-panel-' . $index; ?>
+                                    <button
+                                        id="<?php echo $tabId; ?>"
+                                        class="px-4 py-2 rounded-lg border text-sm font-semibold <?php echo $index === 0 ? 'bg-blue-900 text-white border-blue-900' : 'bg-white text-blue-900 border-blue-200 hover:bg-blue-50'; ?>"
+                                        onclick="showServiceTab(<?php echo $index; ?>)"
+                                        type="button"
+                                        role="tab"
+                                        aria-controls="<?php echo $panelId; ?>"
+                                        aria-selected="<?php echo $index === 0 ? 'true' : 'false'; ?>"
+                                    >
+                                        <?php echo htmlspecialchars(trim($service)); ?>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
+
+                            <!-- Tabs Panels -->
+                            <div class="mt-2">
+                                <?php foreach ($currentServices as $index => $service): ?>
+                                    <?php $panelId = 'svc-panel-' . $index; ?>
+                                    <div id="<?php echo $panelId; ?>" class="<?php echo $index === 0 ? '' : 'hidden'; ?>">
+                                        <!-- Service Header -->
+                                        <div class="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 mb-4">
+                                            <div class="flex items-center gap-2">
+                                                <input type="checkbox" checked class="w-4 h-4 text-blue-600 rounded border-gray-300">
+                                                <span class="font-semibold text-gray-900"><?php echo htmlspecialchars(trim($service)); ?></span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Required Documents -->
+                                        <div class="mb-4">
+                                            <h4 class="text-sm font-semibold text-gray-700 mb-2">Required Documents</h4>
                         <div class="space-y-3">
-                            <?php foreach ($currentServices as $index => $service): ?>
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center space-x-3">
-                                        <i class="fas fa-file-alt text-blue-600"></i>
-                                        <span class="font-medium text-gray-800"><?php echo htmlspecialchars($service); ?></span>
+                                                <label class="flex items-center gap-2 text-gray-800">
+                                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded border-gray-300" checked>
+                                                    <span>Valid Student ID</span>
+                                                </label>
+                                                <label class="flex items-center gap-2 text-gray-800">
+                                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded border-gray-300" checked>
+                                                    <span>Certificate of Registration</span>
+                                                </label>
+                                                <label class="flex items-center gap-2 text-gray-800">
+                                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded border-gray-300">
+                                                    <span>Payment Receipt</span>
+                                                </label>
+                                                <label class="flex items-center gap-2 text-gray-800">
+                                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded border-gray-300" checked>
+                                                    <span>2x2 ID Picture</span>
+                                                </label>
+                                            </div>
+                                            <!-- Verification Status Panel -->
+                                            <div class="mt-3 rounded-md bg-[#DCFCE7] border-l-4 border-l-[#28A745] flex items-center gap-3 px-4 py-2">
+                                                <div class="flex-shrink-0 w-6 h-6 bg-[#28A745] rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-check text-white text-xs"></i>
+                                                </div>
+                                                <span class="text-sm font-medium text-[#28A745]">3 of 4 documents verified</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Service Notes (only shown if there's a special note) -->
+                                        <?php 
+                                        // Get special note from queue details (check multiple possible field names)
+                                        $serviceNote = '';
+                                        if ($currentQueueDetails) {
+                                            $serviceNote = $currentQueueDetails['special_note'] ?? 
+                                                          $currentQueueDetails['notes'] ?? 
+                                                          $currentQueueDetails['stall_note'] ?? 
+                                                          $currentQueueDetails['service_note'] ?? '';
+                                        }
+                                        ?>
+                                        <?php if (!empty($serviceNote)): ?>
+                                        <div class="mb-4">
+                                            <h4 class="text-sm font-semibold text-[#111827] mb-2">Service Notes</h4>
+                                            <div class="rounded-lg bg-[#F9FAFB] border-l-4 border-l-[#D1D5DB] shadow-sm">
+                                                <div class="w-full px-3 py-2 bg-[#F9FAFB] rounded-lg text-[#111827] min-h-[60px]">
+                                                    <?php echo htmlspecialchars($serviceNote); ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php endif; ?>
+
+                                        <!-- Special Notes -->
+                                        <div class="mb-4">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <i class="fas fa-exclamation-circle text-yellow-500"></i>
+                                                <h4 class="text-sm font-semibold text-gray-700">Special Notes</h4>
                                     </div>
-                                    <span class="text-sm text-gray-500">#<?php echo $index + 1; ?></span>
+                                            <div class="border rounded-lg bg-gray-50">
+                                                <textarea class="w-full px-3 py-2 bg-gray-50 rounded-lg focus:outline-none text-gray-500" rows="2" placeholder="Student needs to submit additional documents for verification."></textarea>
                                 </div>
+                                        </div>
+
+                                        <button type="button" class="inline-flex items-center gap-2 border-2 border-dashed border-blue-300 text-blue-900 px-4 py-2 rounded-lg hover:bg-blue-50">
+                                            <span class="text-xl leading-none">+</span>
+                                            Add Note
+                                        </button>
                             </div>
                             <?php endforeach; ?>
                         </div>
@@ -231,7 +322,7 @@ $conn->close();
                     <div class="bg-white border border-gray-200 rounded-lg">
                         <div class="flex justify-between items-center px-5 py-3 border-b border-gray-200">
                             <h3 class="text-lg font-bold text-blue-900">Queue List</h3>
-                            <div class="bg-blue-900 text-white rounded-full w-8 h-8 flex items-center justify-center text-xs font-semibold">
+                            <div id="queueListTotalCount" class="bg-blue-900 text-white rounded-full w-8 h-8 flex items-center justify-center text-xs font-semibold">
                                 <?php echo count($waitingQueues) + count($stalledQueues) + count($skippedQueues); ?>
                             </div>
                         </div>
@@ -242,7 +333,7 @@ $conn->close();
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-users text-blue-600 w-4 h-4"></i>
                                     <h4 class="font-semibold text-blue-900 text-sm">Active Queue</h4>
-                                    <div class="bg-blue-900 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold">
+                                    <div id="activeQueueCount" class="bg-blue-900 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold">
                                         <?php echo count($waitingQueues); ?>
                                     </div>
                                 </div>
@@ -256,23 +347,46 @@ $conn->close();
                                 </div>
                                 <?php else: ?>
                                 <?php foreach ($waitingQueues as $queue): ?>
-                                <div class="px-5 py-3 hover:bg-gray-50">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <div class="flex items-center space-x-2">
-                                                <?php if ($queue['queue_type'] === 'priority'): ?>
-                                                <i class="fas fa-star text-yellow-500 text-xs"></i>
-                                                <?php endif; ?>
-                                                <span class="font-bold text-gray-900"><?php echo htmlspecialchars($queue['queue_number']); ?></span>
+                                <?php
+                                    $isPriority = ($queue['queue_type'] === 'priority');
+                                    $numColor = $isPriority ? '#DAA520' : '#003366';
+                                    
+                                    // Handle services display
+                                    $serviceName = 'Service Request';
+                                    $additionalServices = 0;
+                                    if (isset($queue['services']) && !empty($queue['services'])) {
+                                        $servicesArray = explode(', ', $queue['services']);
+                                        $serviceName = trim($servicesArray[0]);
+                                        $additionalServices = count($servicesArray) - 1;
+                                    } elseif (isset($queue['service_name'])) {
+                                        $serviceName = $queue['service_name'];
+                                    }
+                                ?>
+                                <div class="px-5 py-4 hover:bg-gray-50 border-b border-gray-100" data-created-at="<?php echo $queue['created_at']; ?>">
+                                    <div class="flex items-start justify-between">
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <?php if ($isPriority): ?><i class="fas fa-star text-yellow-500 text-xs"></i><?php endif; ?>
+                                                <span class="font-bold" style="color: <?php echo $numColor; ?>; "><?php echo htmlspecialchars($queue['queue_number']); ?></span>
                                             </div>
-                                            <p class="text-xs text-gray-600"><?php echo htmlspecialchars($queue['student_name']); ?></p>
+                                            <div class="text-sm text-gray-900 leading-tight"><?php echo htmlspecialchars($queue['student_name']); ?></div>
+                                            <div class="text-xs text-gray-500">
+                                                <?php echo htmlspecialchars($serviceName); ?>
+                                                <?php if ($additionalServices > 0): ?>
+                                                    <span class="text-blue-600 font-semibold"> +<?php echo $additionalServices; ?></span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="mt-2 text-xs text-blue-900 flex items-center gap-2">
+                                                <span class="w-2 h-2 bg-blue-600 rounded-full inline-block"></span>
+                                                <span>Waiting in queue</span>
+                                            </div>
                                         </div>
-                                        <span class="text-xs text-gray-500">
-                                            <?php 
-                                            $time = new DateTime($queue['created_at']);
-                                            echo $time->format('g:i A');
-                                            ?>
+                                        <div class="shrink-0">
+                                            <span class="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full active-queue-timer" style="background-color: #EFF6FF; color: #003366;">
+                                                <i class="fas fa-clock"></i>
+                                                <span class="active-timer-display">0 min</span>
                                         </span>
+                                        </div>
                                     </div>
                                 </div>
                                 <?php endforeach; ?>
@@ -286,7 +400,7 @@ $conn->close();
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-exclamation-triangle text-yellow-500 w-4 h-4"></i>
                                     <h4 class="font-semibold text-yellow-600 text-sm">Stalled Queue</h4>
-                                    <div class="bg-yellow-400 text-yellow-900 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold">
+                                    <div id="stalledQueueCount" class="bg-yellow-400 text-yellow-900 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold">
                                         <?php echo count($stalledQueues); ?>
                                     </div>
                                 </div>
@@ -300,11 +414,52 @@ $conn->close();
                                 </div>
                                 <?php else: ?>
                                 <?php foreach ($stalledQueues as $queue): ?>
-                                <div class="px-5 py-3 hover:bg-gray-50">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <span class="font-bold text-gray-900"><?php echo htmlspecialchars($queue['queue_number']); ?></span>
-                                            <p class="text-xs text-gray-600"><?php echo htmlspecialchars($queue['student_name']); ?></p>
+                                <?php
+                                    $isPriority = (($queue['queue_type'] ?? 'regular') === 'priority');
+                                    $numColor = $isPriority ? '#DAA520' : '#003366';
+                                    
+                                    // Handle services display
+                                    $serviceName = 'Service Request';
+                                    $additionalServices = 0;
+                                    if (isset($queue['services']) && !empty($queue['services'])) {
+                                        $servicesArray = explode(', ', $queue['services']);
+                                        $serviceName = trim($servicesArray[0]);
+                                        $additionalServices = count($servicesArray) - 1;
+                                    } elseif (isset($queue['service_name'])) {
+                                        $serviceName = $queue['service_name'];
+                                    }
+                                ?>
+                                <div class="px-5 py-4 hover:bg-gray-50 border-b border-gray-100" data-created-at="<?php echo $queue['created_at']; ?>">
+                                    <div class="flex items-start justify-between">
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <?php if ($isPriority): ?><i class="fas fa-star text-yellow-500 text-xs"></i><?php endif; ?>
+                                                <span class="font-bold" style="color: <?php echo $numColor; ?>; "><?php echo htmlspecialchars($queue['queue_number']); ?></span>
+                                            </div>
+                                            <div class="text-sm text-gray-900 leading-tight"><?php echo htmlspecialchars($queue['student_name']); ?></div>
+                                            <div class="text-xs text-gray-500">
+                                                <?php echo htmlspecialchars($serviceName); ?>
+                                                <?php if ($additionalServices > 0): ?>
+                                                    <span class="text-blue-600 font-semibold"> +<?php echo $additionalServices; ?></span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="mt-2">
+                                                <span class="inline-flex items-center gap-2 text-[11px] font-medium bg-yellow-50 text-yellow-800 px-3 py-1 rounded">
+                                                    <i class="fas fa-file text-yellow-600"></i>
+                                                    Missing Documents
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="shrink-0 text-right">
+                                            <div class="mb-2">
+                                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-rose-100 text-rose-600 px-2.5 py-1 rounded-full stalled-queue-timer">
+                                                    <i class="fas fa-clock"></i>
+                                                    <span class="stalled-timer-display">0 min</span>
+                                                </span>
+                                            </div>
+                                            <button class="px-4 py-2 bg-[#003366] hover:opacity-90 text-white rounded w-28 text-sm">
+                                                Resume
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -319,7 +474,7 @@ $conn->close();
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-times-circle text-red-600 w-4 h-4"></i>
                                     <h4 class="font-semibold text-red-600 text-sm">Skipped Queue</h4>
-                                    <div class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold">
+                                    <div id="skippedQueueCount" class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold">
                                         <?php echo count($skippedQueues); ?>
                                     </div>
                                 </div>
@@ -333,11 +488,47 @@ $conn->close();
                                 </div>
                                 <?php else: ?>
                                 <?php foreach ($skippedQueues as $queue): ?>
-                                <div class="px-5 py-3 hover:bg-gray-50">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <span class="font-bold text-gray-900"><?php echo htmlspecialchars($queue['queue_number']); ?></span>
-                                            <p class="text-xs text-gray-600"><?php echo htmlspecialchars($queue['student_name']); ?></p>
+                                <?php
+                                    $isPriority = (($queue['queue_type'] ?? 'regular') === 'priority');
+                                    $numColor = $isPriority ? '#DAA520' : '#003366';
+                                    
+                                    // Handle services display
+                                    $serviceName = 'Service Request';
+                                    $additionalServices = 0;
+                                    if (isset($queue['services']) && !empty($queue['services'])) {
+                                        $servicesArray = explode(', ', $queue['services']);
+                                        $serviceName = trim($servicesArray[0]);
+                                        $additionalServices = count($servicesArray) - 1;
+                                    } elseif (isset($queue['service_name'])) {
+                                        $serviceName = $queue['service_name'];
+                                    }
+                                    $queueId = $queue['id'] ?? 0;
+                                ?>
+                                <div class="px-5 py-4 hover:bg-gray-50 border-b border-gray-100" data-queue-id="<?php echo $queueId; ?>" data-created-at="<?php echo $queue['created_at']; ?>">
+                                    <div class="flex items-start justify-between">
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <?php if ($isPriority): ?><i class="fas fa-star text-yellow-500 text-xs"></i><?php endif; ?>
+                                                <span class="font-bold" style="color: <?php echo $numColor; ?>;"><?php echo htmlspecialchars($queue['queue_number']); ?></span>
+                                            </div>
+                                            <div class="text-sm text-gray-900 leading-tight"><?php echo htmlspecialchars($queue['student_name']); ?></div>
+                                            <div class="text-xs text-gray-500">
+                                                <?php echo htmlspecialchars($serviceName); ?>
+                                                <?php if ($additionalServices > 0): ?>
+                                                    <span class="text-blue-600 font-semibold"> +<?php echo $additionalServices; ?></span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                        <div class="shrink-0 text-right">
+                                            <div class="mb-2">
+                                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-red-100 text-red-600 px-2.5 py-1 rounded-full">
+                                                    <i class="fas fa-hourglass-half"></i>
+                                                    <span class="timer-display">0:00 left</span>
+                                                </span>
+                                            </div>
+                                            <button onclick="resumeSkippedQueue(<?php echo $queueId; ?>)" class="px-4 py-2 bg-[#003366] hover:opacity-90 text-white rounded w-28 text-sm font-medium">
+                                                Resume
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -348,28 +539,40 @@ $conn->close();
                     </div>
 
                     <!-- Today's Transaction Status -->
-                    <div class="bg-white border border-gray-200 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Today's Transaction Status</h3>
+                    <div class="bg-white border border-gray-200 rounded-lg p-6" style="background-color: #DBEAFE;">
+                        <h3 class="text-lg font-semibold mb-4" style="color: #003366;">Today's Transaction Status</h3>
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                <i class="fas fa-clock text-blue-600 text-2xl mb-2"></i>
-                                <p class="text-2xl font-bold text-gray-900"><?php echo $avgServiceTime; ?> min</p>
-                                <p class="text-sm text-gray-600">Avg Service Time</p>
+                            <!-- Average Service Time -->
+                            <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-3" style="background-color: #003366; box-shadow: 0 0 0 8px #EFF6FF;">
+                                    <i class="fas fa-clock text-white text-2xl"></i>
+                                </div>
+                                <p class="text-2xl font-bold mb-1" style="color: #003366;"><?php echo $avgServiceTime; ?> min</p>
+                                <p class="text-sm" style="color: #485563;">Avg Service Time</p>
                             </div>
-                            <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                <i class="fas fa-check-circle text-green-600 text-2xl mb-2"></i>
-                                <p class="text-2xl font-bold text-gray-900"><?php echo $completedCount; ?></p>
-                                <p class="text-sm text-gray-600">Completed</p>
+                            <!-- Completed -->
+                            <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-3" style="background-color: #28A745; box-shadow: 0 0 0 8px #DCFCE7;">
+                                    <i class="fas fa-check text-white text-2xl"></i>
+                                </div>
+                                <p class="text-2xl font-bold mb-1" style="color: #003366;"><?php echo $completedCount; ?></p>
+                                <p class="text-sm" style="color: #485563;">Completed</p>
                             </div>
-                            <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                <i class="fas fa-pause-circle text-yellow-600 text-2xl mb-2"></i>
-                                <p class="text-2xl font-bold text-gray-900"><?php echo count($stalledQueues); ?></p>
-                                <p class="text-sm text-gray-600">Stalled</p>
+                            <!-- Stalled -->
+                            <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-3" style="background-color: #FFD700; box-shadow: 0 0 0 8px rgba(255, 215, 0, 0.1);">
+                                    <i class="fas fa-pause text-white text-2xl"></i>
+                                </div>
+                                <p class="text-2xl font-bold mb-1" style="color: #003366;"><?php echo count($stalledQueues); ?></p>
+                                <p class="text-sm" style="color: #485563;">Stalled</p>
                             </div>
-                            <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                <i class="fas fa-times-circle text-red-600 text-2xl mb-2"></i>
-                                <p class="text-2xl font-bold text-gray-900"><?php echo count($skippedQueues); ?></p>
-                                <p class="text-sm text-gray-600">Skipped</p>
+                            <!-- Cancelled -->
+                            <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-3" style="background-color: #DC3545; box-shadow: 0 0 0 8px #FEE2E2;">
+                                    <i class="fas fa-times text-white text-2xl"></i>
+                                </div>
+                                <p id="statCancelled" class="text-2xl font-bold mb-1" style="color: #003366;"><?php echo count($skippedQueues); ?></p>
+                                <p class="text-sm" style="color: #485563;">Cancelled</p>
                             </div>
                         </div>
                     </div>
@@ -381,6 +584,26 @@ $conn->close();
     <?php include '../../Footer.php'; ?>
     
     <script>
+        // Service tabs controller
+        function showServiceTab(index) {
+            const panels = document.querySelectorAll('[id^="svc-panel-"]');
+            const tabs = document.querySelectorAll('[id^="svc-tab-"]');
+            for (let i = 0; i < panels.length; i++) {
+                const isActive = i === index;
+                if (isActive) {
+                    panels[i].classList.remove('hidden');
+                    tabs[i].classList.remove('bg-white', 'text-blue-900', 'border-blue-200');
+                    tabs[i].classList.add('bg-blue-900', 'text-white', 'border-blue-900');
+                    tabs[i].setAttribute('aria-selected', 'true');
+                } else {
+                    panels[i].classList.add('hidden');
+                    tabs[i].classList.remove('bg-blue-900', 'text-white', 'border-blue-900');
+                    tabs[i].classList.add('bg-white', 'text-blue-900', 'border-blue-200');
+                    tabs[i].setAttribute('aria-selected', 'false');
+                }
+            }
+        }
+
         const currentQueueId = <?php echo $currentQueue ? $currentQueue['id'] : 'null'; ?>;
         
         // Toggle queue section
@@ -438,8 +661,196 @@ $conn->close();
             window.location.href = 'queue_actions.php?action=next';
         }
         
-        // Auto-refresh every 15 seconds
-        setInterval(() => location.reload(), 15000);
+        // Resume skipped queue
+        function resumeSkippedQueue(queueId) {
+            if (confirm('Resume this skipped queue and put it back in the active queue?')) {
+                window.location.href = `queue_actions.php?action=resume&id=${queueId}`;
+            }
+        }
+        
+        // Get skip timeout from backend settings (backend-ready)
+        async function getSkipTimeout() {
+            try {
+                // TODO: Replace with actual API call
+                const response = await fetch('/api/admin/settings');
+                if (response.ok) {
+                    const settings = await response.json();
+                    const timeoutValue = settings.skipTimeout || 1;
+                    const timeoutUnit = settings.skipTimeoutUnit || 'hours';
+                    
+                    // Convert to seconds
+                    if (timeoutUnit === 'minutes') {
+                        return timeoutValue * 60;
+                    } else {
+                        return timeoutValue * 60 * 60; // hours to seconds
+                    }
+                }
+            } catch (error) {
+                console.log('Could not fetch timeout settings, using default');
+            }
+            // Default: 1 hour
+            return 60 * 60;
+        }
+        
+        // Cancel skipped queue via backend (backend-ready)
+        async function cancelSkippedQueue(queueId) {
+            try {
+                // TODO: Replace with actual API call
+                const response = await fetch(`queue_actions.php?action=cancel&id=${queueId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    return result.success || true;
+                }
+            } catch (error) {
+                console.log('Could not cancel queue via backend, removing from UI only');
+            }
+            // Fallback: Return true to allow UI update
+            return true;
+        }
+        
+        // Timer functionality for skipped queues (backend-ready)
+        async function startSkippedQueueTimers() {
+            const skippedQueueItems = document.querySelectorAll('#skippedQueue-content [data-queue-id]');
+            
+            // Get timeout from backend (or use default)
+            const totalSeconds = await getSkipTimeout();
+            
+            skippedQueueItems.forEach(item => {
+                const createdAt = item.getAttribute('data-created-at');
+                const queueId = item.getAttribute('data-queue-id');
+                if (!createdAt) return;
+                
+                const timerDisplay = item.querySelector('.timer-display');
+                if (!timerDisplay) return;
+                
+                // Calculate initial remaining time
+                const createdAtTime = new Date(createdAt).getTime();
+                
+                // Function to update timer display
+                const updateTimer = () => {
+                    const now = Date.now();
+                    const diff = now - createdAtTime;
+                    const remainingSeconds = Math.max(0, totalSeconds - Math.floor(diff / 1000));
+                    
+                    if (remainingSeconds <= 0) {
+                        // Timer expired - auto-cancel
+                        timerDisplay.textContent = 'Expired';
+                        timerDisplay.closest('.inline-flex').classList.remove('bg-red-100', 'text-red-600');
+                        timerDisplay.closest('.inline-flex').classList.add('bg-gray-300', 'text-gray-600');
+                        
+                        // Cancel queue via backend (backend-ready)
+                        cancelSkippedQueue(queueId).then(success => {
+                            // Remove from UI after a short delay
+                            setTimeout(() => {
+                                item.remove();
+                                // Update counts after removal
+                                updateQueueCounts();
+                            }, 2000);
+                        });
+                        
+                        clearInterval(timerInterval);
+                    } else {
+                        const minutes = Math.floor(remainingSeconds / 60);
+                        const seconds = remainingSeconds % 60;
+                        timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')} left`;
+                    }
+                };
+                
+                // Set initial time immediately
+                updateTimer();
+                
+                // Update timer every second
+                const timerInterval = setInterval(updateTimer, 1000);
+            });
+        }
+        
+        // Update queue counts after queue removal (backend-ready)
+        function updateQueueCounts() {
+            const skippedCount = document.getElementById('skippedQueueCount');
+            if (skippedCount) {
+                const skippedItems = document.querySelectorAll('#skippedQueue-content [data-queue-id]');
+                skippedCount.textContent = skippedItems.length;
+                
+                // Update cancelled count in statistics (backend-ready)
+                // TODO: When backend is connected, this should fetch actual cancelled count from API
+                const cancelledStat = document.getElementById('statCancelled');
+                if (cancelledStat) {
+                    cancelledStat.textContent = skippedItems.length;
+                }
+            }
+            
+            const totalCount = document.getElementById('queueListTotalCount');
+            if (totalCount) {
+                const activeItems = document.querySelectorAll('#activeQueue-content [data-created-at]').length;
+                const stalledItems = document.querySelectorAll('#stalledQueue-content [data-created-at]').length;
+                const skippedItems = document.querySelectorAll('#skippedQueue-content [data-queue-id]').length;
+                totalCount.textContent = activeItems + stalledItems + skippedItems;
+            }
+        }
+        
+        // Timer functionality for active queues
+        function startActiveQueueTimers() {
+            const activeQueueItems = document.querySelectorAll('#activeQueue-content [data-created-at]');
+            
+            activeQueueItems.forEach(item => {
+                const createdAt = item.getAttribute('data-created-at');
+                if (!createdAt) return;
+                
+                const timerDisplay = item.querySelector('.active-timer-display');
+                if (!timerDisplay) return;
+                
+                // Set initial time
+                const createdAtTime = new Date(createdAt).getTime();
+                const now = Date.now();
+                const diff = now - createdAtTime;
+                let elapsedMinutes = Math.max(0, Math.floor(diff / 60000));
+                timerDisplay.textContent = `${elapsedMinutes} min`;
+                
+                // Update timer every minute
+                const timerInterval = setInterval(() => {
+                    elapsedMinutes++;
+                    timerDisplay.textContent = `${elapsedMinutes} min`;
+                }, 60000); // Update every minute
+            });
+        }
+        
+        // Timer functionality for stalled queues
+        function startStalledQueueTimers() {
+            const stalledQueueItems = document.querySelectorAll('#stalledQueue-content [data-created-at]');
+            
+            stalledQueueItems.forEach(item => {
+                const createdAt = item.getAttribute('data-created-at');
+                if (!createdAt) return;
+                
+                const timerDisplay = item.querySelector('.stalled-timer-display');
+                if (!timerDisplay) return;
+                
+                // Set initial time
+                const createdAtTime = new Date(createdAt).getTime();
+                const now = Date.now();
+                const diff = now - createdAtTime;
+                let elapsedMinutes = Math.max(0, Math.floor(diff / 60000));
+                timerDisplay.textContent = `${elapsedMinutes} min`;
+                
+                // Update timer every minute
+                const timerInterval = setInterval(() => {
+                    elapsedMinutes++;
+                    timerDisplay.textContent = `${elapsedMinutes} min`;
+                }, 60000); // Update every minute
+            });
+        }
+        
+        // Initialize timers when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            startSkippedQueueTimers();
+            startActiveQueueTimers();
+            startStalledQueueTimers();
+        });
     </script>
 </body>
 </html>

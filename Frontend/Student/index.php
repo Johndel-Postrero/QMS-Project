@@ -1,6 +1,6 @@
 <?php
 // Redirect any direct access to this folder's index to the site's main index
-$target = '/index.php';
+$target = '/QMS-Project/index.php';
 
 // Prefer HTTP redirect
 header('Location: ' . $target, true, 302);

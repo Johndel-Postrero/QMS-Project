@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endforeach; ?>
                 </fieldset>
                 
-                <div class="mt-8 flex justify-center" style="gap: 80px;">
+                <div class="mt-4 flex justify-center" style="gap: 80px;">
                     <button class="flex items-center gap-2 border border-gray-300 rounded-md text-gray-700 text-sm hover:bg-gray-100 transition font-medium" 
                             type="button" onclick="window.location.href='QueueRequest.php'" style="padding: 16px 32px; width: 130px; height: 36px; justify-content: center;">
                         <i class="fas fa-arrow-left text-sm"></i>

@@ -156,10 +156,13 @@ function getWaitingQueuesList($conn, $limit = 10) {
                 q.course_program,
                 q.services_count,
                 q.created_at,
-                q.status
+                q.status,
+                GROUP_CONCAT(qs.service_name SEPARATOR ', ') as services
             FROM queues q
+            LEFT JOIN queue_services qs ON q.id = qs.queue_id
             WHERE q.status = 'waiting'
             AND DATE(q.created_at) = CURDATE()
+            GROUP BY q.id
             ORDER BY 
                 CASE WHEN q.queue_type = 'priority' THEN 0 ELSE 1 END,
                 q.created_at ASC

@@ -17,10 +17,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // We'll try to match both the numeric value and the raw string to be tolerant.
         $studentIdDigits = preg_replace('/\D+/', '', $username);
 
-        $stmt = $conn->prepare('SELECT FullName, StudentID, Email, Course, YearLevel, Password FROM Accounts WHERE StudentID = ? OR StudentID = ? LIMIT 1');
+        $stmt = $conn->prepare('SELECT FullName, StudentID, Email, Course, YearLevel, Password FROM Accounts WHERE StudentID = ? OR StudentID = ? OR Email = ? OR LOWER(Email) = LOWER(?) LIMIT 1');
         if ($stmt) {
             $studentId = (int)$studentIdDigits;
-            $stmt->bind_param('is', $studentId, $username);
+            $stmt->bind_param('isss', $studentId, $username, $username, $username);
             $stmt->execute();
             $result = $stmt->get_result();
             $row = $result ? $result->fetch_assoc() : null;
@@ -35,15 +35,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $passwordMatches = hash_equals($dbPassword, $password);
                 }
                 if ($passwordMatches) {
+                    // Determine role with fallbacks
+                    $role = 'working_scholar';
+                    if (isset($row['Role']) && is_string($row['Role']) && strtolower($row['Role']) === 'admin') {
+                        $role = 'admin';
+                    } else if (isset($row['Course']) && strcasecmp((string)$row['Course'], 'ADMIN') === 0) {
+                        $role = 'admin';
+                    } else if (isset($row['Email']) && preg_match('/^admin@/i', (string)$row['Email'])) {
+                        $role = 'admin';
+                    }
+
                     $_SESSION['user'] = [
                         'studentId' => (string)$row['StudentID'],
                         'fullName' => $row['FullName'],
                         'email' => $row['Email'],
                         'course' => $row['Course'],
                         'yearLevel' => $row['YearLevel'],
-                        'role' => 'working_scholar'
+                        'role' => $role
                     ];
-                    header('Location: Working/Queue.php');
+                    if ($role === 'admin') {
+                        header('Location: Admin/Dashboard.php');
+                    } else {
+                        header('Location: Working/Queue.php');
+                    }
                     exit;
                 } else {
                     $loginError = 'Invalid credentials. Please try again.';
@@ -94,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <span class="absolute inset-y-0 left-3 flex items-center text-blue-700">
                         <i class="fas fa-id-badge"></i>
                     </span>
-                    <input autocomplete="username" class="w-full border border-gray-300 rounded-md py-2 pl-10 pr-3 text-gray-500 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent" id="username" name="username" placeholder="e.g., WS2024-001" type="text"/>
+                    <input autocomplete="username" class="w-full border border-gray-300 rounded-md py-2 pl-10 pr-3 text-gray-500 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent" id="username" name="username" placeholder="e.g., WS21411277" type="text"/>
                 </div>
             </div>
             <div>
@@ -116,11 +130,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p class="text-xs text-gray-500">Only use on trusted office computers</p>
             <button class="w-full bg-blue-900 text-white font-medium rounded-md py-3 mt-2 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-700" type="submit">Login</button>
             <div class="flex justify-end">
-                <a class="text-blue-600 text-sm hover:underline" href="ForgotPassword.php">Forgot Password?</a>
+                <button type="button" class="text-blue-600 text-sm hover:underline" onclick="openForgotPasswordModal()">Forgot Password?</button>
             </div>
             <p class="text-center text-xs text-gray-600">First time login? Check with supervisor</p>
         </form>
     </main>
+    
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 relative">
+            <!-- Close Button -->
+            <button onclick="closeForgotPasswordModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            
+            <!-- Icon -->
+            <div class="flex justify-center mb-6">
+                <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-key text-blue-600 text-3xl"></i>
+                </div>
+            </div>
+            
+            <!-- Title and Message -->
+            <h2 class="text-2xl font-bold text-gray-900 text-center mb-4">
+                Forgot Password?
+            </h2>
+            <p class="text-gray-600 text-center mb-6 leading-relaxed">
+                No worries! Contact your administrator to reset or retrieve your password.
+            </p>
+            
+            <!-- Admin Contact Info Box -->
+            <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user-shield text-white"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900 mb-1">Contact Administrator</h3>
+                        <p class="text-xs text-gray-600">Reach out to your system admin to get your password reset or recovered.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Close Button -->
+            <button onclick="closeForgotPasswordModal()" class="w-full bg-blue-900 text-white font-semibold py-3 rounded-lg hover:bg-blue-800 transition">
+                Got it, thanks!
+            </button>
+        </div>
+    </div>
+    
     <!-- Include Footer -->
     <?php include '../Footer.php'; ?>
     
@@ -139,6 +199,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 toggleIcon.classList.add('fa-eye');
             }
         }
+        
+        function openForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').classList.remove('hidden');
+        }
+        
+        function closeForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').classList.add('hidden');
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('forgotPasswordModal')?.addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeForgotPasswordModal();
+            }
+        });
+        
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeForgotPasswordModal();
+            }
+        });
     </script>
 </body>
 </html>
