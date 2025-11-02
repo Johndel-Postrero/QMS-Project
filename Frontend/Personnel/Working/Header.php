@@ -50,10 +50,6 @@
 <!-- User Dropdown Menu (Hidden by default) -->
 <div id="profileDropdown" class="absolute right-6 top-16 w-64 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50">
                 <div class="p-3">
-                    <button onclick="window.location.href='#'" class="w-full flex items-center space-x-3 px-4 py-3 text-left text-gray-700 bg-blue-100 hover:bg-blue-200 transition rounded-lg mb-2">
-                        <i class="fas fa-cog text-xl"></i>
-                        <span class="font-medium text-lg">Settings</span>
-                    </button>
                     <button onclick="showLogoutModal()" class="w-full flex items-center space-x-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-100 transition rounded-lg">
                         <i class="fas fa-sign-out-alt text-xl"></i>
                         <span class="font-medium text-lg">Logout</span>

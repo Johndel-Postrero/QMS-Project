@@ -145,14 +145,13 @@ $project_stats = [
         }
 
         /* Ensure each slide card fills the slide and cards are same height */
-        .carousel-slide > .rounded-lg {
+        .carousel-slide > .rounded-xl {
             display: flex;
             flex-direction: column;
             height: 100%;
-            min-height: 520px; /* Increased height to accommodate taller blue section */
         }
         /* Make the white info panel stretch so all cards align bottoms */
-        .carousel-slide > .rounded-lg > .bg-white {
+        .carousel-slide > .rounded-xl > .bg-white {
             flex: 1 1 auto;
         }
 
@@ -167,20 +166,20 @@ $project_stats = [
 
         /* darker card top */
         .team-card-top,
-        .carousel-slide > .rounded-lg > .bg-uc-blue,
-        .carousel-slide > .rounded-lg > .team-card-top {
+        .carousel-slide > .rounded-xl > .bg-uc-blue,
+        .carousel-slide > .rounded-xl > .team-card-top {
             background: linear-gradient(180deg, #083163 0%, #0b4b7a 100%);
             flex-shrink: 0;
         }
 
         /* Center absolute avatar horizontally and keep same overlap */
-        .carousel-slide .rounded-lg .w-28.absolute {
+        .carousel-slide .rounded-xl .w-28.absolute {
             left: 50%;
             transform: translateX(-50%);
         }
 
         /* Ensure avatar image is centered/cropped consistently */
-        .carousel-slide .rounded-lg .w-28 img {
+        .carousel-slide .rounded-xl .w-28 img {
             object-fit: cover;
             object-position: center;
         }
@@ -196,13 +195,13 @@ $project_stats = [
             color: white;
             font-size: 24px;
         }
-           .carousel-slide .rounded-lg .team-avatar {
+           .carousel-slide .rounded-xl .team-avatar {
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            width: 10rem;   /* matches w-28 */
-            height: 10rem;  /* matches h-28 */
+            width: 12rem;   /* increased size */
+            height: 12rem;  /* increased size */
             border-radius: 9999px;
             border: 4px solid var(--uc-yellow, #fbbf24);
             background: #fff;
@@ -211,7 +210,7 @@ $project_stats = [
             align-items: center;
             justify-content: center;
         }
-        .carousel-slide .rounded-lg .team-avatar img {
+        .carousel-slide .rounded-xl .team-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -219,12 +218,12 @@ $project_stats = [
         }
 
         /* add a little extra top padding so white panel doesn't overlap when avatar is centered */
-        .carousel-slide > .rounded-lg > .bg-white {
+        .carousel-slide > .rounded-xl > .bg-white {
             padding-top: 0.5rem; /* further reduced to shrink white panel height */
         }
         
         /* Team card separator line */
-        .carousel-slide > .rounded-lg > .bg-white hr {
+        .carousel-slide > .rounded-xl > .bg-white hr {
             border: none !important;
             height: 1px !important;
             background-color: #d1d5db !important;
@@ -356,10 +355,12 @@ $project_stats = [
     <!-- Meet The Team Section -->
     <section class="py-12 relative team-bg">
         <div class="px-6 md:px-10 mx-20 md:mx-34 lg:mx-44">
-            <h2 class="text-3xl font-bold text-white text-center mb-3">Meet The Team</h2>
+            <h2 class="text-4xl font-bold text-white text-center mb-3">Meet The Team</h2>
             <p class="text-lg text-black text-center mb-8">Charlie Three Group - IT-TESQUA 31 (MW)</p>
-            <!-- Carousel Container -->
-           <div class="carousel-container relative overflow-hidden">
+        </div>
+        <!-- Carousel Container with arrows -->
+        <div class="px-6 md:px-10 mx-10 md:mx-34 lg:mx-60 relative">
+           <div class="carousel-container mx-5 relative overflow-hidden">
                 <div class="carousel-track flex" id="carouselTrack">
                     <?php 
                         $visibleCount = 3; // number of cards visible at once (w-1/3)
@@ -368,48 +369,48 @@ $project_stats = [
                         for ($i = $total - $visibleCount; $i < $total; $i++): 
                             $member = $team_members[$i];
                         ?>
-                     <div class="carousel-slide flex-shrink-0 w-1/3 px-2" data-clone="prepend">
-                        <div class="rounded-lg shadow-lg overflow-hidden">
+                     <div class="carousel-slide flex-shrink-0 w-1/3 px-5" data-clone="prepend">
+                        <div class="rounded-xl shadow-lg overflow-hidden">
                             <!-- top blue panel with gradient -->
-                            <div class="team-card-top h-72 flex items-center justify-center relative">
+                            <div class="team-card-top h-80 flex items-center justify-center relative">
                                 <!-- avatar centered in blue panel -->
                                 <div class="team-avatar">
                                     <img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>">
                                 </div>
                             </div>
                             <!-- white info panel -->
-                            <div class="bg-white pt-2 pb-3 px-6">
-                                <div class="flex items-center justify-start mb-2">
-                                    <div class="inline-block bg-uc-blue text-white text-xs px-4 py-1.5 rounded-full uppercase font-semibold"><?php echo $member['role']; ?></div>
+                            <div class="bg-white pt-2 pb-6 px-6">
+                                <div class="flex items-center justify-start mb-2 mt-4">
+                                    <div class="inline-block bg-uc-blue text-white text-sm px-4 py-1.5 rounded-full uppercase font-semibold"><?php echo $member['role']; ?></div>
                                 </div>
-                                <h3 class="text-xl font-bold text-gray-900 mb-1"><?php echo $member['name']; ?></h3>
-                                <div class="text-sm text-gray-600 mb-2"><?php echo $member['full_name']; ?></div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-1"><?php echo $member['name']; ?></h3>
+                                <div class="text-base text-gray-600 mb-2"><?php echo $member['full_name']; ?></div>
                                 <hr class="my-2 h-px bg-gray-300 border-0">
-                                <p class="text-sm text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
+                                <p class="text-base text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
                             </div>
                         </div>
                     </div>
                     <?php endfor; ?>
 
                     <?php foreach($team_members as $member): ?>
-                      <div class="carousel-slide flex-shrink-0 w-1/3 px-2">
-                        <div class="rounded-lg shadow-lg overflow-hidden">
+                      <div class="carousel-slide flex-shrink-0 w-1/3 px-5">
+                        <div class="rounded-xl shadow-lg overflow-hidden">
                             <!-- top blue panel with gradient -->
-                            <div class="team-card-top h-72 flex items-center justify-center relative">
+                            <div class="team-card-top h-80 flex items-center justify-center relative">
                                 <!-- avatar centered in blue panel -->
                                 <div class="team-avatar">
                                     <img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>">
                                 </div>
                             </div>
                             <!-- white info panel -->
-                            <div class="bg-white pt-2 pb-3 px-6">
-                                <div class="flex items-center justify-start mb-2">
-                                    <div class="inline-block bg-uc-blue text-white text-xs px-4 py-1.5 rounded-full uppercase font-semibold"><?php echo $member['role']; ?></div>
+                            <div class="bg-white pt-2 pb-6 px-6">
+                                <div class="flex items-center justify-start mb-2 mt-4">
+                                    <div class="inline-block bg-uc-blue text-white text-sm px-4 py-1.5 rounded-full uppercase font-semibold"><?php echo $member['role']; ?></div>
                                 </div>
-                                <h3 class="text-xl font-bold text-gray-900 mb-1"><?php echo $member['name']; ?></h3>
-                                <div class="text-sm text-gray-600 mb-2"><?php echo $member['full_name']; ?></div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-1"><?php echo $member['name']; ?></h3>
+                                <div class="text-base text-gray-600 mb-2"><?php echo $member['full_name']; ?></div>
                                 <hr class="my-2 h-px bg-gray-300 border-0">
-                                <p class="text-sm text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
+                                <p class="text-base text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
                             </div>
                         </div>
                     </div>
@@ -420,24 +421,24 @@ $project_stats = [
                         for ($i = 0; $i < $visibleCount; $i++): 
                             $member = $team_members[$i];
                         ?>
-                    <div class="carousel-slide flex-shrink-0 w-1/3 px-2" data-clone="append">
-                        <div class="rounded-lg shadow-lg overflow-hidden">
+                    <div class="carousel-slide flex-shrink-0 w-1/3 px-5" data-clone="append">
+                        <div class="rounded-xl shadow-lg overflow-hidden">
                             <!-- top blue panel with gradient -->
-                            <div class="team-card-top h-72 flex items-center justify-center relative">
+                            <div class="team-card-top h-80 flex items-center justify-center relative">
                                 <!-- avatar centered in blue panel -->
                                 <div class="team-avatar">
                                     <img src="<?php echo $member['image']; ?>" alt="<?php echo $member['name']; ?>">
                                 </div>
                             </div>
                             <!-- white info panel -->
-                            <div class="bg-white pt-2 pb-3 px-6">
-                                <div class="flex items-center justify-start mb-2">
-                                    <div class="inline-block bg-uc-blue text-white text-xs px-4 py-1.5 rounded-full uppercase font-semibold"><?php echo $member['role']; ?></div>
+                            <div class="bg-white pt-2 pb-6 px-6">
+                                <div class="flex items-center justify-start mb-2 mt-4">
+                                    <div class="inline-block bg-uc-blue text-white text-sm px-4 py-1.5 rounded-full uppercase font-semibold"><?php echo $member['role']; ?></div>
                                 </div>
-                                <h3 class="text-xl font-bold text-gray-900 mb-1"><?php echo $member['name']; ?></h3>
-                                <div class="text-sm text-gray-600 mb-2"><?php echo $member['full_name']; ?></div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-1"><?php echo $member['name']; ?></h3>
+                                <div class="text-base text-gray-600 mb-2"><?php echo $member['full_name']; ?></div>
                                 <hr class="my-2 h-px bg-gray-300 border-0">
-                                <p class="text-sm text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
+                                <p class="text-base text-gray-700 leading-relaxed"><?php echo $member['description']; ?></p>
                             </div>
                         </div>
                     </div>
@@ -445,14 +446,14 @@ $project_stats = [
                 </div>
             </div>
 
-            <!-- Navigation Arrows: placed outside the overflow-hidden container -->
-            <button onclick="previousSlide()" class="absolute left-40 top-1/2 transform -translate-y-1/2 bg-uc-blue text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:scale-105 transition-all z-10">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <!-- Navigation Arrows: aligned with section container -->
+            <button onclick="previousSlide()" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-uc-blue text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:scale-105 transition-all z-10">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
             </button>
-            <button onclick="nextSlide(); resetTimer();" class="absolute right-40 top-1/2 transform -translate-y-1/2 bg-uc-blue text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:scale-105 transition-all z-10">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onclick="nextSlide(); resetTimer();" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-uc-blue text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:scale-105 transition-all z-10">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
             </button>

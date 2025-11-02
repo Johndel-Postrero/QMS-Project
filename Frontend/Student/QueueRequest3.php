@@ -205,7 +205,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
                 
                 <!-- Selected Services Section -->
                 <h3 class="text-blue-900 font-semibold mb-4 text-sm">Selected Services</h3>
-                <div class="space-y-3 mb-8">
+                <div class="space-y-3 mb-4">
                     <?php if (empty($selectedServices)): ?>
                     <div class="bg-white border border-slate-200 rounded-lg p-4 text-center shadow-sm">
                         <p class="text-slate-500 text-sm">No services selected. Please go back to Step 2 to select services.</p>
@@ -229,14 +229,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['final_submit'])) {
                     <?php endif; ?>
                 </div>
                 
-                <div class="flex justify-center gap-8">
-                    <button class="flex items-center gap-2 border border-slate-300 rounded-md text-slate-700 text-sm hover:bg-slate-100 transition font-medium px-6 py-3 min-w-[120px] justify-center" 
-                            type="button" onclick="window.location.href='QueueRequest2.php'">
+                <div class="flex justify-center" style="gap: 80px;">
+                    <button class="flex items-center gap-2 border border-slate-300 rounded-md text-slate-700 text-sm hover:bg-slate-100 transition font-medium" 
+                            type="button" onclick="window.location.href='QueueRequest2.php'" style="padding: 16px 32px; width: 130px; height: 36px; justify-content: center;">
                         <i class="fas fa-arrow-left text-sm"></i>
                         Back
                     </button>
-                    <button class="bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition flex items-center justify-center gap-2 font-medium px-6 py-3 min-w-[120px]" 
-                            type="button" onclick="showDocumentsModal()">
+                    <button class="bg-blue-900 text-white rounded-md text-sm hover:bg-blue-800 transition flex items-center justify-center gap-2 font-medium" 
+                            type="button" onclick="showPriorityModal()" style="padding: 16px 32px; width: 130px; height: 36px;">
                         Next
                         <i class="fas fa-arrow-right text-sm"></i>
                     </button>

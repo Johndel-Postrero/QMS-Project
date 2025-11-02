@@ -2,11 +2,21 @@
 // Database Configuration File
 // Create this file in your project root directory
 
-// Database credentials
-define('DB_HOST', 'sql204.byethost5.com');
-define('DB_USER', 'b5_40277518');
-define('DB_PASS', 'euwen123');
-define('DB_NAME', 'b5_40277518_QMS');
+// Database credentials (auto-switch: local vs remote)
+$__host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+$__isLocal = in_array($__host, ['localhost', '127.0.0.1']) || PHP_SAPI === 'cli';
+
+if ($__isLocal) {
+    define('DB_HOST', '127.0.0.1'); // XAMPP MySQL
+    define('DB_USER', 'root');      // XAMPP default
+    define('DB_PASS', '');          // XAMPP default (empty password)
+    define('DB_NAME', 'b5_40277518_QMS'); // Create this DB locally
+} else {
+    define('DB_HOST', 'sql204.byethost5.com');
+    define('DB_USER', 'b5_40277518');
+    define('DB_PASS', 'euwen123'); // Ensure matches cPanel password in production
+    define('DB_NAME', 'b5_40277518_QMS');
+}
 
 // Create database connection
 function getDBConnection() {
